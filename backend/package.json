@@ -19,14 +19,17 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/Rezashahidi86/Aseman/issues"
   },
   "homepage": "https://github.com/Rezashahidi86/Aseman#readme",
   "dependencies": {
+    "cors": "^2.8.6",
     "dotenv": "^18.0.9",
     "express": "^5.3.0",
+    "express-rate-limit": "^8.7.1",
+    "helmet": "^8.3.0",
     "mongoose": "^9.11.4",
     "morgan": "^1.12.1",
     "nodemon": "^3.1.14",
