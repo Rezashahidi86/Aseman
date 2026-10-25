@@ -4,11 +4,11 @@ import morgan from 'morgan';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
 import errorMiddleware from './middlewares/errorMiddleware.js';
 import notFoundMiddleware from './middlewares/notFoundMiddleware.js';
 import env from './config/env.js';
 import API_PREFIX from './constants/api.js';
+import router from './routes/index.js';
 
 dotenv.config();
 
@@ -17,6 +17,8 @@ const allowedOrigins = env.CORS_ORIGINS.split(',').map((origin) =>
   origin.trim(),
 );
 
+
+app.use(helmet());
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -29,27 +31,9 @@ app.use(
     credentials: true,
   }),
 );
-app.use(helmet());
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 100,
-  standardHeaders: 'draft-8',
-  legacyHeaders: false,
-  message: {
-    status: 'fail',
-    message: 'Too many requests. Please try again later.',
-  },
-});
-
-app.use(limiter);
-app.use(express.json({ limit: '10kb' }));
-app.use(morgan('dev'));
-app.get(`${API_PREFIX}/health`, (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    message: 'Server is healthy',
-  });
-});
+app.use(express.json({ limit: "10kb" }));
+app.use(morgan("dev"));
+app.use(API_PREFIX, router);
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
 

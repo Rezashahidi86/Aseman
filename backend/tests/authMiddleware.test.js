@@ -1,18 +1,19 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import jwt from "jsonwebtoken";
-import authMiddleware from "../middlewares/authMiddleware.js";
-import requireAdmin from "../middlewares/roleMiddleware.js";
-import AppError from "../utils/AppError.js";
-import User from "../models/User.js";
-import ROLES from "../constants/roles.js";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import jwt from 'jsonwebtoken';
+import authMiddleware from '../middlewares/authMiddleware.js';
+import requireAdmin from '../middlewares/roleMiddleware.js';
+import AppError from '../utils/AppError.js';
+import ROLES from '../constants/roles.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
-vi.mock("../models/User.js", () => ({
+vi.mock('../models/User.js', () => ({
   default: {
     findById: vi.fn(),
   },
 }));
 
-describe("Authentication and authorization middleware", () => {
+describe('Authentication and authorization middleware', () => {
   let req;
   let res;
   let next;
@@ -25,8 +26,8 @@ describe("Authentication and authorization middleware", () => {
     next = vi.fn();
   });
 
-  it("should reject an invalid token", async () => {
-    req.headers.authorization = "Bearer invalid-token";
+  it('should reject an invalid token', async () => {
+    req.headers.authorization = 'Bearer invalid-token';
 
     await authMiddleware(req, res, next);
 
@@ -37,9 +38,9 @@ describe("Authentication and authorization middleware", () => {
     );
   });
 
-  it("should reject an expired token", async () => {
+  it('should reject an expired token', async () => {
     const token = jwt.sign(
-      { sub: "507f1f77bcf86cd799439011" },
+      { sub: '507f1f77bcf86cd799439011' },
       process.env.JWT_SECRET,
       { expiresIn: -1 },
     );
@@ -55,7 +56,7 @@ describe("Authentication and authorization middleware", () => {
     );
   });
 
-  it("should reject a user with an unauthorized role", () => {
+  it('should reject a user with an unauthorized role', () => {
     req.user = { role: ROLES.SELLER };
 
     requireAdmin(req, res, next);
@@ -64,7 +65,7 @@ describe("Authentication and authorization middleware", () => {
     expect(next.mock.calls[0][0].statusCode).toBe(403);
   });
 
-  it("should allow an admin", () => {
+  it('should allow an admin', () => {
     req.user = { role: ROLES.ADMIN };
 
     requireAdmin(req, res, next);

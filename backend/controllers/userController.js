@@ -9,11 +9,6 @@ import { updateUserSchema } from '../validators/userValidators.js';
 export const createSeller = async (req, res, next) => {
   try {
     const data = createUserSchema.parse(req.body);
-
-    if (data.role !== ROLES.SELLER) {
-      throw new AppError('Only sellers can be created here', 400);
-    }
-
     const branch = await Branch.findById(data.branch);
 
     if (!branch || !branch.isActive) {

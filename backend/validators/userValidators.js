@@ -15,8 +15,6 @@ export const createUserSchema = z
 
     password: z.string().min(8, 'Password must be at least 8 characters'),
 
-    role: z.enum([ROLES.ADMIN, ROLES.SELLER]),
-
     branch: z
       .string()
       .regex(/^[a-f\d]{24}$/i, 'Invalid branch ID')

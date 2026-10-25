@@ -24,7 +24,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: Object.values(ROLES),
       default: ROLES.SELLER,
-      required: true,
     },
     branch: {
       type: mongoose.Schema.Types.ObjectId,
@@ -40,6 +39,7 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
+
 
 const User = mongoose.model('User', userSchema);
 
