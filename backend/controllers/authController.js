@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import AppError from '../utils/AppError.js';
 import { loginSchema } from '../validators/authValidators.js';
 import { comparePassword } from '../services/passwordService.js';
+import env from '../config/env.js';
 
 export const login = async (req, res, next) => {
   try {
@@ -22,8 +23,8 @@ export const login = async (req, res, next) => {
 
     const token = jwt.sign(
       { sub: user._id.toString(), role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' },
+      env.JWT_SECRET,
+      { expiresIn: env.JWT_EXPIRES_IN },
     );
 
     res.status(200).json({
