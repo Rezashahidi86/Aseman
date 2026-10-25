@@ -69,6 +69,16 @@ describe('Product branch isolation in controllers', () => {
     expect(res.json).not.toHaveBeenCalled();
   });
 
+  it('rejects an invalid product ID before querying the database', async () => {
+    req.params.id = 'invalid-id';
+
+    await updateProduct(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({ statusCode: 400 }),
+    );
+    expect(Product.findOne).not.toHaveBeenCalled();
+  });
   it('does not update a product belonging to another branch', async () => {
     await updateProduct(req, res, next);
 
