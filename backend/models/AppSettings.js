@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const appSettingsSchema = new mongoose.Schema(
   {
@@ -14,6 +14,6 @@ const appSettingsSchema = new mongoose.Schema(
   },
 );
 
-const AppSettings = mongoose.model("AppSettings", appSettingsSchema);
+const AppSettings = mongoose.model('AppSettings', appSettingsSchema);
 
 export default AppSettings;

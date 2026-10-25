@@ -1,8 +1,8 @@
-import mongoose from "mongoose";
-import dotenv from "dotenv";
-import bcrypt from "bcryptjs";
-import User from "../models/User.js";
-import ROLES from "../constants/roles.js";
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import bcrypt from 'bcryptjs';
+import User from '../models/User.js';
+import ROLES from '../constants/roles.js';
 
 dotenv.config();
 
@@ -12,7 +12,7 @@ const seedAdmin = async () => {
       process.env;
 
     if (!DATABASE_URL || !ADMIN_NAME || !ADMIN_EMAIL || !ADMIN_PASSWORD) {
-      throw new Error("Required environment variables are missing");
+      throw new Error('Required environment variables are missing');
     }
 
     await mongoose.connect(DATABASE_URL);
@@ -34,9 +34,9 @@ const seedAdmin = async () => {
       { upsert: true },
     );
 
-    console.log("Admin seed completed successfully");
+    console.log('Admin seed completed successfully');
   } catch (error) {
-    console.error("Admin seed failed:", error.message);
+    console.error('Admin seed failed:', error.message);
     process.exitCode = 1;
   } finally {
     await mongoose.disconnect();

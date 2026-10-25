@@ -21,8 +21,6 @@ const validateMiddleware = (schema, property = 'body') => {
 
 export default validateMiddleware;
 
-
-
 // طریقه استفاده
 // validateMiddleware(createUserSchema, "body");
 // validateMiddleware(userParamsSchema, "params");
