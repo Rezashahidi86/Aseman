@@ -12,6 +12,20 @@ import sortAllowlist from '../utils/sortAllowlist.js';
 import fieldSelection from '../utils/fieldSelection.js';
 import validateMongoId from '../utils/validateMongoId.js';
 
+const handleProductDuplicateKey = (error, next) => {
+  if (error.code !== 11000) {
+    return next(error);
+  }
+
+  if (error.keyPattern?.barcode) {
+    return next(new AppError('Barcode already exists in this branch', 409));
+  }
+
+  return next(
+    new AppError('Product conflicts with an existing record in this branch', 409),
+  );
+};
+
 const createProduct = async (req, res, next) => {
   try {
     const validation = createProductSchema.safeParse(req.body);
@@ -46,14 +60,9 @@ const createProduct = async (req, res, next) => {
       data: { product },
     });
   } catch (error) {
-    if (error.code === 11000) {
-      return next(new AppError('Barcode already exists in this branch', 409));
-    }
-
-    return next(error);
+    return handleProductDuplicateKey(error, next);
   }
 };
-
 
 const getProducts = async (req, res, next) => {
   try {
@@ -67,26 +76,26 @@ const getProducts = async (req, res, next) => {
     } = pagination(page, limit);
 
     const allowedSortFields = [
-      "name",
-      "barcode",
-      "purchasePrice",
-      "salePrice",
-      "quantity",
-      "salesCount",
-      "createdAt",
+      'name',
+      'barcode',
+      'purchasePrice',
+      'salePrice',
+      'quantity',
+      'salesCount',
+      'createdAt',
     ];
 
     const allowedFields = [
-      "name",
-      "barcode",
-      "purchasePrice",
-      "salePrice",
-      "quantity",
-      "salesCount",
-      "branch",
-      "createdAt",
-      "updatedAt",
-      "minimumStock"
+      'name',
+      'barcode',
+      'purchasePrice',
+      'salePrice',
+      'quantity',
+      'salesCount',
+      'branch',
+      'createdAt',
+      'updatedAt',
+      'minimumStock',
     ];
 
     const sortOption = sort
@@ -94,14 +103,14 @@ const getProducts = async (req, res, next) => {
       : { createdAt: -1 };
 
     const selectedFields = fieldSelection(fields, allowedFields);
-    const projection = selectedFields || "-__v";
+    const projection = selectedFields || '-__v';
 
     const filter = {};
 
     if (req.user.role === ROLES.SELLER) {
       if (!req.user.branch) {
         return next(
-          new AppError("Seller is not assigned to a branch", 403),
+          new AppError('Seller is not assigned to a branch', 403),
         );
       }
 
@@ -109,10 +118,10 @@ const getProducts = async (req, res, next) => {
     } else if (req.user.role === ROLES.ADMIN) {
       if (branchId !== undefined) {
         if (
-          typeof branchId !== "string" ||
+          typeof branchId !== 'string' ||
           !/^[a-f\d]{24}$/i.test(branchId)
         ) {
-          return next(new AppError("Invalid branchId", 400));
+          return next(new AppError('Invalid branchId', 400));
         }
 
         filter.branch = branchId;
@@ -121,34 +130,34 @@ const getProducts = async (req, res, next) => {
 
     if (name !== undefined) {
       if (
-        typeof name !== "string" ||
+        typeof name !== 'string' ||
         !name.trim() ||
         name.trim().length > 100
       ) {
-        return next(new AppError("Invalid product name filter", 400));
+        return next(new AppError('Invalid product name filter', 400));
       }
 
       const escapedName = name
         .trim()
-        .replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        .replace(/[.*+?^${}()|[]\\]/g, '\\$&');
 
       filter.name = {
         $regex: escapedName,
-        $options: "i",
+        $options: 'i',
       };
     }
 
     if (barcode !== undefined) {
       if (
-        typeof barcode !== "string" ||
+        typeof barcode !== 'string' ||
         !barcode.trim() ||
         barcode.trim().length > 100
       ) {
-        return next(new AppError("Invalid barcode filter", 400));
+        return next(new AppError('Invalid barcode filter', 400));
       }
 
       if (!filter.branch) {
-        return next(new AppError("A branch must be selected", 400));
+        return next(new AppError('A branch must be selected', 400));
       }
 
       filter.barcode = barcode.trim();
@@ -165,7 +174,7 @@ const getProducts = async (req, res, next) => {
     ]);
 
     return res.status(200).json({
-      status: "success",
+      status: 'success',
       results: products.length,
       pagination: {
         page: currentPage,
@@ -181,7 +190,6 @@ const getProducts = async (req, res, next) => {
     return next(error);
   }
 };
-
 
 const getProductById = async (req, res, next) => {
   try {
@@ -221,6 +229,8 @@ const getProductById = async (req, res, next) => {
 
 const updateProduct = async (req, res, next) => {
   try {
+    validateMongoId(req.params.id);
+
     const validation = updateProductSchema.safeParse(req.body);
 
     if (!validation.success) {
@@ -257,11 +267,7 @@ const updateProduct = async (req, res, next) => {
       data: { product },
     });
   } catch (error) {
-    if (error.code === 11000) {
-      return next(new AppError('Barcode already exists in this branch', 409));
-    }
-
-    return next(error);
+    return handleProductDuplicateKey(error, next);
   }
 };
 
