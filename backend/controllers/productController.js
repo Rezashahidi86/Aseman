@@ -139,7 +139,7 @@ const getProducts = async (req, res, next) => {
 
       const escapedName = name
         .trim()
-        .replace(/[.*+?^${}()|[]\\]/g, '\\$&');
+        .replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\.replace(/[.*+?^${}()|[]\\]/g, '\\$&');');
 
       filter.name = {
         $regex: escapedName,
