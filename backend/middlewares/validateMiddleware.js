@@ -3,25 +3,12 @@ const validateMiddleware = (schema, property = 'body') => {
     const result = schema.safeParse(req[property]);
 
     if (!result.success) {
-      return res.status(400).json({
-        status: 'fail',
-        message: 'Validation failed',
-        errors: result.error.issues.map((issue) => ({
-          field: issue.path.join('.'),
-          message: issue.message,
-        })),
-      });
+      return next(result.error);
     }
 
     req[property] = result.data;
-
-    next();
+    return next();
   };
 };
 
 export default validateMiddleware;
-
-// طریقه استفاده
-// validateMiddleware(createUserSchema, "body");
-// validateMiddleware(userParamsSchema, "params");
-// validateMiddleware(userQuerySchema, "query");
