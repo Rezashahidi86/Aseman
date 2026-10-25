@@ -31,7 +31,7 @@ const createProduct = async (req, res, next) => {
     const validation = createProductSchema.safeParse(req.body);
 
     if (!validation.success) {
-      return next(new AppError('Invalid product data', 400));
+      return next(validation.error);
     }
 
     const { branchId: _branchId, ...productData } = validation.data;
@@ -234,7 +234,7 @@ const updateProduct = async (req, res, next) => {
     const validation = updateProductSchema.safeParse(req.body);
 
     if (!validation.success) {
-      return next(new AppError('Invalid product data', 400));
+      return next(validation.error);
     }
 
     const filter = { _id: req.params.id };
