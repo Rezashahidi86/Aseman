@@ -1,5 +1,4 @@
 import express from 'express';
-import dotenv from 'dotenv';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -10,13 +9,10 @@ import env from './config/env.js';
 import API_PREFIX from './constants/api.js';
 import router from './routes/index.js';
 
-dotenv.config();
-
 const app = express();
 const allowedOrigins = env.CORS_ORIGINS.split(',').map((origin) =>
   origin.trim(),
 );
-
 
 app.use(helmet());
 app.use(
@@ -31,22 +27,20 @@ app.use(
     credentials: true,
   }),
 );
-app.use(express.json({ limit: "10kb" }));
-app.use(morgan("dev"));
+app.use(express.json({ limit: '10kb' }));
+app.use(morgan('dev'));
 app.use(API_PREFIX, router);
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
 
 const startServer = async () => {
   try {
-    await mongoose.connect(process.env.DATABASE_URL);
+    await mongoose.connect(env.DATABASE_URL);
 
     console.log('Database connected successfully');
 
-    const PORT = process.env.PORT || 3000;
-
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+    app.listen(env.PORT, () => {
+      console.log(`Server is running on port ${env.PORT}`);
     });
   } catch (error) {
     console.error('Failed to start server:', error.message);
