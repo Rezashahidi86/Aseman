@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import Branch from '../models/Branch.js';
 import User from '../models/User.js';
 import AppSettings from '../models/AppSettings.js';
+import ReferenceCatalog from '../models/ReferenceCatalog.js';
 import ROLES from '../constants/roles.js';
 
 describe('Branch model', () => {
@@ -58,6 +59,30 @@ describe('User model', () => {
   it('should reference the Branch model', () => {
     expect(User.schema.path('branch').options.ref).toBe('Branch');
     expect(User.schema.path('branch').instance).toBe('ObjectId');
+  });
+});
+
+describe('ReferenceCatalog model', () => {
+  it('should allow a reference item without a barcode', async () => {
+    const item = new ReferenceCatalog({
+      name: 'Milk',
+      purchasePrice: 50000,
+      salePrice: 60000,
+    });
+
+    await expect(item.validate()).resolves.toBeUndefined();
+  });
+
+  it('should use a partial unique index for optional barcodes', () => {
+    const index = ReferenceCatalog.schema.indexes().find(([fields]) => {
+      return fields.barcode === 1;
+    });
+
+    expect(index).toBeDefined();
+    expect(index[1].unique).toBe(true);
+    expect(index[1].partialFilterExpression).toEqual({
+      barcode: { $type: 'string' },
+    });
   });
 });
 
