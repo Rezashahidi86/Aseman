@@ -50,7 +50,7 @@ const prepareSaleItems = async (items, branchId, session = null) => {
 
     if (item.finalSalePrice < product.salePrice) {
       throw new AppError(
-        `Final sale price for "${product.name?product.name:product.barcode}" cannot be lower than the current product sale price`,
+        `Final sale price for "${product.name ? product.name : product.barcode}" cannot be lower than the current product sale price`,
         400,
       );
     }
@@ -174,8 +174,18 @@ const registerSale = async ({ items, branchId, sellerId, idempotencyKey }) => {
       }
 
       const now = new Date();
+
       const dailyKey = now.toISOString().slice(0, 10);
       const monthlyKey = now.toISOString().slice(0, 7);
+
+      const statsUpdate = {
+        $inc: {
+          totalSales: saleData.totalSales,
+          totalProfit: saleData.totalProfit,
+          totalItemsSold: saleData.totalItemsSold,
+          salesCount: 1,
+        },
+      };
 
       await SalesStats.updateOne(
         {
@@ -183,14 +193,7 @@ const registerSale = async ({ items, branchId, sellerId, idempotencyKey }) => {
           periodType: 'daily',
           periodKey: dailyKey,
         },
-        {
-          $inc: {
-            totalSales: saleData.totalSales,
-            totalProfit: saleData.totalProfit,
-            totalItemsSold: saleData.totalItemsSold,
-            salesCount: 1,
-          },
-        },
+        statsUpdate,
         {
           upsert: true,
           session,
@@ -204,14 +207,7 @@ const registerSale = async ({ items, branchId, sellerId, idempotencyKey }) => {
           periodType: 'monthly',
           periodKey: monthlyKey,
         },
-        {
-          $inc: {
-            totalSales: saleData.totalSales,
-            totalProfit: saleData.totalProfit,
-            totalItemsSold: saleData.totalItemsSold,
-            salesCount: 1,
-          },
-        },
+        statsUpdate,
         {
           upsert: true,
           session,
