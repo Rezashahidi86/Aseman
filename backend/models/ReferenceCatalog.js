@@ -11,6 +11,7 @@ const referenceCatalogSchema = new mongoose.Schema(
     barcode: {
       type: String,
       trim: true,
+      minlength: 1,
     },
     purchasePrice: {
       type: Number,
@@ -29,7 +30,13 @@ const referenceCatalogSchema = new mongoose.Schema(
 );
 
 referenceCatalogSchema.index({ name: 1 }, { unique: true });
-referenceCatalogSchema.index({ barcode: 1 }, { unique: true });
+referenceCatalogSchema.index(
+  { barcode: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { barcode: { $type: 'string' } },
+  },
+);
 
 const ReferenceCatalog = mongoose.model(
   'ReferenceCatalog',
