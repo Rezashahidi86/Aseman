@@ -1,11 +1,15 @@
 import mongoose from 'mongoose';
 import Product from '../models/Product.js';
+import Sale from '../models/Sale.js';
+import SalesStats from '../models/SalesStats.js';
 import AppError from '../utils/AppError.js';
-import { saleCartSchema } from '../validators/salesValidators.js';
+import {
+  saleCartSchema,
+  saleRegistrationSchema,
+} from '../validators/salesValidators.js';
 
-const prepareSaleItems = async (items, branchId) => {
+const prepareSaleItems = async (items, branchId, session = null) => {
   const validation = saleCartSchema.safeParse({ items });
-
   if (!validation.success) {
     throw validation.error;
   }
@@ -18,11 +22,14 @@ const prepareSaleItems = async (items, branchId) => {
     ...new Set(validation.data.items.map((item) => item.productId)),
   ];
 
-  const products = await Product.find({
+  let productsQuery = Product.find({
     _id: { $in: productIds },
     branch: branchId,
-  }).lean();
-
+  });
+  if (session) {
+    productsQuery = productsQuery.session(session);
+  }
+  const products = await productsQuery.lean();
   if (products.length !== productIds.length) {
     throw new AppError(
       'One or more products were not found in the current branch',
@@ -43,7 +50,7 @@ const prepareSaleItems = async (items, branchId) => {
 
     if (item.finalSalePrice < product.salePrice) {
       throw new AppError(
-        `Final sale price for "${product.name}" cannot be lower than the current product sale price`,
+        `Final sale price for "${product.name?product.name:product.barcode}" cannot be lower than the current product sale price`,
         400,
       );
     }
@@ -76,4 +83,187 @@ const prepareSaleItems = async (items, branchId) => {
   };
 };
 
+const registerSale = async ({ items, branchId, sellerId, idempotencyKey }) => {
+  const validation = saleRegistrationSchema.safeParse({
+    items,
+    idempotencyKey,
+  });
+
+  if (!validation.success) {
+    throw validation.error;
+  }
+
+  if (
+    !mongoose.isValidObjectId(branchId) ||
+    !mongoose.isValidObjectId(sellerId)
+  ) {
+    throw new AppError('A valid branch and seller are required', 400);
+  }
+
+  const normalizedKey = validation.data.idempotencyKey;
+
+  const existingSale = await Sale.findOne({
+    idempotencyKey: normalizedKey,
+  });
+
+  if (existingSale) {
+    if (
+      existingSale.branch.toString() !== branchId.toString() ||
+      existingSale.createdBy.toString() !== sellerId.toString()
+    ) {
+      throw new AppError('Idempotency key has already been used', 409);
+    }
+
+    return {
+      sale: existingSale,
+      isDuplicate: true,
+    };
+  }
+
+  const session = await mongoose.startSession();
+
+  try {
+    let createdSale;
+
+    await session.withTransaction(async () => {
+      const saleData = await prepareSaleItems(
+        validation.data.items,
+        branchId,
+        session,
+      );
+
+      const quantitiesByProduct = new Map();
+
+      for (const item of saleData.items) {
+        const productId = item.product.toString();
+
+        quantitiesByProduct.set(
+          productId,
+          (quantitiesByProduct.get(productId) || 0) + item.quantity,
+        );
+      }
+
+      for (const [productId, quantity] of quantitiesByProduct) {
+        const result = await Product.updateOne(
+          {
+            _id: productId,
+            branch: branchId,
+            quantity: { $gte: quantity },
+          },
+          {
+            $inc: {
+              quantity: -quantity,
+              salesCount: quantity,
+            },
+          },
+          { session },
+        );
+
+        if (result.matchedCount === 0) {
+          const productExists = await Product.exists({
+            _id: productId,
+            branch: branchId,
+          }).session(session);
+
+          if (!productExists) {
+            throw new AppError('Product not found in the current branch', 404);
+          }
+
+          throw new AppError('Insufficient product stock', 409);
+        }
+      }
+
+      const now = new Date();
+      const dailyKey = now.toISOString().slice(0, 10);
+      const monthlyKey = now.toISOString().slice(0, 7);
+
+      await SalesStats.updateOne(
+        {
+          branch: branchId,
+          periodType: 'daily',
+          periodKey: dailyKey,
+        },
+        {
+          $inc: {
+            totalSales: saleData.totalSales,
+            totalProfit: saleData.totalProfit,
+            totalItemsSold: saleData.totalItemsSold,
+            salesCount: 1,
+          },
+        },
+        {
+          upsert: true,
+          session,
+          runValidators: true,
+        },
+      );
+
+      await SalesStats.updateOne(
+        {
+          branch: branchId,
+          periodType: 'monthly',
+          periodKey: monthlyKey,
+        },
+        {
+          $inc: {
+            totalSales: saleData.totalSales,
+            totalProfit: saleData.totalProfit,
+            totalItemsSold: saleData.totalItemsSold,
+            salesCount: 1,
+          },
+        },
+        {
+          upsert: true,
+          session,
+          runValidators: true,
+        },
+      );
+
+      const [sale] = await Sale.create(
+        [
+          {
+            idempotencyKey: normalizedKey,
+            branch: branchId,
+            createdBy: sellerId,
+            ...saleData,
+          },
+        ],
+        { session },
+      );
+
+      createdSale = sale;
+    });
+
+    return {
+      sale: createdSale,
+      isDuplicate: false,
+    };
+  } catch (error) {
+    if (error?.code === 11000) {
+      const duplicateSale = await Sale.findOne({
+        idempotencyKey: normalizedKey,
+      });
+
+      if (duplicateSale) {
+        if (
+          duplicateSale.branch.toString() !== branchId.toString() ||
+          duplicateSale.createdBy.toString() !== sellerId.toString()
+        ) {
+          throw new AppError('Idempotency key has already been used', 409);
+        }
+
+        return {
+          sale: duplicateSale,
+          isDuplicate: true,
+        };
+      }
+    }
+
+    throw error;
+  } finally {
+    await session.endSession();
+  }
+};
+
+export { registerSale };
 export default prepareSaleItems;

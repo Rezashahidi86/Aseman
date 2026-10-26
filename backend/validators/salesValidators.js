@@ -21,8 +21,27 @@ const saleCartItemSchema = z
 
 const saleCartSchema = z
   .object({
-    items: z.array(saleCartItemSchema).min(1, 'Cart must contain at least one item'),
+    items: z
+      .array(saleCartItemSchema)
+      .min(1, 'Cart must contain at least one item'),
   })
   .strict();
 
-export { saleCartItemSchema, saleCartSchema };
+const saleRegistrationSchema = z
+  .object({
+    idempotencyKey: z
+      .string()
+      .trim()
+      .min(16, 'Idempotency key must contain at least 16 characters')
+      .max(128, 'Idempotency key cannot exceed 128 characters'),
+    items: z
+      .array(saleCartItemSchema)
+      .min(1, 'Cart must contain at least one item'),
+  })
+  .strict();
+
+export {
+  saleCartItemSchema,
+  saleCartSchema,
+  saleRegistrationSchema,
+};
