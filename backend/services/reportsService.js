@@ -274,8 +274,8 @@ const getAllBranchesDailyReport = async ({ startDate, endDate }) => {
     throw validation.error;
   }
 
-  const start = new Date(`${validation.data.startDate}T00:00:00.000Z`);
-  const end = new Date(`${validation.data.endDate}T23:59:59.999Z`);
+  const start = new Date(`${validation.data.startDate}T00:00:00.000+03:30`);
+  const end = new Date(`${validation.data.endDate}T23:59:59.999+03:30`);
 
   const reports = await Sale.aggregate([
     {
@@ -289,7 +289,7 @@ const getAllBranchesDailyReport = async ({ startDate, endDate }) => {
           $dateToString: {
             format: '%Y-%m-%d',
             date: '$createdAt',
-            timezone: 'UTC',
+            timezone: 'Asia/Tehran',
           },
         },
         totalSales: { $sum: '$totalSales' },
