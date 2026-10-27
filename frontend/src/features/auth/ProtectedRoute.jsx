@@ -7,8 +7,8 @@ export function ProtectedRoute() {
 
   if (isInitializing) {
     return (
-      <main className="loading-screen" dir="rtl">
-        <span className="loading-mark">آ</span>
+      <main className="grid min-h-screen place-content-center justify-items-center gap-4 bg-slate-50 p-6 text-xs text-slate-500 dark:bg-slate-950 dark:text-slate-400" dir="rtl">
+        <span className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-800 text-2xl font-extrabold text-white shadow-lg shadow-indigo-600/20">آ</span>
         <span>در حال بررسی نشست کاربری...</span>
       </main>
     );
