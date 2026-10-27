@@ -1,4 +1,5 @@
 import { FiHome } from 'react-icons/fi';
+import { formatPersianMonth } from '../../../shared/utils/date.js';
 
 const money = new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 0 });
 const number = new Intl.NumberFormat('fa-IR');
@@ -9,7 +10,7 @@ export function BranchPerformance({ branches = [] }) {
       <div className="mb-5 flex items-center justify-between gap-3">
         <div>
           <h2 className="text-sm font-extrabold">عملکرد شعبه‌ها</h2>
-          <p className="mt-1.5 text-[10px] text-slate-500 dark:text-slate-400">خلاصه فروش ماه جاری هر شعبه</p>
+          <p className="mt-1.5 text-[10px] text-slate-500 dark:text-slate-400">خلاصه فروش {formatPersianMonth(branches[0]?.month)} هر شعبه</p>
         </div>
         <span className="rounded-lg bg-indigo-50 px-2.5 py-1.5 text-[10px] text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">مدیریت</span>
       </div>
