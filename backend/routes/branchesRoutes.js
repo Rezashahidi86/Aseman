@@ -3,6 +3,7 @@ import {
   getBranches,
   getBranchById,
   createBranch,
+  selectBranch,
 } from '../controllers/branchController.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
 import setBranchContext from '../middlewares/branchMiddleware.js';
@@ -12,7 +13,8 @@ const router = Router();
 
 router.use(authMiddleware);
 
-router.route("/").get(getBranches).post(requireAdmin, createBranch);
+router.route('/').get(getBranches).post(requireAdmin, createBranch);
+router.post('/select', requireAdmin, selectBranch);
 router.get('/:id', setBranchContext, getBranchById);
 
 export default router;
