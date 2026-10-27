@@ -70,27 +70,24 @@ export function DashboardPage() {
         throw new Error('حساب کاربری شما به شعبه‌ای اختصاص داده نشده است.');
       }
 
-      const [reportResult, productResult, branchResult] = await Promise.allSettled([
-        apiRequest(`/reports/${branchId}/daily`, { token }),
+      const [productResult, branchResult] = await Promise.allSettled([
         apiRequest('/products?limit=1', { token }),
         apiRequest(`/branches/${branchId}`, { token }),
       ]);
 
-      const report = reportResult.status === 'fulfilled' ? reportResult.value?.data?.report : null;
       const products = productResult.status === 'fulfilled' ? productResult.value?.pagination?.total : null;
       const branch = branchResult.status === 'fulfilled' ? branchResult.value?.data?.branch : user.branch;
 
-      if (reportResult.status === 'rejected' && productResult.status === 'rejected') {
-        throw reportResult.reason;
+      if (productResult.status === 'rejected' && branchResult.status === 'rejected') {
+        throw productResult.reason;
       }
 
       setDashboard({
         kind: 'seller',
-        report: report || {},
+        report: {},
         productCount: products,
         branch,
         warnings: [
-          reportResult.status === 'rejected' ? 'گزارش فروش دریافت نشد.' : '',
           productResult.status === 'rejected' ? 'تعداد محصولات دریافت نشد.' : '',
           branchResult.status === 'rejected' ? 'جزئیات شعبه دریافت نشد.' : '',
         ].filter(Boolean),
@@ -236,20 +233,20 @@ export function DashboardPage() {
                   <SummaryCard
                     icon="↗"
                     label={isAdmin ? 'مجموع فروش ماه' : 'فروش امروز'}
-                    value={formatMoney(report.totals?.totalSales ?? report.totalSales)}
-                    hint="مجموع مبلغ فروش ثبت‌شده"
+                    value={isAdmin ? formatMoney(report.totals?.totalSales ?? report.totalSales) : '—'}
+                    hint={isAdmin ? 'مجموع مبلغ فروش ثبت‌شده' : 'آمار فروش فروشنده هنوز در API مجاز نشده است'}
                   />
                   <SummaryCard
                     icon="◈"
                     label={isAdmin ? 'سود ناخالص ماه' : 'سود ناخالص امروز'}
-                    value={formatMoney(report.totals?.totalProfit ?? report.totalProfit)}
-                    hint="محاسبه‌شده بر اساس قیمت خرید ثبت‌شده"
+                    value={isAdmin ? formatMoney(report.totals?.totalProfit ?? report.totalProfit) : '—'}
+                    hint={isAdmin ? 'محاسبه‌شده بر اساس قیمت خرید ثبت‌شده' : 'آمار سود فروشنده هنوز در API مجاز نشده است'}
                   />
                   <SummaryCard
                     icon="▤"
                     label="تعداد فاکتور"
-                    value={formatNumber(report.totals?.salesCount ?? report.salesCount)}
-                    hint="تعداد فروش‌های ثبت‌شده"
+                    value={isAdmin ? formatNumber(report.totals?.salesCount ?? report.salesCount) : '—'}
+                    hint={isAdmin ? 'تعداد فروش‌های ثبت‌شده' : 'آمار فروش فروشنده هنوز در API مجاز نشده است'}
                   />
                   <SummaryCard
                     icon="▦"
