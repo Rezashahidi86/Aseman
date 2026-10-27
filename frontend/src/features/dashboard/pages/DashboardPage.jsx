@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { FiAlertCircle, FiBarChart2, FiBox, FiFileText, FiTrendingUp } from 'react-icons/fi';
-import { apiRequest } from '../../../api/client.js';
+import { getAllBranchesReport, getBranch, getProducts } from '../../../api/services/dashboardService.js';
+import { formatPersianMonth } from '../../../shared/utils/date.js';
 import { useAuth } from '../../../auth/AuthContext.jsx';
 import { BranchPerformance } from '../components/BranchPerformance.jsx';
 import { DashboardHeader } from '../components/DashboardHeader.jsx';
@@ -52,7 +53,7 @@ function AdminSummary({ report }) {
       <div className="mb-4 mt-8 flex items-center justify-between gap-4">
         <div>
           <h2 className="text-base font-extrabold">خلاصه عملکرد شعبه‌ها</h2>
-          <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">آمار ماه {report.month || ''}</p>
+          <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">آمار ماه {formatPersianMonth(report.month)}</p>
         </div>
         <span className="rounded-full border border-indigo-100 bg-indigo-50 px-3 py-2 text-[10px] text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950 dark:text-indigo-300">دسترسی مدیر</span>
       </div>
@@ -96,7 +97,7 @@ export function DashboardPage() {
 
     try {
       if (user?.role === 'ADMIN') {
-        const response = await apiRequest('/reports/all-branches', { token });
+        const response = await getAllBranchesReport(token);
         setDashboard({ type: 'admin', report: response?.data?.report || {} });
         return;
       }
@@ -105,8 +106,8 @@ export function DashboardPage() {
       if (!branchId) throw new Error('حساب کاربری شما به شعبه‌ای اختصاص داده نشده است.');
 
       const results = await Promise.allSettled([
-        apiRequest('/products?limit=1', { token }),
-        apiRequest('/branches/' + branchId, { token }),
+        getProducts({ limit: 1 }, token),
+        getBranch(branchId, token),
       ]);
       const [productsResult, branchResult] = results;
 
