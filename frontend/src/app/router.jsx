@@ -18,12 +18,12 @@ class AppErrorBoundary extends Component {
   render() {
     if (this.state.hasError) {
       return (
-        <main className="fatal-error" dir="rtl">
-          <div className="error-card">
-            <span className="error-symbol">!</span>
-            <h1>بارگذاری برنامه با مشکل مواجه شد</h1>
-            <p>لطفاً صفحه را دوباره بارگذاری کنید.</p>
-            <button className="button button--primary" onClick={() => window.location.reload()}>
+        <main className="grid min-h-screen place-items-center bg-slate-50 p-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100" dir="rtl">
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-7 shadow-lg dark:border-slate-800 dark:bg-slate-900">
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-rose-100 font-extrabold text-rose-700 dark:bg-rose-950 dark:text-rose-300">!</span>
+            <h1 className="mt-4 text-lg font-extrabold">بارگذاری برنامه با مشکل مواجه شد</h1>
+            <p className="mt-2 text-sm leading-7 text-slate-500 dark:text-slate-400">لطفاً صفحه را دوباره بارگذاری کنید.</p>
+            <button className="mt-5 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-bold text-white hover:bg-indigo-700" onClick={() => window.location.reload()}>
               بارگذاری دوباره
             </button>
           </div>
