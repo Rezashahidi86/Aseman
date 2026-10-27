@@ -21,7 +21,7 @@ const getBranchFilter = (req, next) => {
     return { branch: req.user.branch };
   }
 
-  const branchId = req.query.branchId || req.body.branchId;
+  const branchId = req.query.branchId || req.body?.branchId;
 
   if (!branchId || !mongoose.isValidObjectId(branchId)) {
     next(new AppError('A valid branchId is required', 400));
@@ -87,7 +87,7 @@ const createManualDocument = async (req, res, next) => {
           ...document.toObject(),
           imageUrls: document.images.map(
             (image, index) =>
-              `/api/v1/manual-documents/${document._id}/images/${index}`,
+              `/api/v1/manual-documents/${document._id}/images/${index}?branchId=${document.branch}`,
           ),
         },
       },
