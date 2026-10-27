@@ -6,8 +6,8 @@ export function ThemeToggle({ className = '' }) {
 
   return (
     <button
+      className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-lg text-slate-700 transition hover:-translate-y-0.5 hover:border-indigo-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 ${className}`}
       type="button"
-      className={`theme-toggle ${className}`}
       onClick={toggleTheme}
       aria-label={isDark ? 'تغییر به تم روشن' : 'تغییر به تم تیره'}
       title={isDark ? 'تم روشن' : 'تم تیره'}
