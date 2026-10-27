@@ -14,8 +14,7 @@ export const createUserSchema = z
     branch: z
       .string()
       .regex(/^[a-f\d]{24}$/i, 'Invalid branch ID'),
-  })
-  .strict();
+  });
 
 export const updateUserSchema = z
   .object({
