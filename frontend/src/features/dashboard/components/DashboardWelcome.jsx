@@ -1,3 +1,5 @@
+import { FiActivity } from 'react-icons/fi';
+
 export function DashboardWelcome({ isAdmin, branchName }) {
   return (
     <section className="relative flex min-h-56 items-center justify-between overflow-hidden rounded-3xl bg-gradient-to-l from-indigo-600 via-indigo-700 to-indigo-950 px-6 py-8 text-white shadow-xl shadow-indigo-950/10 sm:px-10">
@@ -13,7 +15,7 @@ export function DashboardWelcome({ isAdmin, branchName }) {
       </div>
       <div className="relative z-10 ml-4 hidden h-44 w-44 shrink-0 place-items-center md:grid">
         <span className="absolute left-0 top-2 rounded-xl border border-white/50 bg-white/95 px-3 py-2 text-[10px] font-extrabold text-indigo-800 shadow-lg">فروش هوشمند</span>
-        <span className="grid h-28 w-28 rotate-[-8deg] place-items-center rounded-3xl border border-white/40 bg-white/15 text-6xl font-black shadow-xl">آ</span>
+        <span className="grid h-28 w-28 rotate-[-8deg] place-items-center rounded-3xl border border-white/40 bg-white/15 shadow-xl"><FiActivity size={54} aria-hidden="true" /></span>
         <span className="absolute bottom-2 right-0 rounded-xl border border-white/50 bg-white/95 px-3 py-2 text-[10px] font-extrabold text-indigo-800 shadow-lg">مدیریت ساده</span>
       </div>
     </section>
