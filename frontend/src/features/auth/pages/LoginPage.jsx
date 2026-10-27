@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { FiArrowLeft, FiEye, FiEyeOff, FiShield, FiStar } from 'react-icons/fi';
 import { Navigate, useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../../../auth/AuthContext.jsx';
 import { ThemeToggle } from '../../../shared/components/ThemeToggle.jsx';
@@ -66,7 +67,7 @@ export function LoginPage() {
           <span><strong className="block text-lg font-extrabold">آسمان</strong><small className="text-xs text-indigo-100">مدیریت هوشمند فروشگاه</small></span>
         </div>
         <div className="relative my-16 max-w-xl">
-          <span className="rounded-full border border-white/20 bg-white/10 px-3 py-2 text-xs">✦ فضای کاری یکپارچه</span>
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-2 text-xs"><FiStar size={13} aria-hidden="true" /> فضای کاری یکپارچه</span>
           <h1 className="mt-7 text-4xl leading-[1.6] font-extrabold xl:text-5xl">همه چیز فروشگاهت،<br />یک‌جا زیر نظرته.</h1>
           <p className="mt-4 max-w-lg text-sm leading-8 text-indigo-100">فروش، موجودی و عملکرد شعبه را در یک فضای ساده و منظم مدیریت کن؛ تا با خیال راحت روی رشد کسب‌وکارت تمرکز کنی.</p>
         </div>
@@ -122,8 +123,8 @@ export function LoginPage() {
                   aria-describedby={errors.password ? 'password-error' : undefined}
                   disabled={isSubmitting}
                 />
-                <button className="absolute left-3 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 dark:text-indigo-300 dark:hover:bg-slate-800" type="button" onClick={() => setShowPassword((current) => !current)} aria-label={showPassword ? 'پنهان کردن رمز عبور' : 'نمایش رمز عبور'} disabled={isSubmitting}>
-                  {showPassword ? 'پنهان' : 'نمایش'}
+                <button className="absolute left-3 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 dark:text-indigo-300 dark:hover:bg-slate-800" type="button" onClick={() => setShowPassword((current) => !current)} aria-label={showPassword ? 'پنهان کردن رمز عبور' : 'نمایش رمز عبور'} disabled={isSubmitting}>
+                  {showPassword ? <FiEyeOff size={17} aria-hidden="true" /> : <FiEye size={17} aria-hidden="true" />}
                 </button>
               </div>
               {errors.password && <span className="text-xs text-rose-600 dark:text-rose-400" id="password-error">{errors.password}</span>}
@@ -133,12 +134,12 @@ export function LoginPage() {
 
             <button className="mt-1 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-bold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60" type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'در حال ورود...' : 'ورود به سامانه'}
-              {!isSubmitting && <span aria-hidden="true">←</span>}
+              {!isSubmitting && <FiArrowLeft size={16} aria-hidden="true" />}
             </button>
           </form>
 
           <div className="mt-7 flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-100/70 p-4 text-xs leading-6 text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
-            <span className="text-base text-indigo-600 dark:text-indigo-300" aria-hidden="true">◈</span>
+            <FiShield className="mt-1 shrink-0 text-indigo-600 dark:text-indigo-300" size={18} aria-hidden="true" />
             <span><strong className="text-slate-800 dark:text-slate-200">ورود امن</strong><br />دسترسی شما بر اساس نقش کاربری و شعبه تعیین می‌شود.</span>
           </div>
         </div>
