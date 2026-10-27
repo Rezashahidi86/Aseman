@@ -11,14 +11,14 @@ const upcoming = [
 
 export function DashboardSidebar() {
   return (
-    <aside className="sticky top-0 flex h-auto flex-col border-b border-slate-200 bg-white/90 p-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/90 md:h-screen md:border-b-0 md:border-l md:p-5">
+    <aside className="sticky top-0 z-20 flex h-auto min-w-0 flex-col border-b border-slate-200 bg-white/90 p-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/90 md:h-screen md:border-b-0 md:border-l md:p-5">
       <Link className="mb-4 flex items-center gap-3 px-1 pb-2 no-underline md:mb-8 md:pb-0" to="/" aria-label="آسمان، داشبورد">
         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-800 text-2xl font-extrabold text-white shadow-lg shadow-indigo-600/20">آ</span>
         <span><strong className="block text-base font-extrabold text-slate-900 dark:text-white">آسمان</strong><small className="mt-1 block text-[11px] text-slate-500 dark:text-slate-400">مدیریت فروشگاه</small></span>
       </Link>
 
       <div className="mb-2 hidden px-3 text-xs text-slate-500 md:block dark:text-slate-400">فضای کاری</div>
-      <nav className="flex gap-1.5 overflow-x-auto md:grid md:overflow-visible" aria-label="ناوبری اصلی">
+      <nav className="flex min-w-0 gap-1.5 overflow-x-auto pb-1 md:grid md:overflow-visible md:pb-0" aria-label="ناوبری اصلی">
         {links.map((link) => {
           const Icon = link.icon;
 
