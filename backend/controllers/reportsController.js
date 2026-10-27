@@ -104,8 +104,20 @@ const getAllBranches = async (req, res, next) => {
 
 const getAllBranchesDaily = async (req, res, next) => {
   try {
-    const today = new Date().toISOString().slice(0, 10);
-    const sixDaysAgo = new Date(Date.now() - 6 * 24 * 60 * 60 * 1000)
+    const getTehranDateKey = (date) => {
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Tehran',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).formatToParts(date);
+      const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+
+      return `${values.year}-${values.month}-${values.day}`;
+    };
+    const today = getTehranDateKey(new Date());
+    const [year, month, day] = today.split('-').map(Number);
+    const sixDaysAgo = new Date(Date.UTC(year, month - 1, day - 6))
       .toISOString()
       .slice(0, 10);
 
