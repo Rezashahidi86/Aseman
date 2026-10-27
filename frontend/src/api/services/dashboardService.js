@@ -1,26 +1,16 @@
 import { apiClient } from '../http.js';
 
-export async function getAllBranchesReport(token) {
-  const response = await apiClient.get('/reports/all-branches', {
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-  });
-
+export async function getAllBranchesReport() {
+  const response = await apiClient.get('/reports/all-branches');
   return response.data;
 }
 
-export async function getProducts(params, token) {
-  const response = await apiClient.get('/products', {
-    params,
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-  });
-
+export async function getProducts(params) {
+  const response = await apiClient.get('/products', { params });
   return response.data;
 }
 
-export async function getBranch(branchId, token) {
-  const response = await apiClient.get(`/branches/${encodeURIComponent(branchId)}`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-  });
-
+export async function getBranch(branchId) {
+  const response = await apiClient.get(`/branches/${encodeURIComponent(branchId)}`);
   return response.data;
 }
