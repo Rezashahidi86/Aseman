@@ -4,6 +4,7 @@ import {
   getMonthlyBranchReport,
   getMonthlyComparisonReport,
   getAllBranchesReport,
+  getAllBranchesDailyReport,
   getSellerReport,
   getFilteredReport,
 } from '../services/reportsService.js';
@@ -57,7 +58,7 @@ const getMonthlyReport = async (req, res, next) => {
     }
     const report = await getMonthlyBranchReport({
       branchId: req.branchId,
-      month: req.query.month|| new Date().toISOString().slice(0, 7),
+      month: req.query.month || new Date().toISOString().slice(0, 7),
     });
 
     return res.status(200).json({
@@ -91,6 +92,27 @@ const getMonthlyComparison = async (req, res, next) => {
 const getAllBranches = async (req, res, next) => {
   try {
     const report = await getAllBranchesReport();
+
+    return res.status(200).json({
+      status: 'success',
+      data: { report },
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const getAllBranchesDaily = async (req, res, next) => {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const sixDaysAgo = new Date(Date.now() - 6 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+
+    const report = await getAllBranchesDailyReport({
+      startDate: req.query.startDate || sixDaysAgo,
+      endDate: req.query.endDate || today,
+    });
 
     return res.status(200).json({
       status: 'success',
@@ -145,6 +167,7 @@ export {
   getMonthlyReport,
   getMonthlyComparison,
   getAllBranches,
+  getAllBranchesDaily,
   getSellerReportController,
   getFilteredReportController,
 };
