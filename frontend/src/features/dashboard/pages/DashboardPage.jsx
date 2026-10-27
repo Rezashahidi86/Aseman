@@ -86,7 +86,7 @@ function SellerSummary({ dashboard, branchName }) {
 }
 
 export function DashboardPage() {
-  const { token, user } = useAuth();
+  const { user } = useAuth();
   const [dashboard, setDashboard] = useState(null);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -97,7 +97,7 @@ export function DashboardPage() {
 
     try {
       if (user?.role === 'ADMIN') {
-        const response = await getAllBranchesReport(token);
+        const response = await getAllBranchesReport();
         setDashboard({ type: 'admin', report: response?.data?.report || {} });
         return;
       }
@@ -106,8 +106,8 @@ export function DashboardPage() {
       if (!branchId) throw new Error('حساب کاربری شما به شعبه‌ای اختصاص داده نشده است.');
 
       const results = await Promise.allSettled([
-        getProducts({ limit: 1 }, token),
-        getBranch(branchId, token),
+        getProducts({ limit: 1 }),
+        getBranch(branchId),
       ]);
       const [productsResult, branchResult] = results;
 
@@ -128,7 +128,7 @@ export function DashboardPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [token, user]);
+  }, [user]);
 
   useEffect(() => {
     loadDashboard();
