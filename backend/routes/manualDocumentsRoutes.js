@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   createManualDocument,
   getManualDocuments,
+  getManualDocumentImage,
   deleteManualDocument,
 } from '../controllers/manualDocumentController.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
@@ -16,11 +17,12 @@ router
   .route('/')
   .post(
     setBranchContext,
-    uploadManualDocumentImage.array('image', 10),
+    uploadManualDocumentImage.array('images', 10),
     createManualDocument,
   )
   .get(setBranchContext, getManualDocuments);
 
+router.get('/:id/images/:index', getManualDocumentImage);
 router.delete('/:id', deleteManualDocument);
 
 export default router;
