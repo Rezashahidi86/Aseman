@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { FiBarChart2, FiBox, FiFileText, FiTrendingUp } from 'react-icons/fi';
 import { apiRequest } from '../../../api/client.js';
 import { useAuth } from '../../../auth/AuthContext.jsx';
 import { BranchPerformance } from '../components/BranchPerformance.jsx';
@@ -56,10 +57,10 @@ function AdminSummary({ report }) {
         <span className="rounded-full border border-indigo-100 bg-indigo-50 px-3 py-2 text-[10px] text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950 dark:text-indigo-300">دسترسی مدیر</span>
       </div>
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="خلاصه آمار">
-        <SummaryCard icon="↗" label="مجموع فروش ماه" value={formatMoney(report.totals?.totalSales ?? report.totalSales)} hint="مجموع مبلغ فروش ثبت‌شده" />
-        <SummaryCard icon="◈" label="سود ناخالص ماه" value={formatMoney(report.totals?.totalProfit ?? report.totalProfit)} hint="بر اساس قیمت خرید ثبت‌شده" />
-        <SummaryCard icon="▤" label="تعداد فاکتور" value={formatNumber(report.totals?.salesCount ?? report.salesCount)} hint="تعداد فروش‌های ثبت‌شده" />
-        <SummaryCard icon="▦" label="تعداد شعبه‌ها" value={formatNumber(report.branches?.length)} hint="شعبه‌های موجود در سامانه" />
+        <SummaryCard icon={FiTrendingUp} label="مجموع فروش ماه" value={formatMoney(report.totals?.totalSales ?? report.totalSales)} hint="مجموع مبلغ فروش ثبت‌شده" />
+        <SummaryCard icon={FiBarChart2} label="سود ناخالص ماه" value={formatMoney(report.totals?.totalProfit ?? report.totalProfit)} hint="بر اساس قیمت خرید ثبت‌شده" />
+        <SummaryCard icon={FiFileText} label="تعداد فاکتور" value={formatNumber(report.totals?.salesCount ?? report.salesCount)} hint="تعداد فروش‌های ثبت‌شده" />
+        <SummaryCard icon={FiBox} label="تعداد شعبه‌ها" value={formatNumber(report.branches?.length)} hint="شعبه‌های موجود در سامانه" />
       </section>
       <BranchPerformance branches={report.branches} />
     </>
@@ -75,9 +76,9 @@ function SellerSummary({ dashboard, branchName }) {
         <span className="max-w-40 rounded-full bg-indigo-50 px-3 py-2 text-center text-[10px] text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">{branchName}</span>
       </div>
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-label="خلاصه اطلاعات شعبه">
-        <SummaryCard icon="▦" label="محصولات شعبه" value={dashboard.productCount === null ? '—' : formatNumber(dashboard.productCount)} hint="تعداد محصولات ثبت‌شده" />
-        <SummaryCard icon="↗" label="فروش امروز" value="—" hint="گزارش فروش فروشنده هنوز در API مجاز نشده است" />
-        <SummaryCard icon="◈" label="سود امروز" value="—" hint="گزارش سود فروشنده هنوز در API مجاز نشده است" />
+        <SummaryCard icon={FiBox} label="محصولات شعبه" value={dashboard.productCount === null ? '—' : formatNumber(dashboard.productCount)} hint="تعداد محصولات ثبت‌شده" />
+        <SummaryCard icon={FiTrendingUp} label="فروش امروز" value="—" hint="گزارش فروش فروشنده هنوز در API مجاز نشده است" />
+        <SummaryCard icon={FiBarChart2} label="سود امروز" value="—" hint="گزارش سود فروشنده هنوز در API مجاز نشده است" />
       </section>
     </>
   );
