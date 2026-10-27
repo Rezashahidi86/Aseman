@@ -5,6 +5,7 @@ import {
   getDailyReport,
   getMonthlyComparison,
   getAllBranches,
+  getAllBranchesDaily,
   getFilteredReportController,
   getSellerReportController,
 } from '../controllers/reportsController.js';
@@ -17,6 +18,7 @@ const router = Router();
 router.use(authMiddleware);
 router.use(requireAdmin);
 
+router.get('/all-branches/daily', getAllBranchesDaily);
 router.get('/all-branches', getAllBranches);
 router.get('/:id/daily', setBranchContext, getDailyReport);
 router.get('/:id/weekly', setBranchContext, getWeeklyReport);
