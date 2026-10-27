@@ -1,8 +1,10 @@
+import { FiMoon, FiSun } from 'react-icons/fi';
 import { useTheme } from '../../theme/ThemeContext.jsx';
 
 export function ThemeToggle({ className = '' }) {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
+  const Icon = isDark ? FiSun : FiMoon;
 
   return (
     <button
@@ -12,7 +14,7 @@ export function ThemeToggle({ className = '' }) {
       aria-label={isDark ? 'تغییر به تم روشن' : 'تغییر به تم تیره'}
       title={isDark ? 'تم روشن' : 'تم تیره'}
     >
-      <span aria-hidden="true">{isDark ? '☀' : '☾'}</span>
+      <Icon aria-hidden="true" size={18} />
     </button>
   );
 }
