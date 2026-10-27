@@ -125,7 +125,7 @@ const getManualDocuments = async (req, res, next) => {
       ...document,
       imageUrls: document.images.map(
         (image, index) =>
-          `/api/v1/manual-documents/${document._id}/images/${index}`,
+          `/api/v1/manual-documents/${document._id}/images/${index}?branchId=${document.branch}`,
       ),
     }));
 
