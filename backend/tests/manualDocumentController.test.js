@@ -97,7 +97,13 @@ describe('Manual document controller', () => {
       select: vi.fn().mockResolvedValue({ _id: ownBranchId }),
     });
 
-    ManualDocument.create.mockResolvedValue({
+    const createdDocument = {
+      _id: documentId,
+      branch: ownBranchId,
+      images: [
+        '/uploads/manual-documents/one.jpg',
+        '/uploads/manual-documents/two.png',
+      ],
       toObject: () => ({
         _id: documentId,
         branch: ownBranchId,
@@ -106,7 +112,8 @@ describe('Manual document controller', () => {
           '/uploads/manual-documents/two.png',
         ],
       }),
-    });
+    };
+    ManualDocument.create.mockResolvedValue(createdDocument);
 
     await createManualDocument(req, res, next);
 
