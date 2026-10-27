@@ -31,10 +31,14 @@ const getBranchFilter = (req, next) => {
   return { branch: branchId };
 };
 
-const removeUploadedFile = async (file) => {
-  if (file?.path) {
-    await fs.unlink(file.path).catch(() => {});
-  }
+const removeUploadedFiles = async (files = []) => {
+  await Promise.all(
+    files.map(async (file) => {
+      if (file?.path) {
+        await fs.unlink(file.path).catch(() => {});
+      }
+    }),
+  );
 };
 
 const createManualDocument = async (req, res, next) => {
@@ -42,18 +46,18 @@ const createManualDocument = async (req, res, next) => {
     const validation = createManualDocumentSchema.safeParse(req.body);
 
     if (!validation.success) {
-      await removeUploadedFile(req.file);
+      await removeUploadedFiles(req.files);
       return next(validation.error);
     }
 
     if (!req.files || req.files.length === 0) {
-      return next(new AppError('Document image is required', 400));
+      return next(new AppError('At least one document image is required', 400));
     }
 
     const branchFilter = getBranchFilter(req, next);
 
     if (!branchFilter) {
-      await removeUploadedFile(req.file);
+      await removeUploadedFiles(req.files);
       return;
     }
 
@@ -63,7 +67,7 @@ const createManualDocument = async (req, res, next) => {
     }).select('_id');
 
     if (!branch) {
-      await removeUploadedFile(req.file);
+      await removeUploadedFiles(req.files);
       return next(new AppError('Branch not found or inactive', 404));
     }
 
@@ -78,10 +82,18 @@ const createManualDocument = async (req, res, next) => {
 
     return res.status(201).json({
       status: 'success',
-      data: { document },
+      data: {
+        document: {
+          ...document.toObject(),
+          imageUrls: document.images.map(
+            (image, index) =>
+              `/api/v1/manual-documents/${document._id}/images/${index}`,
+          ),
+        },
+      },
     });
   } catch (error) {
-    await removeUploadedFile(req.file);
+    await removeUploadedFiles(req.files);
     return next(error);
   }
 };
@@ -109,6 +121,14 @@ const getManualDocuments = async (req, res, next) => {
       ManualDocument.countDocuments(filter),
     ]);
 
+    const documentsWithImageUrls = documents.map((document) => ({
+      ...document,
+      imageUrls: document.images.map(
+        (image, index) =>
+          `/api/v1/manual-documents/${document._id}/images/${index}`,
+      ),
+    }));
+
     return res.status(200).json({
       status: 'success',
       results: documents.length,
@@ -118,7 +138,49 @@ const getManualDocuments = async (req, res, next) => {
         total,
         totalPages: Math.ceil(total / limit),
       },
-      data: { documents },
+      data: { documents: documentsWithImageUrls },
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const getManualDocumentImage = async (req, res, next) => {
+  try {
+    validateMongoId(req.params.id);
+
+    const branchFilter = getBranchFilter(req, next);
+
+    if (!branchFilter) {
+      return;
+    }
+
+    const imageIndex = Number(req.params.index);
+
+    if (!Number.isInteger(imageIndex) || imageIndex < 0) {
+      return next(new AppError('Invalid image index', 400));
+    }
+
+    const document = await ManualDocument.findOne({
+      _id: req.params.id,
+      ...branchFilter,
+    }).select('images');
+
+    if (!document) {
+      return next(new AppError('Manual document not found', 404));
+    }
+
+    if (imageIndex >= document.images.length) {
+      return next(new AppError('Manual document image not found', 404));
+    }
+
+    const filename = path.basename(document.images[imageIndex]);
+    const imagePath = path.join(uploadDirectory, filename);
+
+    return res.sendFile(imagePath, (error) => {
+      if (error) {
+        next(error);
+      }
     });
   } catch (error) {
     return next(error);
@@ -153,13 +215,15 @@ const deleteManualDocument = async (req, res, next) => {
       }),
     );
 
-    return res.status(204).json({
-      status: 'success',
-      message: 'Manual document deleted successfully',
-    });
+    return res.status(204).end();
   } catch (error) {
     return next(error);
   }
 };
 
-export { createManualDocument, getManualDocuments, deleteManualDocument };
+export {
+  createManualDocument,
+  getManualDocuments,
+  getManualDocumentImage,
+  deleteManualDocument,
+};
