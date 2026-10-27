@@ -1,4 +1,4 @@
-const DATE_LOCALE = 'fa-IR-u-ca-persian-nu-arab';
+const DATE_LOCALE = 'fa-IR-u-ca-persian-nu-arabext';
 const DATE_TIME_ZONE = 'Asia/Tehran';
 
 const dateFormatter = new Intl.DateTimeFormat(DATE_LOCALE, {
