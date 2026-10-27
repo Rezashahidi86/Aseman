@@ -73,3 +73,16 @@ export function formatPersianDateRange(startDate, endDate, fallback = '—') {
   if (!end) return `از ${start}`;
   return `${start} تا ${end}`;
 }
+
+
+export function getDateKeyInTimeZone(value = new Date(), timeZone = DATE_TIME_ZONE) {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(value);
+  const values = Object.fromEntries(parts.map(({ type, value: partValue }) => [type, partValue]));
+
+  return `${values.year}-${values.month}-${values.day}`;
+}
