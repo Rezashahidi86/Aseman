@@ -100,6 +100,7 @@ describe('Manual document controller', () => {
     ManualDocument.create.mockResolvedValue({
       toObject: () => ({
         _id: documentId,
+        branch: ownBranchId,
         images: [
           '/uploads/manual-documents/one.jpg',
           '/uploads/manual-documents/two.png',
@@ -125,8 +126,8 @@ describe('Manual document controller', () => {
         data: {
           document: expect.objectContaining({
             imageUrls: [
-              `/api/v1/manual-documents/${documentId}/images/0`,
-              `/api/v1/manual-documents/${documentId}/images/1`,
+              `/api/v1/manual-documents/${documentId}/images/0?branchId=${ownBranchId}`,
+              `/api/v1/manual-documents/${documentId}/images/1?branchId=${ownBranchId}`,
             ],
           }),
         },
