@@ -135,7 +135,7 @@ export function DashboardPage() {
   }, [loadDashboard]);
 
   const isAdmin = user?.role === 'ADMIN';
-  const branchName = dashboard?.branch?.name || (typeof user?.branch === 'object' ? user.branch.name : '') || 'شعبه من';
+  const branchName = dashboard?.branch?.name || (typeof user?.branch === 'object' ? user.branch?.name : '') || 'شعبه من';
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100" dir="rtl">
