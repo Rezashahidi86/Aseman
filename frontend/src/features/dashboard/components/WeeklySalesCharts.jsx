@@ -10,7 +10,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { formatPersianDate } from '../../../shared/utils/date.js';
+import { formatPersianDate, getDateKeyInTimeZone } from '../../../shared/utils/date.js';
 
 const money = new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 0 });
 const count = new Intl.NumberFormat('fa-IR');
@@ -51,11 +51,12 @@ const axisTick = { fill: '#94a3b8', fontSize: 10, fontFamily: 'IRANSansX, sans-s
 export function WeeklySalesCharts({ reports = [] }) {
   const data = useMemo(() => {
     const reportMap = new Map(reports.map((report) => [report.date, report]));
-    const today = new Date();
+    const todayKey = getDateKeyInTimeZone();
+    const [year, month, day] = todayKey.split('-').map(Number);
     const dates = [];
 
     for (let offset = 6; offset >= 0; offset -= 1) {
-      const date = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - offset));
+      const date = new Date(Date.UTC(year, month - 1, day - offset));
       const key = date.toISOString().slice(0, 10);
       const report = reportMap.get(key) || {};
 
