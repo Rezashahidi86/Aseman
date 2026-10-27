@@ -1,11 +1,12 @@
+import { FiBarChart2, FiBox, FiHome, FiTrendingUp, FiUsers } from 'react-icons/fi';
 import { Link, NavLink } from 'react-router';
 
-const links = [{ to: '/', label: 'داشبورد', icon: '⌂', end: true }];
+const links = [{ to: '/', label: 'داشبورد', icon: FiHome, end: true }];
 const upcoming = [
-  { label: 'محصولات و موجودی', icon: '▦' },
-  { label: 'فروش‌ها', icon: '↗' },
-  { label: 'مشتریان', icon: '♙' },
-  { label: 'گزارش‌ها', icon: '▥' },
+  { label: 'محصولات و موجودی', icon: FiBox },
+  { label: 'فروش‌ها', icon: FiTrendingUp },
+  { label: 'مشتریان', icon: FiUsers },
+  { label: 'گزارش‌ها', icon: FiBarChart2 },
 ];
 
 export function DashboardSidebar() {
@@ -18,24 +19,32 @@ export function DashboardSidebar() {
 
       <div className="mb-2 hidden px-3 text-xs text-slate-500 md:block dark:text-slate-400">فضای کاری</div>
       <nav className="flex gap-1.5 overflow-x-auto md:grid md:overflow-visible" aria-label="ناوبری اصلی">
-        {links.map((link) => (
-          <NavLink
-            key={link.to}
-            to={link.to}
-            end={link.end}
-            className={({ isActive }) => `flex min-h-10 min-w-max items-center gap-3 rounded-xl border px-3 text-xs transition md:min-h-12 ${isActive ? 'border-indigo-100 bg-indigo-50 font-bold text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950 dark:text-indigo-300' : 'border-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'}`}
-          >
-            <span className="grid w-6 place-items-center text-lg" aria-hidden="true">{link.icon}</span>
-            <span>{link.label}</span>
-          </NavLink>
-        ))}
-        {upcoming.map((item) => (
-          <div className="flex min-h-10 min-w-max cursor-default items-center gap-3 rounded-xl px-3 text-xs text-slate-400 opacity-70 md:min-h-12" aria-disabled="true" key={item.label}>
-            <span className="grid w-6 place-items-center text-lg" aria-hidden="true">{item.icon}</span>
-            <span>{item.label}</span>
-            <span className="mr-auto rounded-md border border-slate-200 px-1.5 py-0.5 text-[9px] dark:border-slate-700">بعداً</span>
-          </div>
-        ))}
+        {links.map((link) => {
+          const Icon = link.icon;
+
+          return (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end={link.end}
+              className={({ isActive }) => `flex min-h-10 min-w-max items-center gap-3 rounded-xl border px-3 text-xs transition md:min-h-12 ${isActive ? 'border-indigo-100 bg-indigo-50 font-bold text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950 dark:text-indigo-300' : 'border-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'}`}
+            >
+              <span className="grid w-6 place-items-center" aria-hidden="true"><Icon size={18} /></span>
+              <span>{link.label}</span>
+            </NavLink>
+          );
+        })}
+        {upcoming.map((item) => {
+          const Icon = item.icon;
+
+          return (
+            <div className="flex min-h-10 min-w-max cursor-default items-center gap-3 rounded-xl px-3 text-xs text-slate-400 opacity-70 md:min-h-12" aria-disabled="true" key={item.label}>
+              <span className="grid w-6 place-items-center" aria-hidden="true"><Icon size={18} /></span>
+              <span>{item.label}</span>
+              <span className="mr-auto rounded-md border border-slate-200 px-1.5 py-0.5 text-[9px] dark:border-slate-700">بعداً</span>
+            </div>
+          );
+        })}
       </nav>
 
       <div className="mt-auto hidden items-center gap-2 border-t border-slate-200 pt-4 text-[11px] text-slate-500 md:flex dark:border-slate-800 dark:text-slate-400">
