@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { FiAlertCircle, FiBarChart2, FiBox, FiFileText, FiTrendingUp } from 'react-icons/fi';
-import { getAllBranchesReport, getBranch, getProducts } from '../../../api/services/dashboardService.js';
+import { getAllBranchesDailyReport, getAllBranchesReport, getBranch, getProducts } from '../../../api/services/dashboardService.js';
 import { formatPersianMonth } from '../../../shared/utils/date.js';
 import { useAuth } from '../../../auth/AuthContext.jsx';
 import { BranchPerformance } from '../components/BranchPerformance.jsx';
@@ -8,6 +8,7 @@ import { DashboardHeader } from '../components/DashboardHeader.jsx';
 import { DashboardSidebar } from '../components/DashboardSidebar.jsx';
 import { DashboardWelcome } from '../components/DashboardWelcome.jsx';
 import { SummaryCard } from '../components/SummaryCard.jsx';
+import { WeeklySalesCharts } from '../components/WeeklySalesCharts.jsx';
 
 const money = new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 0 });
 const number = new Intl.NumberFormat('fa-IR');
@@ -63,6 +64,7 @@ function AdminSummary({ report }) {
         <SummaryCard icon={FiFileText} label="تعداد فاکتور" value={formatNumber(report.totals?.salesCount ?? report.salesCount)} hint="تعداد فروش‌های ثبت‌شده" />
         <SummaryCard icon={FiBox} label="تعداد شعبه‌ها" value={formatNumber(report.branches?.length)} hint="شعبه‌های موجود در سامانه" />
       </section>
+      <WeeklySalesCharts reports={report.dailyReports} />
       <BranchPerformance branches={report.branches} />
     </>
   );
@@ -97,8 +99,20 @@ export function DashboardPage() {
 
     try {
       if (user?.role === 'ADMIN') {
-        const response = await getAllBranchesReport();
-        setDashboard({ type: 'admin', report: response?.data?.report || {} });
+        const today = new Date();
+        const endDate = today.toISOString().slice(0, 10);
+        const startDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - 6))
+          .toISOString()
+          .slice(0, 10);
+        const [summaryResponse, dailyResponse] = await Promise.all([
+          getAllBranchesReport(),
+          getAllBranchesDailyReport({ startDate, endDate }),
+        ]);
+        setDashboard({
+          type: 'admin',
+          report: summaryResponse?.data?.report || {},
+          dailyReports: dailyResponse?.data?.report?.reports || [],
+        });
         return;
       }
 
@@ -147,7 +161,7 @@ export function DashboardPage() {
             {error && <ErrorState message={error} onRetry={loadDashboard} />}
             <DashboardWelcome isAdmin={isAdmin} branchName={branchName} />
             {isLoading && <LoadingState />}
-            {!isLoading && dashboard?.type === 'admin' && <AdminSummary report={dashboard.report} />}
+            {!isLoading && dashboard?.type === 'admin' && <AdminSummary report={{ ...dashboard.report, dailyReports: dashboard.dailyReports }} />}
             {!isLoading && dashboard?.type === 'seller' && <SellerSummary dashboard={dashboard} branchName={branchName} />}
           </main>
         </div>
