@@ -267,6 +267,50 @@ const getAllBranchesReport = async () => {
   };
 };
 
+const getAllBranchesDailyReport = async ({ startDate, endDate }) => {
+  const validation = reportRangeSchema.safeParse({ startDate, endDate });
+
+  if (!validation.success) {
+    throw validation.error;
+  }
+
+  const start = new Date(`${validation.data.startDate}T00:00:00.000Z`);
+  const end = new Date(`${validation.data.endDate}T23:59:59.999Z`);
+
+  const reports = await Sale.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: start, $lte: end },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          $dateToString: {
+            format: '%Y-%m-%d',
+            date: '$createdAt',
+            timezone: 'UTC',
+          },
+        },
+        totalSales: { $sum: '$totalSales' },
+        totalProfit: { $sum: '$totalProfit' },
+        totalItemsSold: { $sum: '$totalItemsSold' },
+        salesCount: { $sum: 1 },
+      },
+    },
+    { $sort: { _id: 1 } },
+  ]);
+
+  return {
+    startDate: validation.data.startDate,
+    endDate: validation.data.endDate,
+    reports: reports.map(({ _id, ...report }) => ({
+      date: _id,
+      ...report,
+    })),
+  };
+};
+
 const getSellerReport = async ({ sellerId, branchId, startDate, endDate }) => {
   if (
     !mongoose.isValidObjectId(sellerId) ||
@@ -463,6 +507,7 @@ export {
   getMonthlyBranchReport,
   getMonthlyComparisonReport,
   getAllBranchesReport,
+  getAllBranchesDailyReport,
   getSellerReport,
   getFilteredReport,
 };
