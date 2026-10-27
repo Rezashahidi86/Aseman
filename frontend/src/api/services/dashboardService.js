@@ -5,6 +5,11 @@ export async function getAllBranchesReport() {
   return response.data;
 }
 
+export async function getAllBranchesDailyReport(params) {
+  const response = await apiClient.get('/reports/all-branches/daily', { params });
+  return response.data;
+}
+
 export async function getProducts(params) {
   const response = await apiClient.get('/products', { params });
   return response.data;
