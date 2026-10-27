@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { apiRequest } from '../api/client.js';
+import { getCurrentUser, loginRequest, logoutRequest } from '../api/services/authService.js';
 
 const AuthContext = createContext(null);
 const TOKEN_KEY = 'aseman_access_token';
@@ -21,7 +21,7 @@ export function AuthProvider({ children }) {
       return null;
     }
 
-    const response = await apiRequest('/auth/me', { token: activeToken });
+    const response = await getCurrentUser(activeToken);
     const currentUser = response?.data?.user;
 
     if (!currentUser) {
@@ -44,16 +44,19 @@ export function AuthProvider({ children }) {
       }
 
       try {
-        const response = await apiRequest('/auth/me', { token: savedToken });
+        const response = await getCurrentUser(savedToken);
+
         if (!response?.data?.user) {
           throw new Error('اطلاعات کاربر دریافت نشد.');
         }
+
         if (active) {
           setToken(savedToken);
           setUser(response.data.user);
         }
       } catch {
         sessionStorage.removeItem(TOKEN_KEY);
+
         if (active) {
           setToken(null);
           setUser(null);
@@ -71,10 +74,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = useCallback(async ({ email, password }) => {
-    const response = await apiRequest('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
+    const response = await loginRequest({ email, password });
 
     if (!response?.token) {
       throw new Error('توکن ورود از سرور دریافت نشد.');
@@ -84,8 +84,7 @@ export function AuthProvider({ children }) {
     setToken(response.token);
 
     try {
-      const currentUser = await refreshUser(response.token);
-      return currentUser;
+      return await refreshUser(response.token);
     } catch (error) {
       sessionStorage.removeItem(TOKEN_KEY);
       setToken(null);
@@ -98,9 +97,7 @@ export function AuthProvider({ children }) {
     const activeToken = token;
 
     try {
-      if (activeToken) {
-        await apiRequest('/auth/logout', { method: 'POST', token: activeToken });
-      }
+      if (activeToken) await logoutRequest(activeToken);
     } finally {
       clearSession();
     }
