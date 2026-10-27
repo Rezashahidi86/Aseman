@@ -12,11 +12,7 @@ function validate(values) {
     errors.email = 'فرمت ایمیل معتبر نیست.';
   }
 
-  if (!values.password) {
-    errors.password = 'رمز عبور را وارد کنید.';
-  } else if (values.password.length < 1) {
-    errors.password = 'رمز عبور معتبر نیست.';
-  }
+  if (!values.password) errors.password = 'رمز عبور را وارد کنید.';
 
   return errors;
 }
@@ -32,9 +28,7 @@ export function LoginPage() {
   const location = useLocation();
   const redirectTo = location.state?.from?.pathname || '/';
 
-  if (isAuthenticated) {
-    return <Navigate to="/" replace />;
-  }
+  if (isAuthenticated) return <Navigate to="/" replace />;
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -45,17 +39,13 @@ export function LoginPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     const nextErrors = validate(values);
     setErrors(nextErrors);
     setServerError('');
 
-    if (Object.keys(nextErrors).length > 0) {
-      return;
-    }
+    if (Object.keys(nextErrors).length) return;
 
     setIsSubmitting(true);
-
     try {
       await login({ email: values.email.trim().toLowerCase(), password: values.password });
       navigate(redirectTo, { replace: true });
@@ -67,71 +57,60 @@ export function LoginPage() {
   };
 
   return (
-    <main className="login-layout" dir="rtl">
-      <section className="login-showcase">
-        <div className="login-brand">
-          <span className="login-brand__mark">آ</span>
-          <span>
-            <strong>آسمان</strong>
-            <small>مدیریت هوشمند فروشگاه</small>
-          </span>
+    <main className="grid min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 lg:grid-cols-[1.1fr_0.9fr]" dir="rtl">
+      <section className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-indigo-950 via-indigo-700 to-violet-500 p-10 text-white sm:p-14 lg:flex">
+        <div className="absolute -bottom-32 -right-20 h-96 w-96 rounded-full border border-white/15" />
+        <div className="absolute -bottom-20 -right-8 h-80 w-80 rounded-full border border-white/15" />
+        <div className="relative flex items-center gap-3">
+          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white/15 text-2xl font-extrabold shadow-lg">آ</span>
+          <span><strong className="block text-lg font-extrabold">آسمان</strong><small className="text-xs text-indigo-100">مدیریت هوشمند فروشگاه</small></span>
         </div>
-
-        <div className="login-showcase__copy">
-          <span className="login-showcase__eyebrow"><span aria-hidden="true">✦</span> فضای کاری یکپارچه</span>
-          <h1>همه چیز فروشگاهت،<br />یک‌جا زیر نظرته.</h1>
-          <p>
-            فروش، موجودی و عملکرد شعبه را در یک فضای ساده و منظم مدیریت کن؛
-            تا با خیال راحت روی رشد کسب‌وکارت تمرکز کنی.
-          </p>
+        <div className="relative my-16 max-w-xl">
+          <span className="rounded-full border border-white/20 bg-white/10 px-3 py-2 text-xs">✦ فضای کاری یکپارچه</span>
+          <h1 className="mt-7 text-4xl leading-[1.6] font-extrabold xl:text-5xl">همه چیز فروشگاهت،<br />یک‌جا زیر نظرته.</h1>
+          <p className="mt-4 max-w-lg text-sm leading-8 text-indigo-100">فروش، موجودی و عملکرد شعبه را در یک فضای ساده و منظم مدیریت کن؛ تا با خیال راحت روی رشد کسب‌وکارت تمرکز کنی.</p>
         </div>
-
-        <div className="login-showcase__features">
-          <span className="login-feature">مدیریت شعبه‌ها</span>
-          <span className="login-feature">گزارش‌های شفاف</span>
-          <span className="login-feature">دسترسی امن</span>
+        <div className="relative flex flex-wrap gap-3 text-xs">
+          {['مدیریت شعبه‌ها', 'گزارش‌های شفاف', 'دسترسی امن'].map((item) => <span className="rounded-xl border border-white/20 bg-white/10 px-3 py-2" key={item}>{item}</span>)}
         </div>
       </section>
 
-      <section className="login-form-side">
-        <div className="login-form-wrap">
-          <div className="login-form-toolbar">
+      <section className="flex min-h-screen items-center justify-center px-5 py-8 sm:px-10">
+        <div className="w-full max-w-md">
+          <div className="mb-10 flex items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
             <span>خوش برگشتی! برای ادامه وارد شو.</span>
-            <ThemeToggle className="theme-toggle--login" />
+            <ThemeToggle />
           </div>
+          <header className="mb-8">
+            <h2 className="text-3xl font-extrabold tracking-tight">ورود به حساب</h2>
+            <p className="mt-3 text-sm leading-7 text-slate-500 dark:text-slate-400">اطلاعات حساب کاربری خود را وارد کنید.</p>
+          </header>
 
-          <div className="login-heading">
-            <h2>ورود به حساب</h2>
-            <p>اطلاعات حساب کاربری خود را وارد کنید.</p>
-          </div>
-
-          <form className="login-form" onSubmit={handleSubmit} noValidate>
-            <div className="form-field">
-              <label htmlFor="email">ایمیل</label>
-              <div className="input-wrap">
-                <span className="input-wrap__icon" aria-hidden="true">✉</span>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="username"
-                  inputMode="email"
-                  placeholder="name@example.com"
-                  value={values.email}
-                  onChange={handleChange}
-                  aria-invalid={Boolean(errors.email)}
-                  aria-describedby={errors.email ? 'email-error' : undefined}
-                  disabled={isSubmitting}
-                />
-              </div>
-              {errors.email && <span id="email-error" className="field-error">{errors.email}</span>}
+          <form className="grid gap-5" onSubmit={handleSubmit} noValidate>
+            <div className="grid gap-2">
+              <label className="text-sm font-semibold" htmlFor="email">ایمیل</label>
+              <input
+                className={`min-h-12 w-full rounded-xl border bg-white px-4 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-slate-900 ${errors.email ? 'border-rose-500' : 'border-slate-200 dark:border-slate-700'}`}
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="username"
+                inputMode="email"
+                placeholder="name@example.com"
+                value={values.email}
+                onChange={handleChange}
+                aria-invalid={Boolean(errors.email)}
+                aria-describedby={errors.email ? 'email-error' : undefined}
+                disabled={isSubmitting}
+              />
+              {errors.email && <span className="text-xs text-rose-600 dark:text-rose-400" id="email-error">{errors.email}</span>}
             </div>
 
-            <div className="form-field">
-              <label htmlFor="password">رمز عبور</label>
-              <div className="input-wrap">
-                <span className="input-wrap__icon" aria-hidden="true">⌑</span>
+            <div className="grid gap-2">
+              <label className="text-sm font-semibold" htmlFor="password">رمز عبور</label>
+              <div className="relative">
                 <input
+                  className={`min-h-12 w-full rounded-xl border bg-white px-4 pl-20 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-slate-900 ${errors.password ? 'border-rose-500' : 'border-slate-200 dark:border-slate-700'}`}
                   id="password"
                   name="password"
                   type={showPassword ? 'text' : 'password'}
@@ -143,30 +122,24 @@ export function LoginPage() {
                   aria-describedby={errors.password ? 'password-error' : undefined}
                   disabled={isSubmitting}
                 />
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() => setShowPassword((current) => !current)}
-                  aria-label={showPassword ? 'پنهان کردن رمز عبور' : 'نمایش رمز عبور'}
-                  disabled={isSubmitting}
-                >
+                <button className="absolute left-3 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 dark:text-indigo-300 dark:hover:bg-slate-800" type="button" onClick={() => setShowPassword((current) => !current)} aria-label={showPassword ? 'پنهان کردن رمز عبور' : 'نمایش رمز عبور'} disabled={isSubmitting}>
                   {showPassword ? 'پنهان' : 'نمایش'}
                 </button>
               </div>
-              {errors.password && <span id="password-error" className="field-error">{errors.password}</span>}
+              {errors.password && <span className="text-xs text-rose-600 dark:text-rose-400" id="password-error">{errors.password}</span>}
             </div>
 
-            {serverError && <div className="form-error" role="alert">{serverError}</div>}
+            {serverError && <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-7 text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300" role="alert">{serverError}</div>}
 
-            <button className="button button--primary login-submit" type="submit" disabled={isSubmitting}>
+            <button className="mt-1 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-bold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60" type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'در حال ورود...' : 'ورود به سامانه'}
-              {!isSubmitting && <span className="login-submit__arrow" aria-hidden="true">←</span>}
+              {!isSubmitting && <span aria-hidden="true">←</span>}
             </button>
           </form>
 
-          <div className="login-security-note">
-            <span aria-hidden="true">◈</span>
-            <span><strong>ورود امن</strong><br />دسترسی شما بر اساس نقش کاربری و شعبه تعیین می‌شود.</span>
+          <div className="mt-7 flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-100/70 p-4 text-xs leading-6 text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
+            <span className="text-base text-indigo-600 dark:text-indigo-300" aria-hidden="true">◈</span>
+            <span><strong className="text-slate-800 dark:text-slate-200">ورود امن</strong><br />دسترسی شما بر اساس نقش کاربری و شعبه تعیین می‌شود.</span>
           </div>
         </div>
       </section>
