@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router';
-import { useAuth } from '../auth/AuthContext.jsx';
+import { useAuth } from '../../../auth/AuthContext.jsx';
 import { ThemeToggle } from '../../../shared/components/ThemeToggle.jsx';
 
 function validate(values) {
