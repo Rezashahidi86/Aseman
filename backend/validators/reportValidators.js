@@ -7,8 +7,7 @@ const dateSchema = z
     const date = new Date(`${value}T00:00:00.000Z`);
 
     return (
-      !Number.isNaN(date.getTime()) &&
-      date.toISOString().slice(0, 10) === value
+      !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value
     );
   }, 'Invalid calendar date');
 
@@ -35,16 +34,19 @@ const weeklyReportSchema = z
     endDate: dateSchema,
   })
   .strict()
-  .refine(({ startDate, endDate }) => {
-    const start = new Date(`${startDate}T00:00:00.000Z`);
-    const end = new Date(`${endDate}T00:00:00.000Z`);
-    const days = (end.getTime() - start.getTime()) / 86400000;
+  .refine(
+    ({ startDate, endDate }) => {
+      const start = new Date(`${startDate}T00:00:00.000Z`);
+      const end = new Date(`${endDate}T00:00:00.000Z`);
+      const days = (end.getTime() - start.getTime()) / 86400000;
 
-    return days === 6;
-  }, {
-    message: 'A weekly report must cover exactly seven days',
-    path: ['endDate'],
-  });
+      return days === 6;
+    },
+    {
+      message: 'A weekly report must cover exactly seven days',
+      path: ['endDate'],
+    },
+  );
 
 const monthlyReportSchema = z
   .object({
@@ -54,9 +56,31 @@ const monthlyReportSchema = z
   })
   .strict();
 
+const reportFilterSchema = z
+  .object({
+    branchId: z
+      .string()
+      .regex(/^[a-f\d]{24}$/i)
+      .optional(),
+    startDate: dateSchema,
+    endDate: dateSchema,
+    groupBy: z.enum(['day', 'month']).default('day'),
+    sortBy: z
+      .enum(['totalSales', 'totalProfit', 'totalItemsSold', 'salesCount'])
+      .default('totalSales'),
+    sortOrder: z.enum(['asc', 'desc']).default('desc'),
+  })
+  .strict()
+  .refine(({ startDate, endDate }) => startDate <= endDate, {
+    message: 'Start date must be before or equal to end date',
+    path: ['endDate'],
+  });
+
+
 export {
   reportRangeSchema,
   dailyReportSchema,
   weeklyReportSchema,
   monthlyReportSchema,
+  reportFilterSchema
 };

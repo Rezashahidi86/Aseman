@@ -24,7 +24,7 @@ const prepareSaleItems = async (items, branchId, session = null) => {
 
   let productsQuery = Product.find({
     _id: { $in: productIds },
-    branch: branchId,
+    branch: new mongoose.Types.ObjectId(branchId),
   });
   if (session) {
     productsQuery = productsQuery.session(session);

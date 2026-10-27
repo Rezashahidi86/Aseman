@@ -11,12 +11,17 @@ const mocks = vi.hoisted(() => ({
   statsUpdateOne: vi.fn(),
 }));
 
-vi.mock('mongoose', () => ({
-  default: {
-    startSession: mocks.startSession,
-    isValidObjectId: mocks.isValidObjectId,
-  },
-}));
+vi.mock('mongoose', async (importOriginal) => {
+  const actual = await importOriginal();
+
+  return {
+    ...actual,
+    default: {
+      ...actual.default,
+      Types: actual.default.Types,
+    },
+  };
+});
 
 vi.mock('../models/Product.js', () => ({
   default: {
