@@ -19,6 +19,8 @@ vi.mock('mongoose', async (importOriginal) => {
     default: {
       ...actual.default,
       Types: actual.default.Types,
+      isValidObjectId: mocks.isValidObjectId,
+      startSession: mocks.startSession,
     },
   };
 });
