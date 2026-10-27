@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FiBarChart2, FiBox, FiFileText, FiTrendingUp } from 'react-icons/fi';
+import { FiAlertCircle, FiBarChart2, FiBox, FiFileText, FiTrendingUp } from 'react-icons/fi';
 import { apiRequest } from '../../../api/client.js';
 import { useAuth } from '../../../auth/AuthContext.jsx';
 import { BranchPerformance } from '../components/BranchPerformance.jsx';
@@ -36,7 +36,7 @@ function LoadingState() {
 function ErrorState({ message, onRetry }) {
   return (
     <section className="mb-5 flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300" role="alert">
-      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-rose-100 font-extrabold dark:bg-rose-900/50" aria-hidden="true">!</span>
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-rose-100 dark:bg-rose-900/50" aria-hidden="true"><FiAlertCircle size={18} /></span>
       <div>
         <h2 className="text-xs font-extrabold">دریافت اطلاعات ناموفق بود</h2>
         <p className="mt-1 text-xs leading-6">{message}</p>
