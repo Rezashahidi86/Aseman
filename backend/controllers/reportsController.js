@@ -55,10 +55,9 @@ const getMonthlyReport = async (req, res, next) => {
     if (!req.branchId) {
       return next(new AppError('A valid branch is required', 400));
     }
-
     const report = await getMonthlyBranchReport({
       branchId: req.branchId,
-      month: req.query.month,
+      month: req.query.month|| new Date().toISOString().slice(0, 7),
     });
 
     return res.status(200).json({

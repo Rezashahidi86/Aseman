@@ -5,7 +5,11 @@ import branchesRouter from './branchesRoutes.js';
 import productsRouter from './productsRoutes.js';
 import ReferenceCatalog from '../routes/referenceCatalogRoutes.js';
 import salesRouter from '../routes/salesRoutes.js';
-import reportsRouter from '../routes/reportsRoutes.js'; 
+import reportsRouter from '../routes/reportsRoutes.js';
+import customersRouter from './customersRoutes.js';
+import needsRouter from './needsRoutes.js';
+import manualDocumentsRouter from './manualDocumentsRoutes.js';
+
 const router = Router();
 
 router.use('/auth', authRouter);
@@ -15,4 +19,7 @@ router.use('/products', productsRouter);
 router.use('/reference-Catalog', ReferenceCatalog);
 router.use('/sales', salesRouter);
 router.use('/reports', reportsRouter);
+router.use('/customers', customersRouter);
+router.use('/needs', needsRouter);
+router.use('/manual-documents', manualDocumentsRouter);
 export default router;

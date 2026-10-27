@@ -29,6 +29,7 @@ app.use(
 );
 app.use(express.json({ limit: '10kb' }));
 app.use(morgan('dev'));
+app.use('/uploads', express.static('uploads'));
 app.use(API_PREFIX, router);
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
