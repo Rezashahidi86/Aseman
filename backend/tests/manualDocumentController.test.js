@@ -31,7 +31,6 @@ vi.mock('../models/Branch.js', () => ({
 
 describe('Manual document controller', () => {
   const ownBranchId = '507f1f77bcf86cd799439011';
-  const otherBranchId = '507f191e810c19729de860ea';
   const documentId = '507f1f77bcf86cd799439012';
 
   let req;
