@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { FiAlertCircle, FiBarChart2, FiBox, FiFileText, FiTrendingUp } from 'react-icons/fi';
 import { getAllBranchesDailyReport, getAllBranchesReport, getBranch, getProducts } from '../../../api/services/dashboardService.js';
-import { formatPersianMonth } from '../../../shared/utils/date.js';
+import { formatPersianMonth, getDateKeyInTimeZone } from '../../../shared/utils/date.js';
 import { useAuth } from '../../../auth/AuthContext.jsx';
 import { BranchPerformance } from '../components/BranchPerformance.jsx';
 import { DashboardHeader } from '../components/DashboardHeader.jsx';
@@ -99,9 +99,9 @@ export function DashboardPage() {
 
     try {
       if (user?.role === 'ADMIN') {
-        const today = new Date();
-        const endDate = today.toISOString().slice(0, 10);
-        const startDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - 6))
+        const endDate = getDateKeyInTimeZone();
+        const [year, month, day] = endDate.split('-').map(Number);
+        const startDate = new Date(Date.UTC(year, month - 1, day - 6))
           .toISOString()
           .slice(0, 10);
         const [summaryResponse, dailyResponse] = await Promise.all([
