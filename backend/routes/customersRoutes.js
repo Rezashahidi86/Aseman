@@ -4,6 +4,9 @@ import {
   getCustomers,
   updateCustomer,
   deleteCustomer,
+  getCustomerSmsSettings,
+  updateCustomerSmsSettings,
+  sendCustomerSms,
 } from '../controllers/customerController.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
 import setBranchContext from '../middlewares/branchMiddleware.js';
@@ -11,6 +14,13 @@ import setBranchContext from '../middlewares/branchMiddleware.js';
 const router = Router();
 
 router.use(authMiddleware);
+
+router
+  .route('/sms-settings')
+  .get(setBranchContext, getCustomerSmsSettings)
+  .put(setBranchContext, updateCustomerSmsSettings);
+
+router.post('/:id/sms', setBranchContext, sendCustomerSms);
 
 router
   .route('/')
