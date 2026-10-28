@@ -40,7 +40,6 @@ export function NeedsPage() {
   const { activeBranch, activeBranchId } = useActiveBranch();
   const isAdmin = user?.role === 'ADMIN';
   const branchRequired = isAdmin && !activeBranchId;
-  const branchParams = activeBranchId ? { branchId: activeBranchId } : {};
 
   const [needs, setNeeds] = useState([]);
   const [needsPagination, setNeedsPagination] = useState({ total: 0, totalPages: 0 });
@@ -77,7 +76,7 @@ export function NeedsPage() {
     setLoadingNeeds(true);
     setError('');
     try {
-      const response = await getNeeds({ ...branchParams, page: needsPage, limit: needsLimit, ...(status ? { status } : {}) });
+      const response = await getNeeds({ ...(activeBranchId ? { branchId: activeBranchId } : {}), page: needsPage, limit: needsLimit, ...(status ? { status } : {}) });
       setNeeds(response?.data?.needs || []);
       setNeedsPagination({ total: Number(response?.pagination?.total) || 0, totalPages: Number(response?.pagination?.totalPages) || 0 });
     } catch (loadError) {
@@ -95,7 +94,7 @@ export function NeedsPage() {
     }
     setLoadingLowStock(true);
     try {
-      const response = await getProducts({ ...branchParams, stock: 'low', page: lowStockPage, limit: lowStockLimit });
+      const response = await getProducts({ ...(activeBranchId ? { branchId: activeBranchId } : {}), stock: 'low', page: lowStockPage, limit: lowStockLimit });
       setLowStockProducts(response?.data?.products || []);
       setLowStockPagination({ total: Number(response?.pagination?.total) || 0, totalPages: Number(response?.pagination?.totalPages) || 0 });
     } catch (loadError) {
@@ -114,7 +113,7 @@ export function NeedsPage() {
     setLoadingCatalog(true);
     try {
       const response = await getProducts({
-        ...branchParams,
+        ...(activeBranchId ? { branchId: activeBranchId } : {}),
         page: catalogPage,
         limit: catalogLimit,
         ...(appliedCatalogSearch ? { name: appliedCatalogSearch } : {}),
@@ -156,7 +155,7 @@ export function NeedsPage() {
 
   const changeStatus = async (id, nextStatus) => {
     try {
-      await updateNeedStatus(id, nextStatus, branchParams);
+      await updateNeedStatus(id, nextStatus, activeBranchId ? { branchId: activeBranchId } : {});
       await loadNeeds();
       showSuccess('وضعیت نیاز به‌روزرسانی شد.');
     } catch (updateError) {
@@ -166,6 +165,9 @@ export function NeedsPage() {
 
   const chooseLowStockProduct = (product) => {
     setProductId(product._id);
+    setCatalogSearch(product.name);
+    setAppliedCatalogSearch(product.name);
+    setCatalogPage(1);
     setQuantity(String(Math.max(1, Number(product.minimumStock || 0) - Number(product.quantity || 0))));
     document.getElementById('manual-need-form')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
