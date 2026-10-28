@@ -17,15 +17,18 @@ const escapeRegex = (value) =>
 
 const getCustomerBranchFilter = (req, next) => {
   if (req.user.role === ROLES.SELLER) {
-    if (!req.user.branch) {
+    const branchId = req.branchId || req.user.branch;
+
+    if (!branchId) {
       next(new AppError('Seller is not assigned to a branch', 403));
       return null;
     }
 
-    return { branch: req.user.branch };
+    return { branch: branchId };
   }
 
-  const branchId = req.query.branchId || req.body.branchId;
+  const branchId =
+    req.branchId || req.query?.branchId || req.body?.branchId;
 
   if (!branchId || !mongoose.isValidObjectId(branchId)) {
     next(new AppError('A valid branchId is required', 400));
