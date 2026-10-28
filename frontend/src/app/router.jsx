@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate, RouterProvider } from 'react-router';
 import { ProtectedRoute } from '../features/auth/ProtectedRoute.jsx';
 import { LoginPage } from '../features/auth/pages/LoginPage.jsx';
 import { DashboardPage } from '../features/dashboard/pages/DashboardPage.jsx';
+import { ProductsPage } from '../features/products/pages/ProductsPage.jsx';
 
 class AppErrorBoundary extends Component {
   state = { hasError: false };
@@ -40,7 +41,10 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <ProtectedRoute />,
-    children: [{ index: true, element: <DashboardPage /> }],
+    children: [
+      { index: true, element: <DashboardPage /> },
+      { path: 'products', element: <ProductsPage /> },
+    ],
   },
   { path: '*', element: <Navigate to="/" replace /> },
 ]);
