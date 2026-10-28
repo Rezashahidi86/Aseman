@@ -2,7 +2,7 @@ import { Router } from 'express';
 import {
   createNeed,
   getNeeds,
-  updateNeedStatus,
+  confirmNeed,
 } from '../controllers/needController.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
 import setBranchContext from '../middlewares/branchMiddleware.js';
@@ -16,6 +16,6 @@ router
   .post(setBranchContext, createNeed)
   .get(setBranchContext, getNeeds);
 
-router.patch('/:id/status', setBranchContext, updateNeedStatus);
+router.post('/:id/confirm', setBranchContext, confirmNeed);
 
 export default router;
