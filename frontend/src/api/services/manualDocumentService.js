@@ -1,11 +1,7 @@
 import { apiClient } from '../http.js';
 
 export async function getManualDocuments(params = {}) {
-  const { branchId, ...query } = params;
-  const response = await apiClient.get('/manual-documents', {
-    params: query,
-    headers: branchId ? { 'X-Branch-Id': branchId } : {},
-  });
+  const response = await apiClient.post('/manual-documents/list', params);
   return response.data;
 }
 
