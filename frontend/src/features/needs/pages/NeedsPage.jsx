@@ -57,7 +57,9 @@ export function NeedsPage() {
   const [catalogPage, setCatalogPage] = useState(1);
   const [catalogLimit, setCatalogLimit] = useState(10);
   const [catalogSearch, setCatalogSearch] = useState('');
+  const [catalogSearchType, setCatalogSearchType] = useState('name');
   const [appliedCatalogSearch, setAppliedCatalogSearch] = useState('');
+  const [appliedCatalogSearchType, setAppliedCatalogSearchType] = useState('name');
 
   const [productId, setProductId] = useState('');
   const [quantity, setQuantity] = useState('1');
@@ -105,9 +107,10 @@ export function NeedsPage() {
   }, [activeBranchId, branchRequired, lowStockPage, lowStockLimit]);
 
   const loadCatalog = useCallback(async () => {
-    if (branchRequired) {
+    if (branchRequired || !appliedCatalogSearch) {
       setCatalogProducts([]);
       setCatalogPagination({ total: 0, totalPages: 0 });
+      setLoadingCatalog(false);
       return;
     }
     setLoadingCatalog(true);
@@ -116,19 +119,20 @@ export function NeedsPage() {
         ...(activeBranchId ? { branchId: activeBranchId } : {}),
         page: catalogPage,
         limit: catalogLimit,
-        ...(appliedCatalogSearch ? { name: appliedCatalogSearch } : {}),
+        [appliedCatalogSearchType === 'barcode' ? 'barcode' : 'name']: appliedCatalogSearch,
         sort: 'name',
       });
       const list = response?.data?.products || [];
       setCatalogProducts(list);
       setCatalogPagination({ total: Number(response?.pagination?.total) || 0, totalPages: Number(response?.pagination?.totalPages) || 0 });
-      setProductId((current) => current || list[0]?._id || '');
     } catch (loadError) {
-      setError(loadError.message || 'دریافت کاتالوگ کالا ناموفق بود.');
+      setError(loadError.message || 'جست‌وجوی کالا ناموفق بود.');
+      setCatalogProducts([]);
+      setCatalogPagination({ total: 0, totalPages: 0 });
     } finally {
       setLoadingCatalog(false);
     }
-  }, [activeBranchId, branchRequired, catalogPage, catalogLimit, appliedCatalogSearch]);
+  }, [activeBranchId, branchRequired, catalogPage, catalogLimit, appliedCatalogSearch, appliedCatalogSearchType]);
 
   useEffect(() => { loadNeeds(); }, [loadNeeds]);
   useEffect(() => { loadLowStock(); }, [loadLowStock]);
@@ -166,7 +170,9 @@ export function NeedsPage() {
   const chooseLowStockProduct = (product) => {
     setProductId(product._id);
     setCatalogSearch(product.name);
+    setCatalogSearchType('name');
     setAppliedCatalogSearch(product.name);
+    setAppliedCatalogSearchType('name');
     setCatalogPage(1);
     setQuantity(String(Math.max(1, Number(product.minimumStock || 0) - Number(product.quantity || 0))));
     document.getElementById('manual-need-form')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -210,11 +216,30 @@ export function NeedsPage() {
                   <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/80 p-5 dark:border-slate-800 dark:bg-slate-950/50"><div><h2 className="flex items-center gap-2 text-lg font-extrabold"><FiClipboard /> ۲. نیازهای دستی</h2><p className="mt-1 text-xs leading-6 text-slate-500">درخواست خرید را ثبت کنید و پس از تأمین، با یک کلیک آن را تأیید کنید. درخواست تأییدشده از دیتابیس حذف می‌شود.</p></div><span className="rounded-xl border border-indigo-100 bg-white px-4 py-2 text-sm font-bold text-indigo-700 dark:border-indigo-900 dark:bg-slate-900 dark:text-indigo-300">{number.format(needsPagination.total)} درخواست باز</span></div>
                   <form id="manual-need-form" onSubmit={submit} className="grid gap-5 border-b border-slate-100 bg-white p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_180px] dark:border-slate-800 dark:bg-slate-900">
                     <div className="min-w-0">
-                      <label htmlFor="need-product" className="mb-2 block text-sm font-bold">انتخاب کالا <span className="text-rose-500">*</span></label>
-                      <select id="need-product" required value={productId} onChange={(event) => setProductId(event.target.value)} className="mt-1 min-h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-950"><option value="">انتخاب کالا</option>{catalogProducts.map((product) => <option key={product._id} value={product._id}>{product.name} · {product.barcode}</option>)}</select>
-                      <div className="mt-3 flex flex-col gap-2 sm:flex-row"><input value={catalogSearch} onChange={(event) => setCatalogSearch(event.target.value)} placeholder="نام کالا را جست‌وجو کنید..." className="min-h-11 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-950" /><button type="button" onClick={() => { setCatalogPage(1); setAppliedCatalogSearch(catalogSearch.trim()); setProductId(''); }} className="min-h-11 rounded-xl border border-slate-200 px-5 text-sm font-semibold transition hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800">جست‌وجو در کاتالوگ</button></div><p className="mt-2 text-xs text-slate-500">{number.format(catalogPagination.total)} کالا مطابق کاتالوگ</p>
-                      <Pagination page={catalogPage} limit={catalogLimit} total={catalogPagination.total} totalPages={catalogPagination.totalPages} onPageChange={(value) => { setCatalogPage(value); setProductId(''); }} onLimitChange={(value) => { setCatalogLimit(value); setCatalogPage(1); setProductId(''); }} label="کالا" />
-                      {loadingCatalog && <p className="mt-2 text-[11px] text-slate-500">در حال دریافت کاتالوگ...</p>}
+                      <label htmlFor="need-product-search" className="mb-2 block text-sm font-bold">جست‌وجو و انتخاب کالا <span className="text-rose-500">*</span></label>
+                      <div className="mb-3 inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-950">
+                        <button type="button" onClick={() => { setCatalogSearchType('name'); setCatalogSearch(''); setAppliedCatalogSearch(''); setAppliedCatalogSearchType('name'); setCatalogPage(1); setCatalogProducts([]); setCatalogPagination({ total: 0, totalPages: 0 }); setProductId(''); }} className={`rounded-lg px-4 py-2 text-xs font-bold transition ${catalogSearchType === 'name' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300'}`}>نام کالا</button>
+                        <button type="button" onClick={() => { setCatalogSearchType('barcode'); setCatalogSearch(''); setAppliedCatalogSearch(''); setAppliedCatalogSearchType('barcode'); setCatalogPage(1); setCatalogProducts([]); setCatalogPagination({ total: 0, totalPages: 0 }); setProductId(''); }} className={`rounded-lg px-4 py-2 text-xs font-bold transition ${catalogSearchType === 'barcode' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300'}`}>بارکد</button>
+                      </div>
+                      <div className="flex flex-col gap-2 sm:flex-row">
+                        <input id="need-product-search" value={catalogSearch} onChange={(event) => setCatalogSearch(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); const query = catalogSearch.trim(); setCatalogPage(1); setProductId(''); setAppliedCatalogSearch(query); setAppliedCatalogSearchType(catalogSearchType); } }} placeholder={catalogSearchType === 'barcode' ? 'بارکد کالا را وارد یا اسکن کنید...' : 'نام کالا را وارد کنید...'} className="min-h-11 min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-950" />
+                        <button type="button" onClick={() => { setCatalogPage(1); setProductId(''); setAppliedCatalogSearch(catalogSearch.trim()); setAppliedCatalogSearchType(catalogSearchType); }} disabled={!catalogSearch.trim() || loadingCatalog} className="min-h-11 rounded-xl border border-slate-200 px-5 text-sm font-semibold transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:hover:bg-slate-800">جست‌وجو</button>
+                      </div>
+                      {productId && <p className="mt-2 text-xs font-bold text-emerald-700 dark:text-emerald-400">کالای انتخاب‌شده: {catalogProducts.find((product) => product._id === productId)?.name || lowStockProducts.find((product) => product._id === productId)?.name || 'کالای انتخاب‌شده'}</p>}
+                      <p className="mt-2 text-xs text-slate-500">{appliedCatalogSearch ? `${number.format(catalogPagination.total)} نتیجه برای جست‌وجو` : 'برای انتخاب کالا، نام یا بارکد آن را جست‌وجو کنید.'}</p>
+                      {loadingCatalog && <p className="mt-2 text-[11px] text-slate-500">در حال جست‌وجوی کالا...</p>}
+                      {appliedCatalogSearch && !loadingCatalog && (
+                        <div className="mt-3 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700">
+                          {catalogProducts.map((product) => (
+                            <button key={product._id} type="button" onClick={() => setProductId(product._id)} className={`flex w-full items-center justify-between gap-3 border-b border-slate-100 p-3 text-right last:border-b-0 hover:bg-indigo-50 dark:border-slate-800 dark:hover:bg-slate-800 ${productId === product._id ? 'bg-indigo-50 ring-1 ring-inset ring-indigo-500 dark:bg-indigo-950/40' : ''}`}>
+                              <span className="min-w-0"><span className="block truncate text-sm font-bold">{product.name}</span><span className="mt-1 block text-[11px] text-slate-500">بارکد: {product.barcode || '—'} · موجودی: {number.format(product.quantity ?? 0)}</span></span>
+                              <span className={`shrink-0 rounded-lg px-3 py-2 text-xs font-bold ${productId === product._id ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'}`}>{productId === product._id ? 'انتخاب شد' : 'انتخاب'}</span>
+                            </button>
+                          ))}
+                          {!catalogProducts.length && <p className="p-4 text-center text-xs text-slate-500">کالایی با این مشخصات پیدا نشد.</p>}
+                        </div>
+                      )}
+                      <Pagination page={catalogPage} limit={catalogLimit} total={catalogPagination.total} totalPages={catalogPagination.totalPages} onPageChange={(value) => { setCatalogPage(value); setProductId(''); }} onLimitChange={(value) => { setCatalogLimit(value); setCatalogPage(1); setProductId(''); }} label="نتیجه" />
                     </div>
                     <label className="text-sm font-bold">تعداد موردنیاز <span className="text-rose-500">*</span><input type="number" min="1" step="1" required value={quantity} onChange={(event) => setQuantity(event.target.value)} className="mt-1 min-h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-950" /><span className="mt-2 block text-xs font-normal text-slate-500">تعداد باید عدد صحیح و حداقل ۱ باشد.</span></label>
                     <div className="flex flex-wrap items-end gap-3 lg:col-span-2"><button type="submit" disabled={saving || !productId || loadingCatalog} className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"><FiPlus />{saving ? 'در حال ثبت...' : 'ثبت درخواست نیاز'}</button><span className="pb-1 text-xs text-slate-500">پس از ثبت، درخواست در فهرست پایین نمایش داده می‌شود.</span></div>
