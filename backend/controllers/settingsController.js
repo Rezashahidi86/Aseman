@@ -3,8 +3,11 @@ import AppError from '../utils/AppError.js';
 
 const getSettings = async (req, res, next) => {
   try {
-    let settings = await AppSettings.findOne().select('lowStockThreshold updatedAt');
-    if (!settings) settings = await AppSettings.create({ lowStockThreshold: 10 });
+    const settings = await AppSettings.findOneAndUpdate(
+      {},
+      { $setOnInsert: { lowStockThreshold: 10 } },
+      { new: true, upsert: true, setDefaultsOnInsert: true },
+    ).select('lowStockThreshold updatedAt');
     return res.status(200).json({ status: 'success', data: { settings } });
   } catch (error) {
     return next(error);
