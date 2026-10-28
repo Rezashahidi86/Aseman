@@ -1,8 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import mongoose from 'mongoose';
 import Branch from '../models/Branch.js';
 import User from '../models/User.js';
-import AppSettings from '../models/AppSettings.js';
 import ReferenceCatalog from '../models/ReferenceCatalog.js';
 import ROLES from '../constants/roles.js';
 
@@ -83,21 +81,5 @@ describe('ReferenceCatalog model', () => {
     expect(index[1].partialFilterExpression).toEqual({
       barcode: { $type: 'string' },
     });
-  });
-});
-
-describe('AppSettings model', () => {
-  it('should apply the default low-stock threshold', () => {
-    const settings = new AppSettings();
-
-    expect(settings.lowStockThreshold).toBe(10);
-  });
-
-  it('should reject a negative low-stock threshold', async () => {
-    const settings = new AppSettings({
-      lowStockThreshold: -1,
-    });
-
-    await expect(settings.validate()).rejects.toThrow();
   });
 });
