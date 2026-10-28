@@ -7,7 +7,7 @@ import { useActiveBranch } from '../../../branches/ActiveBranchContext.jsx';
 import { getProducts } from '../../../api/services/productService.js';
 import { registerSale } from '../../../api/services/salesService.js';
 import { formatPersianDateTime } from '../../../shared/utils/date.js';
-import { showError, showSuccess } from '../../../shared/utils/notifications.js';
+import { confirmWithToast, showError, showSuccess } from '../../../shared/utils/notifications.js';
 import { BarcodeScannerInput } from '../components/BarcodeScannerInput.jsx';
 import { ProductSearchResults } from '../components/ProductSearchResults.jsx';
 import { SaleCart } from '../components/SaleCart.jsx';
@@ -156,11 +156,18 @@ export function SalesPage() {
   const removeItem = (productId) => setCart((current) => current.filter((item) => item._id !== productId));
 
   const clearCart = () => {
-    if (!cart.length || window.confirm('تمام اقلام سبد فروش حذف شوند؟')) {
-      setCart([]);
-      idempotencyKeyRef.current = '';
-      setSubmitError('');
-    }
+    if (!cart.length) return;
+
+    confirmWithToast({
+      message: 'تمام اقلام سبد فروش حذف شوند؟',
+      confirmLabel: 'خالی‌کردن سبد',
+      type: 'error',
+      onConfirm: () => {
+        setCart([]);
+        idempotencyKeyRef.current = '';
+        setSubmitError('');
+      },
+    });
   };
 
   const openReview = () => {
