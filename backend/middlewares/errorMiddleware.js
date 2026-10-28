@@ -1,4 +1,5 @@
 import { ZodError } from 'zod';
+import env from '../config/env.js';
 
 const errorMiddleware = (err, req, res, next) => {
   if (err instanceof ZodError) {
@@ -14,11 +15,16 @@ const errorMiddleware = (err, req, res, next) => {
 
   const statusCode = err.statusCode || 500;
 
-  return res.status(statusCode).json({
+  const response = {
     status: err.status || 'error',
     message: err.message || 'Internal Server Error',
-    stack: err.stack,
-  });
+  };
+
+  if (env.NODE_ENV === 'development') {
+    response.stack = err.stack;
+  }
+
+  return res.status(statusCode).json(response);
 };
 
 export default errorMiddleware;
