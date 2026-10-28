@@ -81,7 +81,6 @@ button:disabled {
   opacity: 0.6;
 }
 
-
 * {
   box-sizing: border-box;
 }
@@ -101,6 +100,74 @@ svg,
 video,
 canvas {
   max-width: 100%;
+}
+
+[data-sonner-toaster] {
+  font-family: "IRANSansX", Tahoma, Arial, sans-serif;
+}
+
+[data-sonner-toast] {
+  border-radius: 14px !important;
+  border: 1px solid var(--toast-border) !important;
+  box-shadow: 0 10px 30px rgb(15 23 42 / 12%) !important;
+  font-family: "IRANSansX", Tahoma, Arial, sans-serif !important;
+}
+
+[data-sonner-toaster][data-theme="light"] [data-sonner-toast] {
+  --toast-bg: #ffffff;
+  --toast-text: #172033;
+  --toast-border: #e2e8f0;
+  background: var(--toast-bg) !important;
+  color: var(--toast-text) !important;
+}
+
+[data-sonner-toaster][data-theme="dark"] [data-sonner-toast] {
+  --toast-bg: #18233a;
+  --toast-text: #f1f5f9;
+  --toast-border: #334155;
+  background: var(--toast-bg) !important;
+  color: var(--toast-text) !important;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 28%) !important;
+}
+
+[data-sonner-toaster][data-theme="light"] [data-sonner-toast] [data-title],
+[data-sonner-toaster][data-theme="light"] [data-sonner-toast] [data-description] {
+  color: #172033 !important;
+}
+
+[data-sonner-toaster][data-theme="dark"] [data-sonner-toast] [data-title],
+[data-sonner-toaster][data-theme="dark"] [data-sonner-toast] [data-description] {
+  color: #f1f5f9 !important;
+}
+
+[data-sonner-toast] [data-button] {
+  border-radius: 8px !important;
+  font-family: "IRANSansX", Tahoma, Arial, sans-serif !important;
+}
+
+[data-sonner-toaster][data-theme="light"] [data-sonner-toast] [data-button] {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+}
+
+[data-sonner-toaster][data-theme="dark"] [data-sonner-toast] [data-button] {
+  background: #6366f1 !important;
+  color: #ffffff !important;
+}
+
+[data-sonner-toast] [data-cancel] {
+  border-radius: 8px !important;
+  font-family: "IRANSansX", Tahoma, Arial, sans-serif !important;
+}
+
+[data-sonner-toaster][data-theme="light"] [data-sonner-toast] [data-cancel] {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+}
+
+[data-sonner-toaster][data-theme="dark"] [data-sonner-toast] [data-cancel] {
+  background: #334155 !important;
+  color: #f1f5f9 !important;
 }
 
 @media (max-width: 640px) {
