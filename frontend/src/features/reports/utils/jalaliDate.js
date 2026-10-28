@@ -14,7 +14,7 @@ export function formatJalaliDate(value) {
 
 export function parseJalaliDate(value) {
   const normalized = normalizeDigits(value.trim()).replace(/[.-]/g, '/');
-  const match = normalized.match(/^(\\d{4})\\/(\\d{1,2})\\/(\\d{1,2})$/);
+  const match = normalized.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
   if (!match) return null;
   const [, yearText, monthText, dayText] = match;
   const year = Number(yearText);
