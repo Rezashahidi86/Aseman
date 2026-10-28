@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { FiAlertTriangle, FiClipboard, FiPlus, FiRefreshCw } from 'react-icons/fi';
 import { useAuth } from '../../../auth/AuthContext.jsx';
 import { useActiveBranch } from '../../../branches/ActiveBranchContext.jsx';
-import { getNeeds, createNeed, confirmNeed } from '../../../api/services/needService.js';
+import { getNeeds, createNeed, deleteNeed } from '../../../api/services/needService.js';
 import { getProducts } from '../../../api/services/dashboardService.js';
 import { DashboardHeader } from '../../dashboard/components/DashboardHeader.jsx';
 import { DashboardSidebar } from '../../dashboard/components/DashboardSidebar.jsx';
@@ -155,7 +155,7 @@ export function NeedsPage() {
 
   const confirm = async (id) => {
     try {
-      await confirmNeed(id, activeBranchId ? { branchId: activeBranchId } : {});
+      await deleteNeed(id, activeBranchId ? { branchId: activeBranchId } : {});
       await loadNeeds();
       showSuccess('نیاز تأیید و از فهرست حذف شد.');
     } catch (confirmError) {
