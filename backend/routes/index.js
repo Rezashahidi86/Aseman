@@ -4,12 +4,11 @@ import usersRouter from './usersRoutes.js';
 import branchesRouter from './branchesRoutes.js';
 import productsRouter from './productsRoutes.js';
 import ReferenceCatalog from '../routes/referenceCatalogRoutes.js';
-import salesRouter from '../routes/salesRoutes.js';
-import reportsRouter from '../routes/reportsRoutes.js';
+import salesRouter from './salesRoutes.js';
+import reportsRouter from './reportsRoutes.js';
 import customersRouter from './customersRoutes.js';
 import needsRouter from './needsRoutes.js';
 import manualDocumentsRouter from './manualDocumentsRoutes.js';
-import settingsRouter from './settingsRoutes.js';
 
 const router = Router();
 
@@ -23,5 +22,4 @@ router.use('/reports', reportsRouter);
 router.use('/customers', customersRouter);
 router.use('/needs', needsRouter);
 router.use('/manual-documents', manualDocumentsRouter);
-router.use('/settings', settingsRouter);
 export default router;
