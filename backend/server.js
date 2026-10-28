@@ -2,6 +2,7 @@ import express from 'express';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import errorMiddleware from './middlewares/errorMiddleware.js';
 import notFoundMiddleware from './middlewares/notFoundMiddleware.js';
@@ -27,6 +28,7 @@ app.use(
     credentials: true,
   }),
 );
+app.use(cookieParser());
 app.use(express.json({ limit: '10kb' }));
 app.use(morgan('dev'));
 app.use(API_PREFIX, router);
