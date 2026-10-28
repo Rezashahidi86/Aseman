@@ -5,8 +5,8 @@ export async function getCustomers(params) {
   return response.data;
 }
 
-export async function createCustomer(payload) {
-  const response = await apiClient.post('/customers', payload);
+export async function createCustomer(payload, params = {}) {
+  const response = await apiClient.post('/customers', payload, { params });
   return response.data;
 }
 
