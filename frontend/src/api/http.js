@@ -14,6 +14,7 @@ const localizedMessages = [
   [/duplicate key|already exists/i, 'این اطلاعات قبلاً ثبت شده است.'],
   [/cast to objectid failed|invalid objectid/i, 'شناسه ارسالی معتبر نیست.'],
   [/network error|failed to fetch/i, 'ارتباط با سرور برقرار نشد. اتصال اینترنت را بررسی کنید.'],
+  [/insufficient stock|not enough stock|stock.*insufficient|quantity.*available/i, 'موجودی کالا برای تعداد درخواستی کافی نیست. موجودی سبد را به‌روزرسانی کنید.'],
 ];
 
 function getLocalizedApiMessage(message, status, payload) {
