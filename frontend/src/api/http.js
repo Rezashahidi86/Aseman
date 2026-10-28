@@ -3,7 +3,7 @@ import axios from 'axios';
 const baseURL = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:3000/api/v1').replace(/\/$/, '');
 
 const localizedMessages = [
-  [/invalid credentials|incorrect email or password|wrong password/i, 'ایمیل یا رمز عبور نادرست است.'],
+  [/invalid credentials|Invalid email or password|wrong password/i, 'ایمیل یا رمز عبور نادرست است.'],
   [/user not found|no user found/i, 'کاربری با این مشخصات پیدا نشد.'],
   [/email already exists|duplicate key.*email|email.*already/i, 'این ایمیل قبلاً ثبت شده است.'],
   [/invalid token|jwt malformed|jwt expired|token expired/i, 'اعتبار نشست شما به پایان رسیده است؛ دوباره وارد شوید.'],
