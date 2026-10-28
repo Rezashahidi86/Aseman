@@ -30,7 +30,9 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.json({ limit: '10kb' }));
-app.use(morgan('dev'));
+if (env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 app.use(API_PREFIX, router);
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
@@ -39,10 +41,8 @@ const startServer = async () => {
   try {
     await mongoose.connect(env.DATABASE_URL);
 
-    console.log('Database connected successfully');
 
     app.listen(env.PORT, () => {
-      console.log(`Server is running on port ${env.PORT}`);
     });
   } catch (error) {
     console.error('Failed to start server:', error.message);
