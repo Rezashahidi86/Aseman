@@ -66,7 +66,7 @@ const createProduct = async (req, res, next) => {
 
 const getProducts = async (req, res, next) => {
   try {
-    const { name, barcode, page, limit, sort, fields, branchId } =
+    const { name, barcode, page, limit, sort, fields, branchId, stock } =
       req.query;
 
     const {
@@ -161,6 +161,16 @@ const getProducts = async (req, res, next) => {
       }
 
       filter.barcode = barcode.trim();
+    }
+
+    if (stock !== undefined) {
+      if (!['low', 'available'].includes(stock)) {
+        return next(new AppError('Invalid stock filter', 400));
+      }
+
+      filter.$expr = stock === 'low'
+        ? { $lte: ['$quantity', '$minimumStock'] }
+        : { $gt: ['$quantity', '$minimumStock'] };
     }
 
     const [products, total] = await Promise.all([
