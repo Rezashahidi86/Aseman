@@ -10,7 +10,7 @@ export async function createNeed(payload) {
   return response.data;
 }
 
-export async function confirmNeed(id, params = {}) {
-  const response = await apiClient.post(`/needs/${encodeURIComponent(id)}/confirm`, {}, { params });
+export async function deleteNeed(id, params = {}) {
+  const response = await apiClient.delete(`/needs/${encodeURIComponent(id)}`, { params });
   return response.data;
 }
