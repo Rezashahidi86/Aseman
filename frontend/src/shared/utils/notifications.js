@@ -10,6 +10,7 @@ function registerToastShortcuts() {
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && activeToastId !== undefined) {
       event.preventDefault();
+      event.stopPropagation();
       toast.dismiss(activeToastId);
       activeToastId = undefined;
       activeConfirmation = undefined;
@@ -18,6 +19,7 @@ function registerToastShortcuts() {
 
     if (event.key === 'Enter' && activeConfirmation) {
       event.preventDefault();
+      event.stopPropagation();
       const confirm = activeConfirmation;
       activeConfirmation = undefined;
       confirm();
