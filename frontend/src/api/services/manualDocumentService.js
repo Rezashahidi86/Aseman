@@ -11,17 +11,14 @@ export async function createManualDocument({ documentDetails, note, images, bran
   formData.append('note', note || '');
   if (branchId) formData.append('branchId', branchId);
   for (const image of images) formData.append('images', image);
-  const response = await apiClient.post('/manual-documents', formData, {
-    headers: branchId ? { 'X-Branch-Id': branchId } : {},
-  });
+  const response = await apiClient.post('/manual-documents', formData);
   return response.data;
 }
 
 export async function deleteManualDocument(id, params = {}) {
   const { branchId, ...query } = params;
   const response = await apiClient.delete(`/manual-documents/${encodeURIComponent(id)}`, {
-    params: query,
-    headers: branchId ? { 'X-Branch-Id': branchId } : {},
+    params: { ...query, ...(branchId ? { branchId } : {}) },
   });
   return response.data;
 }
