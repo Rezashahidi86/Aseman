@@ -2,26 +2,17 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { getCurrentUser, loginRequest, logoutRequest } from '../api/services/authService.js';
 
 const AuthContext = createContext(null);
-const TOKEN_KEY = 'aseman_access_token';
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => sessionStorage.getItem(TOKEN_KEY));
   const [user, setUser] = useState(null);
   const [isInitializing, setIsInitializing] = useState(true);
 
   const clearSession = useCallback(() => {
-    sessionStorage.removeItem(TOKEN_KEY);
-    setToken(null);
     setUser(null);
   }, []);
 
-  const refreshUser = useCallback(async (activeToken = token) => {
-    if (!activeToken) {
-      setUser(null);
-      return null;
-    }
-
-    const response = await getCurrentUser(activeToken);
+  const refreshUser = useCallback(async () => {
+    const response = await getCurrentUser();
     const currentUser = response?.data?.user;
 
     if (!currentUser) {
@@ -30,37 +21,22 @@ export function AuthProvider({ children }) {
 
     setUser(currentUser);
     return currentUser;
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     let active = true;
 
     const initialize = async () => {
-      const savedToken = sessionStorage.getItem(TOKEN_KEY);
-
-      if (!savedToken) {
-        if (active) setIsInitializing(false);
-        return;
-      }
-
       try {
-        const response = await getCurrentUser(savedToken);
+        const response = await getCurrentUser();
 
         if (!response?.data?.user) {
           throw new Error('اطلاعات کاربر دریافت نشد.');
         }
 
-        if (active) {
-          setToken(savedToken);
-          setUser(response.data.user);
-        }
+        if (active) setUser(response.data.user);
       } catch {
-        sessionStorage.removeItem(TOKEN_KEY);
-
-        if (active) {
-          setToken(null);
-          setUser(null);
-        }
+        if (active) setUser(null);
       } finally {
         if (active) setIsInitializing(false);
       }
@@ -74,44 +50,37 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = useCallback(async ({ email, password }) => {
-    const response = await loginRequest({ email, password });
-
-    if (!response?.token) {
-      throw new Error('توکن ورود از سرور دریافت نشد.');
-    }
-
-    sessionStorage.setItem(TOKEN_KEY, response.token);
-    setToken(response.token);
+    await loginRequest({ email, password });
 
     try {
-      return await refreshUser(response.token);
+      return await refreshUser();
     } catch (error) {
-      sessionStorage.removeItem(TOKEN_KEY);
-      setToken(null);
-      setUser(null);
+      try {
+        await logoutRequest();
+      } catch {
+        clearSession();
+      }
+      clearSession();
       throw error;
     }
-  }, [refreshUser]);
+  }, [clearSession, refreshUser]);
 
   const logout = useCallback(async () => {
-    const activeToken = token;
-
     try {
-      if (activeToken) await logoutRequest(activeToken);
+      await logoutRequest();
     } finally {
       clearSession();
     }
-  }, [clearSession, token]);
+  }, [clearSession]);
 
   const value = useMemo(() => ({
-    token,
     user,
     isInitializing,
-    isAuthenticated: Boolean(token && user),
+    isAuthenticated: Boolean(user),
     login,
     logout,
     refreshUser,
-  }), [token, user, isInitializing, login, logout, refreshUser]);
+  }), [user, isInitializing, login, logout, refreshUser]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
