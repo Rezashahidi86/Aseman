@@ -4,9 +4,9 @@ import { Link, NavLink } from 'react-router';
 const links = [
   { to: '/', label: 'داشبورد', icon: FiHome, end: true },
   { to: '/products', label: 'محصولات و موجودی', icon: FiBox },
+  { to: '/sales', label: 'ثبت فروش', icon: FiTrendingUp },
 ];
 const upcoming = [
-  { label: 'فروش‌ها', icon: FiTrendingUp },
   { label: 'مشتریان', icon: FiUsers },
   { label: 'گزارش‌ها', icon: FiBarChart2 },
 ];
