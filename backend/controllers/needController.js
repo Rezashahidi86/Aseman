@@ -21,7 +21,7 @@ const getBranchId = (req, next) => {
     return req.user.branch;
   }
 
-  const branchId = req.query.branchId || req.body.branchId;
+  const branchId = req.branchId || req.query?.branchId || req.body?.branchId;
 
   if (!branchId || !mongoose.isValidObjectId(branchId)) {
     next(new AppError('A valid branchId is required', 400));
