@@ -27,8 +27,7 @@ const getCustomerBranchFilter = (req, next) => {
     return { branch: branchId };
   }
 
-  const branchId =
-    req.branchId || req.query?.branchId || req.body?.branchId;
+  const branchId = req.branchId || req.query?.branchId;
 
   if (!branchId || !mongoose.isValidObjectId(branchId)) {
     next(new AppError('A valid branchId is required', 400));
