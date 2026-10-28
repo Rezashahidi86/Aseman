@@ -424,18 +424,18 @@ export function ManualDocumentsPage() {
                 </button>
 
                 {images.length > 0 && (
-                  <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
                     {images.map((file, index) => (
-                      <div key={`${file.name}-${file.size}-${file.lastModified}-${index}`} className="group relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-950">
-                        <img src={imagePreviews[index]} alt={`پیش‌نمایش ${file.name}`} className="aspect-square w-full object-cover" />
-                        <div className="truncate px-2 py-2 text-[10px] text-slate-600 dark:text-slate-300" title={file.name}>{file.name}</div>
+                      <div key={`${file.name}-${file.size}-${file.lastModified}-${index}`} className="group relative min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-950">
+                        <img src={imagePreviews[index]} alt={`پیش‌نمایش ${file.name}`} className="aspect-[4/3] w-full object-cover" />
+                        <div className="truncate px-1.5 py-1 text-[9px] text-slate-600 dark:text-slate-300" title={file.name}>{file.name}</div>
                         <button
                           type="button"
                           onClick={() => removeSelectedImage(index)}
                           aria-label={`حذف تصویر ${file.name}`}
-                          className="absolute left-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-rose-600 text-white shadow-lg transition hover:bg-rose-700"
+                          className="absolute left-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-rose-600 text-white shadow transition hover:bg-rose-700"
                         >
-                          <FiX size={16} />
+                          <FiX size={13} />
                         </button>
                       </div>
                     ))}
