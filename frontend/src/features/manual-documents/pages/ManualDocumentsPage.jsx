@@ -118,7 +118,7 @@ export function ManualDocumentsPage() {
       });
       setDocuments(response?.data?.documents || []);
     } catch (loadError) {
-      setError(loadError.message || 'دریافت اسناد ناموفق بود.');
+      setError(loadError.message || 'دریافت فاکتور ناموفق بود.');
     } finally {
       setLoading(false);
     }
@@ -148,7 +148,7 @@ export function ManualDocumentsPage() {
     setImages((current) => {
       const combined = [...current, ...selectedFiles];
       if (combined.length > 10) {
-        showError('حداکثر می‌توانید ۱۰ تصویر برای هر سند انتخاب کنید.');
+        showError('حداکثر می‌توانید ۱۰ تصویر برای هر فاکتور انتخاب کنید.');
         return combined.slice(0, 10);
       }
       return combined;
@@ -181,17 +181,17 @@ export function ManualDocumentsPage() {
       setIsModalOpen(false);
       resetForm();
       await load();
-      showSuccess('سند دستی ثبت شد.');
+      showSuccess('فاکتور دستی ثبت شد.');
     } catch (submitError) {
-      showError(submitError.message || 'ثبت سند ناموفق بود.');
+      showError(submitError.message || 'ثبت فاکتور ناموفق بود.');
     } finally {
       setSaving(false);
     }
   };
 
   const removeDocument = (document) => confirmWithToast({
-    message: 'این سند دستی حذف شود؟',
-    confirmLabel: 'حذف سند',
+    message: 'این فاکتور دستی حذف شود؟',
+    confirmLabel: 'حذف فاکتور',
     type: 'error',
     onConfirm: async () => {
       try {
@@ -200,9 +200,9 @@ export function ManualDocumentsPage() {
           activeBranchId ? { branchId: activeBranchId } : {},
         );
         await load();
-        showSuccess('سند حذف شد.');
+        showSuccess('فاکتور حذف شد.');
       } catch (deleteError) {
-        showError(deleteError.message || 'حذف سند ناموفق بود.');
+        showError(deleteError.message || 'حذف فاکتور ناموفق بود.');
       }
     },
   });
@@ -222,11 +222,11 @@ export function ManualDocumentsPage() {
               <div>
                 <div className="mb-2 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                   <FiFileText size={16} />
-                  بایگانی اسناد
+                  بایگانی فاکتور
                 </div>
-                <h1 className="text-2xl font-extrabold sm:text-3xl">اسناد دستی</h1>
+                <h1 className="text-2xl font-extrabold sm:text-3xl">فاکتور دستی</h1>
                 <p className="mt-2 text-xs leading-6 text-slate-500 dark:text-slate-400">
-                  ثبت و نگهداری تصاویر اسناد حسابداری؛ این اسناد فروش محسوب نمی‌شوند.
+                  ثبت و نگهداری تصاویر فاکتور حسابداری؛ این فاکتور فروش محسوب نمی‌شوند.
                 </p>
               </div>
               <div className="flex gap-2">
@@ -245,7 +245,7 @@ export function ManualDocumentsPage() {
                   className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-xs font-bold text-white transition hover:bg-indigo-700"
                 >
                   <FiPlus size={16} />
-                  افزودن سند
+                  افزودن فاکتور
                 </button>
               </div>
             </header>
@@ -275,12 +275,12 @@ export function ManualDocumentsPage() {
                         <span className="min-w-0">
                           <span className="block truncate text-sm font-extrabold">{group.title || 'بدون عنوان'}</span>
                           <span className="mt-1 block text-[11px] text-slate-500 dark:text-slate-400">
-                            {group.documents.length.toLocaleString('fa-IR')} سند · آخرین ثبت {formatDate(group.documents[0].createdAt)}
+                            {group.documents.length.toLocaleString('fa-IR')} فاکتور · آخرین ثبت {formatDate(group.documents[0].createdAt)}
                           </span>
                         </span>
                       </span>
                       <span className="flex shrink-0 items-center gap-2 text-xs text-slate-500">
-                        <span className="hidden sm:inline">{isExpanded ? 'بستن اسناد' : 'مشاهده اسناد'}</span>
+                        <span className="hidden sm:inline">{isExpanded ? 'بستن فاکتور' : 'مشاهده فاکتور'}</span>
                         {isExpanded ? <FiChevronUp size={18} /> : <FiChevronDown size={18} />}
                       </span>
                     </button>
@@ -299,7 +299,7 @@ export function ManualDocumentsPage() {
                               <button
                                 type="button"
                                 onClick={() => removeDocument(document)}
-                                aria-label="حذف سند"
+                                aria-label="حذف فاکتور"
                                 className="rounded-lg border border-rose-200 p-2 text-rose-600 transition hover:bg-rose-50 dark:border-rose-900 dark:hover:bg-rose-950/30"
                               >
                                 <FiTrash2 size={15} />
@@ -323,7 +323,7 @@ export function ManualDocumentsPage() {
                                   {loadedImageUrls[url] ? (
                                     <img
                                       src={loadedImageUrls[url]}
-                                      alt={`تصویر سند ${index + 1}`}
+                                      alt={`تصویر فاکتور ${index + 1}`}
                                       loading="lazy"
                                       className="h-full w-full object-cover transition duration-200 group-hover:scale-105"
                                     />
@@ -345,13 +345,13 @@ export function ManualDocumentsPage() {
                 <div className="grid min-h-56 place-items-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center dark:border-slate-700 dark:bg-slate-900">
                   <div>
                     <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300"><FiFileText size={21} /></span>
-                    <p className="mt-4 text-sm font-extrabold">هنوز سندی ثبت نشده است</p>
-                    <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">برای شروع، اولین سند دستی را اضافه کنید.</p>
-                    <button type="button" onClick={() => setIsModalOpen(true)} className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-xl bg-indigo-600 px-4 text-xs font-bold text-white"><FiPlus /> افزودن سند</button>
+                    <p className="mt-4 text-sm font-extrabold">هنوز فاکتوری ثبت نشده است</p>
+                    <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">برای شروع، اولین فاکتور دستی را اضافه کنید.</p>
+                    <button type="button" onClick={() => setIsModalOpen(true)} className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-xl bg-indigo-600 px-4 text-xs font-bold text-white"><FiPlus /> افزودن فاکتور</button>
                   </div>
                 </div>
               )}
-              {loading && <p className="py-4 text-center text-xs text-slate-500">در حال بارگذاری اسناد...</p>}
+              {loading && <p className="py-4 text-center text-xs text-slate-500">در حال بارگذاری فاکتور...</p>}
             </section>
           </main>
         </div>
@@ -368,15 +368,15 @@ export function ManualDocumentsPage() {
             <header className="mb-6 flex items-start justify-between gap-4">
               <div>
                 <span className="mb-3 grid h-11 w-11 place-items-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300"><FiFileText size={19} /></span>
-                <h2 id="manual-document-modal-title" className="text-lg font-extrabold">افزودن سند دستی</h2>
-                <p className="mt-1 text-xs leading-6 text-slate-500 dark:text-slate-400">عنوان یکسان باعث می‌شود اسناد در یک گروه نمایش داده شوند.</p>
+                <h2 id="manual-document-modal-title" className="text-lg font-extrabold">افزودن فاکتور دستی</h2>
+                <p className="mt-1 text-xs leading-6 text-slate-500 dark:text-slate-400">عنوان یکسان باعث می‌شود فاکتور در یک گروه نمایش داده شوند.</p>
               </div>
               <button type="button" onClick={closeModal} disabled={saving} aria-label="بستن پنجره" className="rounded-xl border border-slate-200 p-2.5 text-slate-500 transition hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:hover:bg-slate-800"><FiX size={18} /></button>
             </header>
 
             <form onSubmit={submit} className="space-y-5">
               <label className="block text-xs font-bold">
-                عنوان سند
+                عنوان فاکتور
                 <input
                   required
                   maxLength={500}
@@ -394,14 +394,14 @@ export function ManualDocumentsPage() {
                   rows={3}
                   value={note}
                   onChange={(event) => setNote(event.target.value)}
-                  placeholder="توضیحات تکمیلی سند..."
+                  placeholder="توضیحات تکمیلی فاکتور..."
                   className="mt-2 w-full resize-y rounded-xl border border-slate-200 bg-white p-3 text-sm leading-6 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-950"
                 />
               </label>
 
               <div>
                 <div className="mb-2 flex items-center justify-between gap-3">
-                  <span className="text-xs font-bold">تصاویر سند <span className="font-normal text-slate-400">(حداکثر ۱۰ تصویر)</span></span>
+                  <span className="text-xs font-bold">تصاویر فاکتور <span className="font-normal text-slate-400">(حداکثر ۱۰ تصویر)</span></span>
                   <span className="text-[11px] text-slate-500">{images.length.toLocaleString('fa-IR')} از ۱۰</span>
                 </div>
                 <input
@@ -445,7 +445,7 @@ export function ManualDocumentsPage() {
 
               <footer className="flex flex-col-reverse gap-2 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end dark:border-slate-800">
                 <button type="button" onClick={closeModal} disabled={saving} className="min-h-11 rounded-xl border border-slate-200 px-5 text-xs font-bold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">انصراف</button>
-                <button type="submit" disabled={saving || !details.trim() || images.length === 0} className="min-h-11 rounded-xl bg-indigo-600 px-6 text-xs font-bold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50">{saving ? 'در حال ثبت سند...' : 'ثبت سند'}</button>
+                <button type="submit" disabled={saving || !details.trim() || images.length === 0} className="min-h-11 rounded-xl bg-indigo-600 px-6 text-xs font-bold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50">{saving ? 'در حال ثبت فاکتور...' : 'ثبت فاکتور'}</button>
               </footer>
             </form>
           </section>

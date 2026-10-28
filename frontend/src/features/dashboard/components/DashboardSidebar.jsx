@@ -11,7 +11,7 @@ const links = [
   { to: '/reference-catalog', label: 'کاتالوگ مرجع', icon: FiBookOpen },
   { to: '/customers', label: 'مشتریان', icon: FiUser },
   { to: '/needs', label: 'فهرست نیازها', icon: FiClipboard },
-  { to: '/manual-documents', label: 'اسناد دستی', icon: FiFileText },
+  { to: '/manual-documents', label: 'فاکتور دستی', icon: FiFileText },
 ];
 
 export function DashboardSidebar() {
