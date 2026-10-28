@@ -5,6 +5,7 @@ export function BarcodeScannerInput({ value, onChange, onScan, disabled }) {
   const inputRef = useRef(null);
 
   useEffect(() => {
+    inputRef.current?.focus();
     const focusInput = (event) => {
       if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) return;
       const target = event.target;
@@ -28,6 +29,7 @@ export function BarcodeScannerInput({ value, onChange, onScan, disabled }) {
           placeholder="بارکد را اسکن کنید یا وارد کنید..."
           aria-label="ورودی اسکن بارکد"
           autoComplete="off"
+          autoFocus
           inputMode="numeric"
           maxLength={100}
           disabled={disabled}
