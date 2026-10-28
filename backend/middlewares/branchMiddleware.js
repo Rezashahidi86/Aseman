@@ -3,7 +3,7 @@ import ROLES from '../constants/roles.js';
 
 const setBranchContext = (req, res, next) => {
   if (req.user.role === ROLES.ADMIN) {
-    req.branchId = req.params?.id || req.body?.branchId || null;
+    req.branchId = req.params?.id || req.query?.branchId || req.body?.branchId || null;
     return next();
   }
 
