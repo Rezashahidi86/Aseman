@@ -8,7 +8,6 @@ import pagination from '../utils/pagination.js';
 import validateMongoId from '../utils/validateMongoId.js';
 import {
   createNeedSchema,
-  updateNeedStatusSchema,
 } from '../validators/needValidators.js';
 
 const getBranchId = (req, next) => {
@@ -134,7 +133,7 @@ const getNeeds = async (req, res, next) => {
   }
 };
 
-const updateNeedStatus = async (req, res, next) => {
+const confirmNeed = async (req, res, next) => {
   try {
     validateMongoId(req.params.id);
 
@@ -163,4 +162,4 @@ const updateNeedStatus = async (req, res, next) => {
   }
 };
 
-export { createNeed, getNeeds, updateNeedStatus };
+export { createNeed, getNeeds, confirmNeed };
