@@ -10,7 +10,7 @@ export async function createNeed(payload) {
   return response.data;
 }
 
-export async function updateNeedStatus(id, status, params = {}) {
-  const response = await apiClient.patch(`/needs/${encodeURIComponent(id)}/status`, { status }, { params });
+export async function confirmNeed(id, params = {}) {
+  const response = await apiClient.post(`/needs/${encodeURIComponent(id)}/confirm`, {}, { params });
   return response.data;
 }
