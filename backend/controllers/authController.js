@@ -4,6 +4,7 @@ import AppError from '../utils/AppError.js';
 import { loginSchema } from '../validators/authValidators.js';
 import { comparePassword } from '../services/passwordService.js';
 import env from '../config/env.js';
+import { AUTH_COOKIE_NAME, authCookieOptions } from '../constants/auth.js';
 
 export const login = async (req, res, next) => {
   try {
@@ -27,12 +28,14 @@ export const login = async (req, res, next) => {
       { expiresIn: env.JWT_EXPIRES_IN },
     );
 
-    res.status(200).json({
+    res.cookie(AUTH_COOKIE_NAME, token, authCookieOptions);
+
+    return res.status(200).json({
       status: 'success',
-      token,
+      message: 'Logged in successfully',
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -44,22 +47,27 @@ export const getMe = async (req, res, next) => {
       throw new AppError('User not found', 404);
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       status: 'success',
       data: {
         user,
       },
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
 export const logout = (req, res) => {
-  res.status(200).json({
+  res.clearCookie(AUTH_COOKIE_NAME, {
+    httpOnly: authCookieOptions.httpOnly,
+    secure: authCookieOptions.secure,
+    sameSite: authCookieOptions.sameSite,
+    path: authCookieOptions.path,
+  });
+
+  return res.status(200).json({
     status: 'success',
     message: 'Logged out successfully',
   });
 };
-
-
