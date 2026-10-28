@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FiAlertTriangle, FiClipboard, FiPlus, FiRefreshCw } from 'react-icons/fi';
+import { FiAlertTriangle, FiClipboard, FiPlus, FiRefreshCw, FiX } from 'react-icons/fi';
 import { useAuth } from '../../../auth/AuthContext.jsx';
 import { useActiveBranch } from '../../../branches/ActiveBranchContext.jsx';
 import { getNeeds, createNeed, deleteNeed } from '../../../api/services/needService.js';
@@ -46,6 +46,7 @@ export function NeedsPage() {
   const [needsPage, setNeedsPage] = useState(1);
   const [needsLimit, setNeedsLimit] = useState(10);
   const [status, setStatus] = useState('');
+  const [isNeedModalOpen, setIsNeedModalOpen] = useState(false);
 
   const [lowStockProducts, setLowStockProducts] = useState([]);
   const [lowStockPagination, setLowStockPagination] = useState({ total: 0, totalPages: 0 });
@@ -147,6 +148,8 @@ export function NeedsPage() {
     try {
       await createNeed({ productId, requestedQuantity: Number(quantity), ...(activeBranchId ? { branchId: activeBranchId } : {}) });
       setQuantity('1');
+      setProductId('');
+      setIsNeedModalOpen(false);
       setNeedsPage(1);
       await loadNeeds();
       showSuccess('نیاز دستی ثبت شد.');
@@ -175,7 +178,7 @@ export function NeedsPage() {
     setAppliedCatalogSearchType('name');
     setCatalogPage(1);
     setQuantity(String(Math.max(1, Number(product.minimumStock || 0) - Number(product.quantity || 0))));
-    document.getElementById('manual-need-form')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setIsNeedModalOpen(true);
   };
 
   return (
@@ -213,8 +216,43 @@ export function NeedsPage() {
                 </section>
 
                 <section className="mb-8 overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/80 p-5 dark:border-slate-800 dark:bg-slate-950/50"><div><h2 className="flex items-center gap-2 text-lg font-extrabold"><FiClipboard /> ۲. نیازهای دستی</h2><p className="mt-1 text-xs leading-6 text-slate-500">درخواست خرید را ثبت کنید و پس از تأمین، با یک کلیک آن را تأیید کنید. درخواست تأییدشده از دیتابیس حذف می‌شود.</p></div><span className="rounded-xl border border-indigo-100 bg-white px-4 py-2 text-sm font-bold text-indigo-700 dark:border-indigo-900 dark:bg-slate-900 dark:text-indigo-300">{number.format(needsPagination.total)} درخواست باز</span></div>
-                  <form id="manual-need-form" onSubmit={submit} className="grid gap-5 border-b border-slate-100 bg-white p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_180px] dark:border-slate-800 dark:bg-slate-900">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/80 p-5 dark:border-slate-800 dark:bg-slate-950/50"><div><h2 className="flex items-center gap-2 text-lg font-extrabold"><FiClipboard /> ۲. نیازهای دستی</h2><p className="mt-1 text-xs leading-6 text-slate-500">درخواست خرید را ثبت کنید و پس از تأمین، با یک کلیک آن را تأیید کنید. درخواست تأییدشده از دیتابیس حذف می‌شود.</p></div><span className="rounded-xl border border-indigo-100 bg-white px-4 py-2 text-sm font-bold text-indigo-700 dark:border-indigo-900 dark:bg-slate-900 dark:text-indigo-300">{number.format(needsPagination.total)} درخواست باز</span><button type="button" onClick={() => setIsNeedModalOpen(true)} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-xs font-bold text-white transition hover:bg-indigo-700"><FiPlus size={15} /> ثبت نیاز دستی</button></div>
+
+
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 p-4 dark:border-slate-800"><div className="flex flex-wrap items-center gap-3"><label className="text-xs font-bold">فیلتر درخواست‌ها<select value={status} onChange={(event) => { setStatus(event.target.value); setNeedsPage(1); }} className="mr-2 min-h-10 rounded-xl border border-slate-200 bg-white px-3 dark:border-slate-700 dark:bg-slate-950"><option value="">همه وضعیت‌ها</option><option value="PENDING">در انتظار</option></select></label><span className="text-xs text-slate-500">{activeBranch?.name ? 'شعبه: ' + activeBranch.name : 'شعبه من'}</span></div><span className="text-xs text-slate-500">برای بستن درخواست، آن را تأیید کنید.</span></div>
+                  <div className="overflow-x-auto"><table className="w-full min-w-[650px] text-right text-xs">
+                    <thead className="bg-slate-50 dark:bg-slate-950"><tr>{['کالا','تعداد موردنیاز','ثبت‌کننده','تاریخ ثبت','وضعیت','اقدام'].map((heading) => <th key={heading} className="p-4">{heading}</th>)}</tr></thead>
+                    <tbody>
+                      {needs.map((need) => <tr key={need._id} className="border-t border-slate-100 dark:border-slate-800"><td className="p-4 font-bold">{need.productName || need.product?.name}</td><td className="p-4">{number.format(need.requestedQuantity)}</td><td className="p-4">{need.createdBy?.name || '—'}</td><td className="p-4">{new Date(need.createdAt).toLocaleDateString('fa-IR')}</td><td className="p-4">{statusLabels[need.status] || need.status}</td><td className="p-4"><button type="button" onClick={() => confirm(need._id)} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 font-bold text-white transition hover:bg-emerald-700"><span>✓</span> تأیید و حذف</button></td></tr>)}
+                      {!needs.length && !loadingNeeds && <EmptyRow colSpan={6}>درخواستی برای این فیلتر ثبت نشده است.</EmptyRow>}
+                      {loadingNeeds && <EmptyRow colSpan={6}>در حال دریافت درخواست‌ها...</EmptyRow>}
+                    </tbody>
+                  </table></div>
+                  <Pagination page={needsPage} limit={needsLimit} total={needsPagination.total} totalPages={needsPagination.totalPages} onPageChange={setNeedsPage} onLimitChange={(value) => { setNeedsLimit(value); setNeedsPage(1); }} label="درخواست" />
+                </section>
+              </>
+            )}
+          </main>
+        </div>
+      </div>
+
+      {isNeedModalOpen && !branchRequired && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !saving) setIsNeedModalOpen(false);
+          }}
+        >
+          <section role="dialog" aria-modal="true" aria-labelledby="need-modal-title" className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-t-3xl border border-slate-200 bg-white p-5 shadow-2xl sm:rounded-3xl sm:p-7 dark:border-slate-800 dark:bg-slate-900">
+            <header className="mb-5 flex items-start justify-between gap-4">
+              <div>
+                <span className="mb-3 grid h-10 w-10 place-items-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300"><FiClipboard size={18} /></span>
+                <h2 id="need-modal-title" className="text-lg font-extrabold">ثبت درخواست نیاز دستی</h2>
+                <p className="mt-1 text-xs leading-6 text-slate-500 dark:text-slate-400">کالا را با نام یا بارکد جست‌وجو کنید و تعداد موردنیاز را وارد کنید.</p>
+              </div>
+              <button type="button" onClick={() => setIsNeedModalOpen(false)} disabled={saving} aria-label="بستن پنجره" className="rounded-xl border border-slate-200 p-2.5 text-slate-500 transition hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:hover:bg-slate-800"><FiX size={18} /></button>
+            </header>
+            <form id="manual-need-form" onSubmit={submit} className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_180px]">
                     <div className="min-w-0">
                       <label htmlFor="need-product-search" className="mb-2 block text-sm font-bold">جست‌وجو و انتخاب کالا <span className="text-rose-500">*</span></label>
                       <div className="mb-3 inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-950">
@@ -243,24 +281,10 @@ export function NeedsPage() {
                     </div>
                     <label className="text-sm font-bold">تعداد موردنیاز <span className="text-rose-500">*</span><input type="number" min="1" step="1" required value={quantity} onChange={(event) => setQuantity(event.target.value)} className="mt-1 min-h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-950" /><span className="mt-2 block text-xs font-normal text-slate-500">تعداد باید عدد صحیح و حداقل ۱ باشد.</span></label>
                     <div className="flex flex-wrap items-end gap-3 lg:col-span-2"><button type="submit" disabled={saving || !productId || loadingCatalog} className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"><FiPlus />{saving ? 'در حال ثبت...' : 'ثبت درخواست نیاز'}</button><span className="pb-1 text-xs text-slate-500">پس از ثبت، درخواست در فهرست پایین نمایش داده می‌شود.</span></div>
-                  </form>
-
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 p-4 dark:border-slate-800"><div className="flex flex-wrap items-center gap-3"><label className="text-xs font-bold">فیلتر درخواست‌ها<select value={status} onChange={(event) => { setStatus(event.target.value); setNeedsPage(1); }} className="mr-2 min-h-10 rounded-xl border border-slate-200 bg-white px-3 dark:border-slate-700 dark:bg-slate-950"><option value="">همه وضعیت‌ها</option><option value="PENDING">در انتظار</option></select></label><span className="text-xs text-slate-500">{activeBranch?.name ? 'شعبه: ' + activeBranch.name : 'شعبه من'}</span></div><span className="text-xs text-slate-500">برای بستن درخواست، آن را تأیید کنید.</span></div>
-                  <div className="overflow-x-auto"><table className="w-full min-w-[650px] text-right text-xs">
-                    <thead className="bg-slate-50 dark:bg-slate-950"><tr>{['کالا','تعداد موردنیاز','ثبت‌کننده','تاریخ ثبت','وضعیت','اقدام'].map((heading) => <th key={heading} className="p-4">{heading}</th>)}</tr></thead>
-                    <tbody>
-                      {needs.map((need) => <tr key={need._id} className="border-t border-slate-100 dark:border-slate-800"><td className="p-4 font-bold">{need.productName || need.product?.name}</td><td className="p-4">{number.format(need.requestedQuantity)}</td><td className="p-4">{need.createdBy?.name || '—'}</td><td className="p-4">{new Date(need.createdAt).toLocaleDateString('fa-IR')}</td><td className="p-4">{statusLabels[need.status] || need.status}</td><td className="p-4"><button type="button" onClick={() => confirm(need._id)} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 font-bold text-white transition hover:bg-emerald-700"><span>✓</span> تأیید و حذف</button></td></tr>)}
-                      {!needs.length && !loadingNeeds && <EmptyRow colSpan={6}>درخواستی برای این فیلتر ثبت نشده است.</EmptyRow>}
-                      {loadingNeeds && <EmptyRow colSpan={6}>در حال دریافت درخواست‌ها...</EmptyRow>}
-                    </tbody>
-                  </table></div>
-                  <Pagination page={needsPage} limit={needsLimit} total={needsPagination.total} totalPages={needsPagination.totalPages} onPageChange={setNeedsPage} onLimitChange={(value) => { setNeedsLimit(value); setNeedsPage(1); }} label="درخواست" />
-                </section>
-              </>
-            )}
-          </main>
+            </form>
+          </section>
         </div>
-      </div>
+      )}
     </div>
   );
 }
