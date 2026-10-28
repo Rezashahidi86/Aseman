@@ -104,7 +104,7 @@ export function CustomersPage() {
       const wasEditing = Boolean(editingId);
       const response = wasEditing
         ? await updateCustomer(editingId, form, branchParams)
-        : await createCustomer(form, branchParams);
+        : await createCustomer({ ...form, message: welcomeMessage }, branchParams);
 
       setForm(emptyForm);
       setEditingId('');
@@ -201,7 +201,7 @@ export function CustomersPage() {
                 <h2 className="text-sm font-extrabold">پیامک خوش‌آمدگویی مشتری جدید</h2>
               </div>
               <p className="mb-3 text-xs leading-6 text-slate-500">
-                این متن پس از ثبت مشتری جدید، به شماره او پیامک می‌شود. برای درج نام مشتری از <span dir="ltr">{'{name}'}</span> استفاده کن.
+                متن این ورودی همراه با درخواست ثبت مشتری در body ارسال می‌شود و پس از ثبت، به شماره او پیامک می‌شود. برای درج نام مشتری از <span dir="ltr">{'{name}'}</span> استفاده کن.
               </p>
               <form onSubmit={saveSmsSettings}>
                 <textarea
