@@ -138,19 +138,13 @@ const updateNeedStatus = async (req, res, next) => {
   try {
     validateMongoId(req.params.id);
 
-    const validation = updateNeedStatusSchema.safeParse(req.body);
-
-    if (!validation.success) {
-      return next(validation.error);
-    }
-
     const branchId = getBranchId(req, next);
 
     if (!branchId) {
       return;
     }
 
-    const need = await Need.findOne({
+    const need = await Need.findOneAndDelete({
       _id: req.params.id,
       branch: branchId,
     });
@@ -159,12 +153,10 @@ const updateNeedStatus = async (req, res, next) => {
       return next(new AppError('Need not found in this branch', 404));
     }
 
-    need.status = validation.data.status;
-    await need.save();
-
     return res.status(200).json({
       status: 'success',
-      data: { need },
+      message: 'Need confirmed and deleted',
+      data: { id: need._id },
     });
   } catch (error) {
     return next(error);
