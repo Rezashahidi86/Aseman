@@ -59,7 +59,7 @@ const createCustomer = async (req, res, next) => {
     const branch = await Branch.findOne({
       _id: branchFilter.branch,
       isActive: true,
-    }).select('_id customerWelcomeSmsMessage');
+    }).select('_id');
 
     if (!branch) {
       return next(new AppError('Branch not found or inactive', 404));
@@ -70,8 +70,8 @@ const createCustomer = async (req, res, next) => {
       branch: branch._id,
     });
 
-    let smsStatus = 'not_configured';
-    const welcomeMessage = branch.customerWelcomeSmsMessage?.trim();
+    let smsStatus = 'no_template';
+    const welcomeMessage = validation.data.message?.trim();
 
     if (welcomeMessage) {
       if (!isSmsConfigured()) {
