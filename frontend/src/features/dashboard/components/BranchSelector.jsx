@@ -29,10 +29,6 @@ export function BranchSelector() {
 
   return (
     <div className="flex min-w-0 flex-col gap-1">
-      <label className="flex items-center gap-2 text-[10px] font-bold text-slate-500 dark:text-slate-400" htmlFor="active-branch">
-        <FiGitBranch size={14} aria-hidden="true" />
-        شعبه فعال
-      </label>
       <select
         id="active-branch"
         className="min-h-10 max-w-56 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-indigo-950"
