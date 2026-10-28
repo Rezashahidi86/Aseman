@@ -1,23 +1,17 @@
 import axios from 'axios';
 
 const baseURL = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:3000/api/v1').replace(/\/$/, '');
-const TOKEN_KEY = 'aseman_access_token';
 
 export const apiClient = axios.create({
   baseURL,
   timeout: 10000,
+  withCredentials: true,
   headers: {
     Accept: 'application/json',
   },
 });
 
 apiClient.interceptors.request.use((config) => {
-  const token = sessionStorage.getItem(TOKEN_KEY);
-
-  if (token && !config.headers.Authorization) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
   if (config.data && !(config.data instanceof FormData)) {
     config.headers['Content-Type'] = 'application/json';
   }
