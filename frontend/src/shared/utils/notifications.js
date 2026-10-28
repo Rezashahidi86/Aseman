@@ -1,15 +1,51 @@
 import { toast } from 'sonner';
 
+let activeToastId;
+let activeConfirmation;
+let shortcutsRegistered = false;
+
+function registerToastShortcuts() {
+  if (shortcutsRegistered || typeof document === 'undefined') return;
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && activeToastId !== undefined) {
+      event.preventDefault();
+      toast.dismiss(activeToastId);
+      activeToastId = undefined;
+      activeConfirmation = undefined;
+      return;
+    }
+
+    if (event.key === 'Enter' && activeConfirmation) {
+      event.preventDefault();
+      const confirm = activeConfirmation;
+      activeConfirmation = undefined;
+      confirm();
+    }
+  });
+
+  shortcutsRegistered = true;
+}
+
+function trackToast(id, confirmation) {
+  activeToastId = id;
+  activeConfirmation = confirmation;
+  registerToastShortcuts();
+}
+
 export function showError(message) {
-  if (message) toast.error(message);
+  if (!message) return;
+  trackToast(toast.error(message));
 }
 
 export function showSuccess(message) {
-  if (message) toast.success(message);
+  if (!message) return;
+  trackToast(toast.success(message));
 }
 
 export function showInfo(message) {
-  if (message) toast(message);
+  if (!message) return;
+  trackToast(toast(message));
 }
 
 export function confirmWithToast({
@@ -20,16 +56,23 @@ export function confirmWithToast({
   type = 'warning',
 }) {
   const show = type === 'error' ? toast.error : type === 'success' ? toast.success : toast.warning;
-
-  show(message, {
+  const id = show(message, {
     duration: Infinity,
     action: {
       label: confirmLabel,
-      onClick: onConfirm,
+      onClick: () => {
+        activeConfirmation = undefined;
+        onConfirm?.();
+      },
     },
     cancel: {
       label: cancelLabel,
-      onClick: () => {},
+      onClick: () => {
+        activeConfirmation = undefined;
+        activeToastId = undefined;
+      },
     },
   });
+
+  trackToast(id, onConfirm);
 }
