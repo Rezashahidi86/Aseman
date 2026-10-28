@@ -30,7 +30,6 @@ export function AuthProvider({ children }) {
       try {
         window.sessionStorage.removeItem('aseman_access_token');
       } catch {
-        // Storage may be unavailable; authentication still uses the HttpOnly cookie.
       }
 
       try {
