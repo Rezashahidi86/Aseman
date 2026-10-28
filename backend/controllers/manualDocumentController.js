@@ -52,7 +52,6 @@ const createManualDocument = async (req, res, next) => {
     if (!req.files || req.files.length === 0) {
       return next(new AppError('At least one document image is required', 400));
     }
-    console.log(21);
     const branchFilter = getBranchFilter(req, next);
 
     if (!branchFilter) {
