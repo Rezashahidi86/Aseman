@@ -31,7 +31,7 @@ export function CustomersPage() {
     event.preventDefault(); setSaving(true);
     try {
       if (editingId) await updateCustomer(editingId, form, activeBranchId ? { branchId: activeBranchId } : {});
-      else await createCustomer({ ...form, ...(activeBranchId ? { branchId: activeBranchId } : {}) });
+      else await createCustomer(form, activeBranchId ? { branchId: activeBranchId } : {});
       setForm(emptyForm); setEditingId(''); await load(); showSuccess(editingId ? 'اطلاعات مشتری ویرایش شد.' : 'مشتری ثبت شد.');
     } catch (err) { showError(err.message || 'ذخیره مشتری ناموفق بود.'); }
     finally { setSaving(false); }
