@@ -133,7 +133,7 @@ const getNeeds = async (req, res, next) => {
   }
 };
 
-const confirmNeed = async (req, res, next) => {
+const deleteNeed = async (req, res, next) => {
   try {
     validateMongoId(req.params.id);
 
@@ -154,7 +154,7 @@ const confirmNeed = async (req, res, next) => {
 
     return res.status(200).json({
       status: 'success',
-      message: 'Need confirmed and deleted',
+      message: 'Need deleted successfully',
       data: { id: need._id },
     });
   } catch (error) {
@@ -162,4 +162,4 @@ const confirmNeed = async (req, res, next) => {
   }
 };
 
-export { createNeed, getNeeds, confirmNeed };
+export { createNeed, getNeeds, deleteNeed };
