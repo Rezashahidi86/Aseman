@@ -16,7 +16,6 @@ import {
   createManualDocument,
   deleteManualDocument,
   getManualDocuments,
-  getManualDocumentImageUrl,
   getManualDocumentImage,
 } from '../../../api/services/manualDocumentService.js';
 import { DashboardHeader } from '../../dashboard/components/DashboardHeader.jsx';
