@@ -21,7 +21,7 @@ const getBranchFilter = (req, next) => {
     return { branch: req.user.branch };
   }
 
-  const branchId = req.headers['x-branch-id'] || req.branchId || req.query.branchId || req.body?.branchId;
+  const branchId = req.branchId || req.body?.branchId || req.query.branchId;
 
   if (!branchId || !mongoose.isValidObjectId(branchId)) {
     next(new AppError('A valid branchId is required', 400));
@@ -100,7 +100,7 @@ const createManualDocument = async (req, res, next) => {
 
 const getManualDocuments = async (req, res, next) => {
   try {
-    const { page, limit, skip } = pagination(req.query.page, req.query.limit);
+    const { page, limit, skip } = pagination(req.body?.page ?? req.query.page, req.body?.limit ?? req.query.limit);
 
     const branchFilter = getBranchFilter(req, next);
 
