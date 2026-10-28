@@ -11,6 +11,7 @@ import {
   FiX,
 } from 'react-icons/fi';
 import { useActiveBranch } from '../../../branches/ActiveBranchContext.jsx';
+import { useAuth } from '../../../auth/AuthContext.jsx';
 import {
   createManualDocument,
   deleteManualDocument,
@@ -26,7 +27,8 @@ const formatDate = (value) => new Date(value).toLocaleDateString('fa-IR');
 const getTitleKey = (value) => value.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
 
 export function ManualDocumentsPage() {
-  const { activeBranchId } = useActiveBranch();
+  const { user } = useAuth();
+  const { activeBranchId, isLoadingBranches } = useActiveBranch();
   const fileInputRef = useRef(null);
   const [documents, setDocuments] = useState([]);
   const [details, setDetails] = useState('');
@@ -67,6 +69,13 @@ export function ManualDocumentsPage() {
   }, [documents]);
 
   const load = useCallback(async () => {
+    if (user?.role === 'ADMIN' && (isLoadingBranches || !activeBranchId)) {
+      setDocuments([]);
+      setError(isLoadingBranches ? '' : 'لطفاً ابتدا شعبه‌ای را از نوار بالای صفحه انتخاب کنید.');
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError('');
 
@@ -81,7 +90,7 @@ export function ManualDocumentsPage() {
     } finally {
       setLoading(false);
     }
-  }, [activeBranchId]);
+  }, [activeBranchId, isLoadingBranches, user?.role]);
 
   useEffect(() => {
     load();
