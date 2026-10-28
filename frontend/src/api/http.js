@@ -56,6 +56,10 @@ export const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('aseman:request-start'));
+    config._asemanLoading = true;
+  }
   if (config.data && !(config.data instanceof FormData)) {
     config.headers['Content-Type'] = 'application/json';
   }
@@ -64,8 +68,12 @@ apiClient.interceptors.request.use((config) => {
 });
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.config?._asemanLoading && typeof window !== 'undefined') window.dispatchEvent(new Event('aseman:request-finish'));
+    return response;
+  },
   (error) => {
+    if (error.config?._asemanLoading && typeof window !== 'undefined') window.dispatchEvent(new Event('aseman:request-finish'));
     if (error.response) {
       const payload = error.response.data;
       const message = getLocalizedApiMessage(
