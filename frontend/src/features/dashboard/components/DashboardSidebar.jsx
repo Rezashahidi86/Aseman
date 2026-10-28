@@ -1,9 +1,11 @@
 import { FiBarChart2, FiBox, FiHome, FiTrendingUp, FiUsers } from 'react-icons/fi';
 import { Link, NavLink } from 'react-router';
 
-const links = [{ to: '/', label: 'داشبورد', icon: FiHome, end: true }];
+const links = [
+  { to: '/', label: 'داشبورد', icon: FiHome, end: true },
+  { to: '/products', label: 'محصولات و موجودی', icon: FiBox },
+];
 const upcoming = [
-  { label: 'محصولات و موجودی', icon: FiBox },
   { label: 'فروش‌ها', icon: FiTrendingUp },
   { label: 'مشتریان', icon: FiUsers },
   { label: 'گزارش‌ها', icon: FiBarChart2 },
