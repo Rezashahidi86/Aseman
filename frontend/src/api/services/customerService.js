@@ -10,12 +10,12 @@ export async function createCustomer(payload) {
   return response.data;
 }
 
-export async function updateCustomer(id, payload) {
-  const response = await apiClient.patch(`/customers/${encodeURIComponent(id)}`, payload);
+export async function updateCustomer(id, payload, params = {}) {
+  const response = await apiClient.patch(`/customers/${encodeURIComponent(id)}`, payload, { params });
   return response.data;
 }
 
-export async function deleteCustomer(id) {
-  const response = await apiClient.delete(`/customers/${encodeURIComponent(id)}`);
+export async function deleteCustomer(id, params = {}) {
+  const response = await apiClient.delete(`/customers/${encodeURIComponent(id)}`, { params });
   return response.data;
 }
