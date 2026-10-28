@@ -17,6 +17,7 @@ import {
   deleteManualDocument,
   getManualDocuments,
   getManualDocumentImageUrl,
+  getManualDocumentImage,
 } from '../../../api/services/manualDocumentService.js';
 import { DashboardHeader } from '../../dashboard/components/DashboardHeader.jsx';
 import { DashboardSidebar } from '../../dashboard/components/DashboardSidebar.jsx';
@@ -35,6 +36,7 @@ export function ManualDocumentsPage() {
   const [note, setNote] = useState('');
   const [images, setImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [loadedImageUrls, setLoadedImageUrls] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [expandedTitles, setExpandedTitles] = useState({});
   const [loading, setLoading] = useState(false);
@@ -49,6 +51,37 @@ export function ManualDocumentsPage() {
       previews.forEach((url) => URL.revokeObjectURL(url));
     };
   }, [images]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const objectUrls = [];
+    const urls = [...new Set(documents.flatMap((document) => document.imageUrls || []))];
+
+    setLoadedImageUrls({});
+
+    Promise.all(
+      urls.map(async (url) => {
+        try {
+          const objectUrl = await getManualDocumentImage(url);
+          if (cancelled) {
+            URL.revokeObjectURL(objectUrl);
+            return [url, null];
+          }
+          objectUrls.push(objectUrl);
+          return [url, objectUrl];
+        } catch {
+          return [url, null];
+        }
+      }),
+    ).then((entries) => {
+      if (!cancelled) setLoadedImageUrls(Object.fromEntries(entries));
+    });
+
+    return () => {
+      cancelled = true;
+      objectUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [documents]);
 
   const groupedDocuments = useMemo(() => {
     const groups = new Map();
@@ -280,21 +313,24 @@ export function ManualDocumentsPage() {
                               {(document.imageUrls || []).map((url, index) => (
                                 <a
                                   key={url}
-                                  href={getManualDocumentImageUrl(url)}
+                                  href={loadedImageUrls[url] || undefined}
                                   target="_blank"
                                   rel="noreferrer"
+                                  onClick={(event) => {
+                                    if (!loadedImageUrls[url]) event.preventDefault();
+                                  }}
                                   className="group flex aspect-square items-center justify-center overflow-hidden rounded-xl bg-slate-100 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700"
                                 >
-                                  <img
-                                    src={getManualDocumentImageUrl(url)}
-                                    alt={`تصویر سند ${index + 1}`}
-                                    loading="lazy"
-                                    className="h-full w-full object-cover transition duration-200 group-hover:scale-105"
-                                    onError={(event) => {
-                                      event.currentTarget.style.display = 'none';
-                                    }}
-                                  />
-                                  <FiImage className="hidden" />
+                                  {loadedImageUrls[url] ? (
+                                    <img
+                                      src={loadedImageUrls[url]}
+                                      alt={`تصویر سند ${index + 1}`}
+                                      loading="lazy"
+                                      className="h-full w-full object-cover transition duration-200 group-hover:scale-105"
+                                    />
+                                  ) : (
+                                    <FiImage size={24} className="text-slate-400" />
+                                  )}
                                 </a>
                               ))}
                             </div>
