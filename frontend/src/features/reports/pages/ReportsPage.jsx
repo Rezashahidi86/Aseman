@@ -7,6 +7,7 @@ import { getAllBranchesReport } from '../../../api/services/dashboardService.js'
 import { DashboardHeader } from '../../dashboard/components/DashboardHeader.jsx';
 import { DashboardSidebar } from '../../dashboard/components/DashboardSidebar.jsx';
 import { showError } from '../../../shared/utils/notifications.js';
+import { formatJalaliDate, parseJalaliDate } from '../utils/jalaliDate.js';
 
 const money = new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 0 });
 const digits = new Intl.NumberFormat('fa-IR');
@@ -29,6 +30,8 @@ export function ReportsPage() {
   const isAdmin = user?.role === 'ADMIN';
   const [startDate, setStartDate] = useState(weekStart);
   const [endDate, setEndDate] = useState(today);
+  const [startDateText, setStartDateText] = useState(() => formatJalaliDate(weekStart));
+  const [endDateText, setEndDateText] = useState(() => formatJalaliDate(today));
   const [groupBy, setGroupBy] = useState('day');
   const [report, setReport] = useState(null);
   const [allBranches, setAllBranches] = useState(null);
@@ -45,7 +48,13 @@ export function ReportsPage() {
       setError('برای دریافت گزارش، شعبه فعال را انتخاب کنید.');
       return;
     }
-    if (startDate > endDate) {
+    const parsedStartDate = parseJalaliDate(startDateText);
+    const parsedEndDate = parseJalaliDate(endDateText);
+    if (!parsedStartDate || !parsedEndDate) {
+      setError('تاریخ را به‌صورت شمسی و با قالب ۱۴۰۵/۰۸/۰۲ وارد کنید.');
+      return;
+    }
+    if (parsedStartDate > parsedEndDate) {
       setError('تاریخ شروع نباید بعد از تاریخ پایان باشد.');
       return;
     }
@@ -54,7 +63,7 @@ export function ReportsPage() {
     setError('');
     try {
       const [filtered, all] = await Promise.all([
-        getFilteredReport({ branchId: activeBranchId, startDate, endDate, groupBy, sortBy: 'totalSales', sortOrder: 'desc' }),
+        getFilteredReport({ branchId: activeBranchId, startDate: parsedStartDate, endDate: parsedEndDate, groupBy, sortBy: 'totalSales', sortOrder: 'desc' }),
         getAllBranchesReport(),
       ]);
       setReport(filtered?.data?.report || null);
@@ -65,7 +74,7 @@ export function ReportsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [activeBranchId, endDate, groupBy, isAdmin, startDate]);
+  }, [activeBranchId, endDateText, groupBy, isAdmin, startDateText]);
 
   useEffect(() => {
     if (!isLoadingBranches) loadReport();
@@ -79,8 +88,8 @@ export function ReportsPage() {
     <div className="mb-6"><p className="mb-2 text-xs text-slate-500 dark:text-slate-400">تحلیل عملکرد</p><h1 className="text-2xl font-extrabold">گزارش‌ها</h1><p className="mt-2 text-xs text-slate-500 dark:text-slate-400">آمار فروش و سود در بازه زمانی انتخاب‌شده{activeBranch?.name ? ` · ${activeBranch.name}` : ''}</p></div>
     {!isAdmin ? <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">گزارش‌های این بخش فقط برای مدیر سامانه فعال است.</div> : <>
       <form className="mb-5 grid grid-cols-1 gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_180px_auto] dark:border-slate-800 dark:bg-slate-900" onSubmit={(event) => { event.preventDefault(); loadReport(); }}>
-        <label className="text-xs font-bold text-slate-600 dark:text-slate-300">از تاریخ<input className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950" type="date" value={startDate} max={endDate} onChange={(event) => setStartDate(event.target.value)} required /></label>
-        <label className="text-xs font-bold text-slate-600 dark:text-slate-300">تا تاریخ<input className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950" type="date" value={endDate} min={startDate} max={today} onChange={(event) => setEndDate(event.target.value)} required /></label>
+        <label className="text-xs font-bold text-slate-600 dark:text-slate-300">از تاریخ شمسی<input className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950" type="text" inputMode="numeric" placeholder="۱۴۰۵/۰۸/۰۲" value={startDateText} onChange={(event) => { const value = event.target.value; setStartDateText(value); const parsed = parseJalaliDate(value); if (parsed) setStartDate(parsed); }} aria-label="تاریخ شروع شمسی با قالب سال/ماه/روز" required /></label>
+        <label className="text-xs font-bold text-slate-600 dark:text-slate-300">تا تاریخ شمسی<input className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950" type="text" inputMode="numeric" placeholder="۱۴۰۵/۰۸/۰۹" value={endDateText} onChange={(event) => { const value = event.target.value; setEndDateText(value); const parsed = parseJalaliDate(value); if (parsed) setEndDate(parsed); }} aria-label="تاریخ پایان شمسی با قالب سال/ماه/روز" required /></label>
         <label className="text-xs font-bold text-slate-600 dark:text-slate-300">تجمیع آمار<select className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950" value={groupBy} onChange={(event) => setGroupBy(event.target.value)}><option value="day">روزانه</option><option value="month">ماهانه</option></select></label>
         <button className="self-end rounded-xl bg-indigo-600 px-5 py-3 text-xs font-bold text-white hover:bg-indigo-700 disabled:opacity-60" type="submit" disabled={isLoading || !activeBranchId}>{isLoading ? 'در حال دریافت...' : 'اعمال بازه'}</button>
       </form>
