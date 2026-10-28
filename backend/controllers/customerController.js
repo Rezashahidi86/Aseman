@@ -7,6 +7,11 @@ import pagination from '../utils/pagination.js';
 import sortAllowlist from '../utils/sortAllowlist.js';
 import fieldSelection from '../utils/fieldSelection.js';
 import validateMongoId from '../utils/validateMongoId.js';
+import { isSmsConfigured, sendSms } from '../services/smsService.js';
+import {
+  customerSmsSettingsSchema,
+  sendCustomerSmsSchema,
+} from '../validators/customerSmsValidators.js';
 import {
   createCustomerSchema,
   updateCustomerSchema,
@@ -54,7 +59,7 @@ const createCustomer = async (req, res, next) => {
     const branch = await Branch.findOne({
       _id: branchFilter.branch,
       isActive: true,
-    }).select('_id');
+    }).select('_id customerWelcomeSmsMessage');
 
     if (!branch) {
       return next(new AppError('Branch not found or inactive', 404));
@@ -65,9 +70,30 @@ const createCustomer = async (req, res, next) => {
       branch: branch._id,
     });
 
+    let smsStatus = 'not_configured';
+    const welcomeMessage = branch.customerWelcomeSmsMessage?.trim();
+
+    if (welcomeMessage) {
+      if (!isSmsConfigured()) {
+        smsStatus = 'not_configured';
+      } else {
+        try {
+          await sendSms({
+            phone: customer.phone,
+            message: welcomeMessage.replace(/\{name\}/g, customer.name),
+          });
+          smsStatus = 'sent';
+        } catch {
+          smsStatus = 'failed';
+        }
+      }
+    } else {
+      smsStatus = 'no_template';
+    }
+
     return res.status(201).json({
       status: 'success',
-      data: { customer },
+      data: { customer, sms: { status: smsStatus } },
     });
   } catch (error) {
     if (error.code === 11000) {
@@ -76,6 +102,111 @@ const createCustomer = async (req, res, next) => {
       );
     }
 
+    return next(error);
+  }
+};
+
+const getCustomerSmsSettings = async (req, res, next) => {
+  try {
+    const branchFilter = getCustomerBranchFilter(req, next);
+
+    if (!branchFilter) {
+      return;
+    }
+
+    const branch = await Branch.findById(branchFilter.branch)
+      .select('_id customerWelcomeSmsMessage')
+      .lean();
+
+    if (!branch) {
+      return next(new AppError('Branch not found', 404));
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        welcomeMessage: branch.customerWelcomeSmsMessage || '',
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const updateCustomerSmsSettings = async (req, res, next) => {
+  try {
+    const validation = customerSmsSettingsSchema.safeParse(req.body);
+
+    if (!validation.success) {
+      return next(validation.error);
+    }
+
+    const branchFilter = getCustomerBranchFilter(req, next);
+
+    if (!branchFilter) {
+      return;
+    }
+
+    const branch = await Branch.findByIdAndUpdate(
+      branchFilter.branch,
+      { customerWelcomeSmsMessage: validation.data.welcomeMessage },
+      { new: true, runValidators: true },
+    )
+      .select('_id customerWelcomeSmsMessage')
+      .lean();
+
+    if (!branch) {
+      return next(new AppError('Branch not found', 404));
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        welcomeMessage: branch.customerWelcomeSmsMessage || '',
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const sendCustomerSms = async (req, res, next) => {
+  try {
+    validateMongoId(req.params.id);
+
+    const validation = sendCustomerSmsSchema.safeParse(req.body);
+
+    if (!validation.success) {
+      return next(validation.error);
+    }
+
+    const branchFilter = getCustomerBranchFilter(req, next);
+
+    if (!branchFilter) {
+      return;
+    }
+
+    const customer = await Customer.findOne({
+      ...branchFilter,
+      _id: req.params.id,
+    }).select('_id name phone');
+
+    if (!customer) {
+      return next(new AppError('Customer not found', 404));
+    }
+
+    const message = validation.data.message.replace(/\{name\}/g, customer.name);
+
+    await sendSms({
+      phone: customer.phone,
+      message,
+    });
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'SMS sent successfully',
+    });
+  } catch (error) {
     return next(error);
   }
 };
@@ -246,4 +377,7 @@ export {
   getCustomers,
   updateCustomer,
   deleteCustomer,
+  getCustomerSmsSettings,
+  updateCustomerSmsSettings,
+  sendCustomerSms,
 };
