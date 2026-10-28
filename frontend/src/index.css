@@ -175,3 +175,8 @@ canvas {
     font-size: 14px;
   }
 }
+
+@keyframes aseman-loading {
+  0% { transform: translateX(300%); }
+  100% { transform: translateX(-300%); }
+}
