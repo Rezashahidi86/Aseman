@@ -3,9 +3,24 @@ import { Toaster } from 'sonner';
 import { createRoot } from 'react-dom/client';
 import { AuthProvider } from './auth/AuthContext.jsx';
 import { ActiveBranchProvider } from './branches/ActiveBranchContext.jsx';
-import { ThemeProvider } from './theme/ThemeContext.jsx';
+import { ThemeProvider, useTheme } from './theme/ThemeContext.jsx';
 import { AppRouter } from './app/router.jsx';
 import './index.css';
+
+function AppToaster() {
+  const { theme } = useTheme();
+
+  return (
+    <Toaster
+      position="top-center"
+      dir="rtl"
+      theme={theme}
+      richColors
+      closeButton
+      toastOptions={{ className: 'font-sans' }}
+    />
+  );
+}
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -13,7 +28,7 @@ createRoot(document.getElementById('root')).render(
       <AuthProvider>
         <ActiveBranchProvider>
           <AppRouter />
-          <Toaster position="top-center" dir="rtl" richColors closeButton toastOptions={{ className: 'font-sans' }} />
+          <AppToaster />
         </ActiveBranchProvider>
       </AuthProvider>
     </ThemeProvider>
