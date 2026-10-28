@@ -22,6 +22,8 @@ router
   )
   .get(setBranchContext, getManualDocuments);
 
+router.post('/list', setBranchContext, getManualDocuments);
+
 router.get('/:id/images/:index', getManualDocumentImage);
 router.delete('/:id', deleteManualDocument);
 
