@@ -116,67 +116,110 @@ canvas {
 }
 
 [data-sonner-toast] {
-  border-radius: 14px !important;
+  padding: 16px 18px !important;
+  border-radius: 16px !important;
   border: 1px solid var(--toast-border) !important;
-  box-shadow: 0 10px 30px rgb(15 23 42 / 12%) !important;
+  box-shadow: 0 12px 32px rgb(15 23 42 / 10%) !important;
   font-family: "IRANSansX", Tahoma, Arial, sans-serif !important;
+  gap: 12px !important;
+  backdrop-filter: blur(12px);
 }
 
 [data-sonner-toaster][data-theme="light"] [data-sonner-toast] {
   --toast-bg: #ffffff;
-  --toast-text: #172033;
-  --toast-border: #e2e8f0;
+  --toast-text: #172554;
+  --toast-border: #e0e7ff;
   background: var(--toast-bg) !important;
   color: var(--toast-text) !important;
 }
 
 [data-sonner-toaster][data-theme="dark"] [data-sonner-toast] {
-  --toast-bg: #18233a;
+  --toast-bg: #172033;
   --toast-text: #f1f5f9;
   --toast-border: #334155;
   background: var(--toast-bg) !important;
   color: var(--toast-text) !important;
-  box-shadow: 0 10px 30px rgb(0 0 0 / 28%) !important;
+  box-shadow: 0 14px 36px rgb(0 0 0 / 32%) !important;
 }
 
-[data-sonner-toaster][data-theme="light"] [data-sonner-toast] [data-title],
+[data-sonner-toaster][data-theme="light"] [data-sonner-toast] [data-title] {
+  color: #172554 !important;
+  font-weight: 700 !important;
+}
+
 [data-sonner-toaster][data-theme="light"] [data-sonner-toast] [data-description] {
-  color: #172033 !important;
+  color: #475569 !important;
+  line-height: 1.8 !important;
 }
 
-[data-sonner-toaster][data-theme="dark"] [data-sonner-toast] [data-title],
+[data-sonner-toaster][data-theme="dark"] [data-sonner-toast] [data-title] {
+  color: #f8fafc !important;
+  font-weight: 700 !important;
+}
+
 [data-sonner-toaster][data-theme="dark"] [data-sonner-toast] [data-description] {
-  color: #f1f5f9 !important;
+  color: #cbd5e1 !important;
+  line-height: 1.8 !important;
 }
 
-[data-sonner-toast] [data-button] {
-  border-radius: 8px !important;
+[data-sonner-toast] [data-button],
+[data-sonner-toast] [data-cancel] {
+  min-height: 36px !important;
+  padding: 8px 15px !important;
+  border: 1px solid transparent !important;
+  border-radius: 10px !important;
   font-family: "IRANSansX", Tahoma, Arial, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1.5 !important;
+  cursor: pointer !important;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease !important;
 }
 
 [data-sonner-toaster][data-theme="light"] [data-sonner-toast] [data-button] {
   background: #4f46e5 !important;
   color: #ffffff !important;
+  box-shadow: 0 3px 8px rgb(79 70 229 / 22%) !important;
+}
+
+[data-sonner-toaster][data-theme="light"] [data-sonner-toast] [data-button]:hover {
+  background: #4338ca !important;
+  box-shadow: 0 5px 12px rgb(79 70 229 / 28%) !important;
 }
 
 [data-sonner-toaster][data-theme="dark"] [data-sonner-toast] [data-button] {
-  background: #6366f1 !important;
-  color: #ffffff !important;
+  background: #818cf8 !important;
+  color: #171a35 !important;
+  box-shadow: 0 3px 8px rgb(129 140 248 / 18%) !important;
 }
 
-[data-sonner-toast] [data-cancel] {
-  border-radius: 8px !important;
-  font-family: "IRANSansX", Tahoma, Arial, sans-serif !important;
+[data-sonner-toaster][data-theme="dark"] [data-sonner-toast] [data-button]:hover {
+  background: #a5b4fc !important;
 }
 
 [data-sonner-toaster][data-theme="light"] [data-sonner-toast] [data-cancel] {
   background: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
   color: #334155 !important;
 }
 
+[data-sonner-toaster][data-theme="light"] [data-sonner-toast] [data-cancel]:hover {
+  background: #e2e8f0 !important;
+}
+
 [data-sonner-toaster][data-theme="dark"] [data-sonner-toast] [data-cancel] {
+  background: #263449 !important;
+  border-color: #3b4b63 !important;
+  color: #e2e8f0 !important;
+}
+
+[data-sonner-toaster][data-theme="dark"] [data-sonner-toast] [data-cancel]:hover {
   background: #334155 !important;
-  color: #f1f5f9 !important;
+}
+
+[data-sonner-toast] [data-button]:active,
+[data-sonner-toast] [data-cancel]:active {
+  transform: translateY(1px);
 }
 
 @media (max-width: 640px) {
