@@ -5,6 +5,10 @@ import { LoginPage } from '../features/auth/pages/LoginPage.jsx';
 import { DashboardPage } from '../features/dashboard/pages/DashboardPage.jsx';
 import { ProductsPage } from '../features/products/pages/ProductsPage.jsx';
 import { SalesPage } from '../features/sales/pages/SalesPage.jsx';
+import { ReportsPage } from '../features/reports/pages/ReportsPage.jsx';
+import { UsersPage } from '../features/users/pages/UsersPage.jsx';
+import { BranchesPage } from '../features/branches/pages/BranchesPage.jsx';
+import { ReferenceCatalogPage } from '../features/reference-catalog/pages/ReferenceCatalogPage.jsx';
 
 class AppErrorBoundary extends Component {
   state = { hasError: false };
@@ -46,6 +50,10 @@ const router = createBrowserRouter([
       { index: true, element: <DashboardPage /> },
       { path: 'products', element: <ProductsPage /> },
       { path: 'sales', element: <SalesPage /> },
+      { path: 'reports', element: <ReportsPage /> },
+      { path: 'users', element: <UsersPage /> },
+      { path: 'branches', element: <BranchesPage /> },
+      { path: 'reference-catalog', element: <ReferenceCatalogPage /> },
     ],
   },
   { path: '*', element: <Navigate to="/" replace /> },
