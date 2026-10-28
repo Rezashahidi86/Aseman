@@ -4,6 +4,7 @@ const createNeedSchema = z
   .object({
     productId: z.string().regex(/^[a-f\d]{24}$/i),
     requestedQuantity: z.number().int().min(1),
+    branchId: z.string().regex(/^[a-f\\d]{24}$/i).optional(),
   })
   .strict();
 
