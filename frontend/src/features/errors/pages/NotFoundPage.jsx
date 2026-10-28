@@ -1,0 +1,4 @@
+import { FiCompass } from 'react-icons/fi';
+import { Link } from 'react-router';
+
+export function NotFoundPage(){return <main dir="rtl" className="grid min-h-screen place-items-center bg-slate-50 p-5 text-slate-900 dark:bg-slate-950 dark:text-slate-100"><section className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900"><span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300"><FiCompass size={26}/></span><p className="mt-5 text-sm font-extrabold">خطای ۴۰۴</p><h1 className="mt-2 text-xl font-extrabold">صفحه پیدا نشد</h1><p className="mt-3 text-sm leading-7 text-slate-500 dark:text-slate-400">آدرس واردشده وجود ندارد یا تغییر کرده است.</p><Link to="/" className="mt-6 inline-flex min-h-11 items-center rounded-xl bg-indigo-600 px-5 text-sm font-bold text-white">بازگشت به داشبورد</Link></section></main>}
