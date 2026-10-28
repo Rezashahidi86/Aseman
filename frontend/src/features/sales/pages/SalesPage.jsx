@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { FiAlertCircle, FiCheckCircle, FiSearch } from 'react-icons/fi';
 import { DashboardHeader } from '../../dashboard/components/DashboardHeader.jsx';
 import { DashboardSidebar } from '../../dashboard/components/DashboardSidebar.jsx';
@@ -196,17 +196,6 @@ export function SalesPage() {
       setIsSubmitting(false);
     }
   };
-
-  useEffect(() => {
-    if (isReviewOpen) return undefined;
-    const focusScanner = (event) => {
-      if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) return;
-      const target = event.target;
-      if (target instanceof HTMLElement && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'].includes(target.tagName))) return;
-    };
-    window.addEventListener('keydown', focusScanner);
-    return () => window.removeEventListener('keydown', focusScanner);
-  }, [isReviewOpen]);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100" dir="rtl">
