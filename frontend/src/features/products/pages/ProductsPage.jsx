@@ -52,6 +52,7 @@ export function ProductsPage() {
 
       if (appliedFilters.name.trim()) params.name = appliedFilters.name.trim();
       if (appliedFilters.barcode.trim()) params.barcode = appliedFilters.barcode.trim();
+      if (appliedFilters.stock !== 'all') params.stock = appliedFilters.stock;
       if (isAdmin) params.branchId = activeBranchId;
 
       const response = await getProducts(params);
@@ -76,13 +77,7 @@ export function ProductsPage() {
     loadProducts();
   }, [loadProducts]);
 
-  const visibleProducts = useMemo(() => products.filter((product) => {
-    if (appliedFilters.stock === 'low') return Number(product.quantity) <= Number(product.minimumStock ?? 0);
-    if (appliedFilters.stock === 'available') return Number(product.quantity) > Number(product.minimumStock ?? 0);
-    return true;
-  }), [products, appliedFilters.stock]);
-
-  const handleApplyFilters = () => {
+    const handleApplyFilters = () => {
     setPage(1);
     setAppliedFilters({ ...filters });
   };
@@ -177,14 +172,11 @@ export function ProductsPage() {
             ) : (
               <>
                 <ProductFilters filters={filters} onChange={setFilters} onApply={handleApplyFilters} onReset={handleResetFilters} />
-                {appliedFilters.stock !== 'all' && !isLoading && (
-                  <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400">فیلتر موجودی روی محصولات همین صفحه اعمال می‌شود.</p>
-                )}
                 <div className="mb-3 mt-5 flex items-center justify-between gap-3">
                   <p className="text-xs text-slate-500 dark:text-slate-400">{number.format(pagination.total)} محصول در نتیجه جست‌وجو</p>
                   <span className="rounded-lg bg-slate-100 px-3 py-2 text-[10px] text-slate-600 dark:bg-slate-800 dark:text-slate-300">{activeBranch?.name || 'شعبه من'}</span>
                 </div>
-                <ProductTable products={visibleProducts} isLoading={isLoading || isLoadingBranches} onEdit={(product) => { setEditingProduct(product); setIsCreating(false); }} onDelete={handleDeleteProduct} />
+                <ProductTable products={products} isLoading={isLoading || isLoadingBranches} onEdit={(product) => { setEditingProduct(product); setIsCreating(false); }} onDelete={handleDeleteProduct} />
                 <div className="mt-4">
                   <ProductPagination page={page} limit={limit} total={pagination.total} totalPages={pagination.totalPages} onPageChange={setPage} onLimitChange={(value) => { setLimit(value); setPage(1); }} />
                 </div>
