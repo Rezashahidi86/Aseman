@@ -1,4 +1,4 @@
-import { FiBarChart2, FiBookOpen, FiBox, FiHome, FiMapPin, FiTrendingUp, FiUsers } from 'react-icons/fi';
+import { FiBarChart2, FiBookOpen, FiBox, FiHome, FiMapPin, FiTrendingUp, FiUsers, FiUser, FiClipboard, FiSettings, FiFileText } from 'react-icons/fi';
 import { Link, NavLink } from 'react-router';
 import { useAuth } from '../../../auth/AuthContext.jsx';
 
@@ -9,12 +9,15 @@ const links = [
   { to: '/reports', label: 'گزارش‌ها', icon: FiBarChart2 },
   { to: '/branches', label: 'شعبه‌ها', icon: FiMapPin },
   { to: '/reference-catalog', label: 'کاتالوگ مرجع', icon: FiBookOpen },
+  { to: '/customers', label: 'مشتریان', icon: FiUser },
+  { to: '/needs', label: 'فهرست نیازها', icon: FiClipboard },
+  { to: '/manual-documents', label: 'اسناد دستی', icon: FiFileText },
 ];
 
 export function DashboardSidebar() {
   const { user } = useAuth();
   const visibleLinks = user?.role === 'ADMIN'
-    ? [...links, { to: '/users', label: 'مدیریت کاربران', icon: FiUsers }]
+    ? [...links, { to: '/users', label: 'مدیریت کاربران', icon: FiUsers }, { to: '/settings', label: 'تنظیمات', icon: FiSettings }]
     : links;
 
   return (
