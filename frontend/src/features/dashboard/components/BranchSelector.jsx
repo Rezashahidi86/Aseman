@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { FiGitBranch } from 'react-icons/fi';
+import { useEffect, useState } from 'react';
+import { showError } from '../../../shared/utils/notifications.js';
 import { useAuth } from '../../../auth/AuthContext.jsx';
 import { useActiveBranch } from '../../../branches/ActiveBranchContext.jsx';
 
@@ -8,6 +8,8 @@ export function BranchSelector() {
   const { branches, activeBranchId, isLoadingBranches, branchError, chooseBranch, reloadBranches } = useActiveBranch();
   const [isChanging, setIsChanging] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => { showError(error || branchError); }, [error, branchError]);
 
   if (user?.role !== 'ADMIN') return null;
 
@@ -35,19 +37,13 @@ export function BranchSelector() {
         value={activeBranchId}
         onChange={handleChange}
         disabled={isLoadingBranches || isChanging || branches.length === 0}
-        aria-describedby={error || branchError ? 'active-branch-error' : undefined}
       >
         <option value="">{isLoadingBranches ? 'در حال دریافت شعبه‌ها...' : 'انتخاب شعبه'}</option>
         {branches.map((branch) => (
           <option key={branch._id || branch.id} value={branch._id || branch.id}>{branch.name} ({branch.code})</option>
         ))}
       </select>
-      {(error || branchError) && (
-        <div className="text-[10px] text-rose-600 dark:text-rose-400" id="active-branch-error">
-          {error || branchError}
-          <button className="mr-2 underline" type="button" onClick={reloadBranches}>تلاش دوباره</button>
-        </div>
-      )}
+      {(error || branchError) && <button className="self-start text-[10px] text-rose-600 underline dark:text-rose-400" type="button" onClick={reloadBranches}>تلاش دوباره</button>}
     </div>
   );
 }
