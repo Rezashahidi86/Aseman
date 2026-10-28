@@ -5,6 +5,21 @@ export async function getCustomers(params) {
   return response.data;
 }
 
+export async function getCustomerSmsSettings(params = {}) {
+  const response = await apiClient.get('/customers/sms-settings', { params });
+  return response.data;
+}
+
+export async function updateCustomerSmsSettings(payload, params = {}) {
+  const response = await apiClient.put('/customers/sms-settings', payload, { params });
+  return response.data;
+}
+
+export async function sendCustomerSms(id, payload, params = {}) {
+  const response = await apiClient.post(`/customers/${encodeURIComponent(id)}/sms`, payload, { params });
+  return response.data;
+}
+
 export async function createCustomer(payload, params = {}) {
   const response = await apiClient.post('/customers', payload, { params });
   return response.data;
