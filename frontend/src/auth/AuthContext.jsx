@@ -28,6 +28,12 @@ export function AuthProvider({ children }) {
 
     const initialize = async () => {
       try {
+        window.sessionStorage.removeItem('aseman_access_token');
+      } catch {
+        // Storage may be unavailable; authentication still uses the HttpOnly cookie.
+      }
+
+      try {
         const response = await getCurrentUser();
 
         if (!response?.data?.user) {
