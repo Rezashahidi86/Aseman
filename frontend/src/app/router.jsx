@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { createBrowserRouter, Navigate, RouterProvider } from 'react-router';
+import { createBrowserRouter, RouterProvider } from 'react-router';
 import { ProtectedRoute } from '../features/auth/ProtectedRoute.jsx';
 import { LoginPage } from '../features/auth/pages/LoginPage.jsx';
 import { DashboardPage } from '../features/dashboard/pages/DashboardPage.jsx';
