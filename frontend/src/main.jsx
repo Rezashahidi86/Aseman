@@ -5,6 +5,7 @@ import { AuthProvider } from './auth/AuthContext.jsx';
 import { ActiveBranchProvider } from './branches/ActiveBranchContext.jsx';
 import { ThemeProvider, useTheme } from './theme/ThemeContext.jsx';
 import { AppRouter } from './app/router.jsx';
+import { GlobalLoadingIndicator } from './shared/components/GlobalLoadingIndicator.jsx';
 import './index.css';
 
 function AppToaster() {
@@ -27,6 +28,7 @@ createRoot(document.getElementById('root')).render(
     <ThemeProvider>
       <AuthProvider>
         <ActiveBranchProvider>
+          <GlobalLoadingIndicator />
           <AppRouter />
           <AppToaster />
         </ActiveBranchProvider>
