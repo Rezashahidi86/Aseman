@@ -26,21 +26,22 @@ export const sendSms = async ({ phone, message }) => {
           sender: env.SMS_SENDER.trim(),
           message: message.trim(),
         },
-        (response, status) => {
-          const providerStatus = response?.return?.status;
-          const providerMessage = response?.return?.message || 'Unknown provider error';
-
-          if (status !== 200 || providerStatus !== 200) {
+        (entries, status, providerMessage) => {
+          if (status !== 200) {
             reject(
               new AppError(
-                `Kavenegar error (HTTP ${status ?? 'unknown'}, status ${providerStatus ?? 'unknown'}): ${providerMessage}`,
+                `Kavenegar error (status ${status ?? 'unknown'}): ${providerMessage || entries?.error || 'Unknown provider error'}`,
                 502,
               ),
             );
             return;
           }
 
-          resolve(response);
+          resolve({
+            entries,
+            status,
+            message: providerMessage,
+          });
         },
       );
     } catch (error) {
