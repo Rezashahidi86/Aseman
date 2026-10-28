@@ -3,7 +3,11 @@ import ROLES from '../constants/roles.js';
 
 const setBranchContext = (req, res, next) => {
   if (req.user.role === ROLES.ADMIN) {
-    req.branchId = req.params?.id || req.query?.branchId || req.body?.branchId || null;
+    req.branchId =
+      req.params?.branchId ||
+      req.query?.branchId ||
+      req.body?.branchId ||
+      null;
     return next();
   }
 
@@ -15,8 +19,8 @@ const setBranchContext = (req, res, next) => {
     const ownBranchId = req.user.branch.toString();
 
     if (
-      (req.body?.branchId && req.body?.branchId !== ownBranchId) ||
-      (req.params?.id && req.params?.id !== ownBranchId)
+      (req.body?.branchId && req.body.branchId !== ownBranchId) ||
+      (req.params?.branchId && req.params.branchId !== ownBranchId)
     ) {
       return next(new AppError('Access denied to this branch', 403));
     }
