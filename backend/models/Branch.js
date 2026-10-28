@@ -17,6 +17,12 @@ const branchSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  customerWelcomeSmsMessage: {
+    type: String,
+    trim: true,
+    maxlength: 1000,
+    default: '',
+  },
   createdAt: {
     type: Date,
     default: Date.now,
