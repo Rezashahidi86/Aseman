@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FiAlertCircle, FiBox, FiPlus, FiRefreshCw } from 'react-icons/fi';
+import { FiBox, FiPlus, FiRefreshCw } from 'react-icons/fi';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../../auth/AuthContext.jsx';
 import { useActiveBranch } from '../../../branches/ActiveBranchContext.jsx';
@@ -10,6 +10,7 @@ import { ProductFilters } from '../components/ProductFilters.jsx';
 import { ProductFormModal } from '../components/ProductFormModal.jsx';
 import { ProductPagination } from '../components/ProductPagination.jsx';
 import { ProductTable } from '../components/ProductTable.jsx';
+import { confirmWithToast, showError, showSuccess } from '../../../shared/utils/notifications.js';
 
 const DEFAULT_FILTERS = { name: '', barcode: '', stock: 'all', sort: '-createdAt' };
 const number = new Intl.NumberFormat('fa-IR');
@@ -32,6 +33,14 @@ export function ProductsPage() {
   const [notice, setNotice] = useState('');
   const [editingProduct, setEditingProduct] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
+
+  useEffect(() => {
+    showError(error || branchError);
+  }, [error, branchError]);
+
+  useEffect(() => {
+    showSuccess(notice);
+  }, [notice]);
 
   const loadProducts = useCallback(async () => {
     if (isAdmin && !activeBranchId) {
@@ -119,9 +128,10 @@ export function ProductsPage() {
   };
 
   const handleDeleteProduct = async (product) => {
-    const confirmed = window.confirm(`آیا از حذف محصول «${product.name}» مطمئن هستید؟ این عملیات قابل بازگشت نیست.`);
-    if (!confirmed) return;
+    confirmWithToast({ message: `آیا از حذف محصول «${product.name}» مطمئن هستید؟ این عملیات قابل بازگشت نیست.`, confirmLabel: 'حذف محصول', type: 'error', onConfirm: () => performDeleteProduct(product) });
+  };
 
+  const performDeleteProduct = async (product) => {
     setError('');
     setNotice('');
 
@@ -162,8 +172,6 @@ export function ProductsPage() {
               </div>
             </div>
 
-            {(error || branchError) && <section className="mb-4 flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300" role="alert"><FiAlertCircle className="mt-0.5 shrink-0" size={17} /><div className="text-xs leading-6">{error || branchError}</div></section>}
-            {notice && <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-bold text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300" role="status">{notice}</div>}
 
             {branchRequired ? (
               <div className="grid min-h-48 place-items-center rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center dark:border-slate-700 dark:bg-slate-900">
