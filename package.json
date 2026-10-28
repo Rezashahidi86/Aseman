@@ -1,0 +1,73 @@
+{
+  "name": "project-asman",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Asman multi-branch shop management application",
+  "main": "backend/server.js",
+  "directories": {
+    "doc": "backend/docs"
+  },
+  "scripts": {
+    "dev": "nodemon backend/server.js",
+    "start": "node backend/server.js",
+    "lint": "eslint backend",
+    "lint:fix": "eslint backend --fix",
+    "test": "vitest run --root backend",
+    "seed:branches": "node backend/scripts/seedBranches.js",
+    "seed:admin": "node backend/scripts/seedAdmin.js",
+    "migrate:drop-product-name-unique-index": "node backend/scripts/dropProductNameUniqueIndex.js",
+    "migrate:reference-catalog-barcode-index": "node backend/scripts/migrateReferenceCatalogBarcodeIndex.js",
+    "dev:frontend": "vite --config frontend/vite.config.js frontend",
+    "build:frontend": "vite build --config frontend/vite.config.js frontend",
+    "preview:frontend": "vite preview --config frontend/vite.config.js frontend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rezashahidi86/Aseman.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Rezashahidi86/Aseman/issues"
+  },
+  "homepage": "https://github.com/Rezashahidi86/Aseman#readme",
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.17",
+    "@vitejs/plugin-react": "^5.1.1",
+    "axios": "^1.12.2",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.1",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.11.4",
+    "morgan": "^1.12.1",
+    "multer": "^2.5.0",
+    "nodemon": "^3.1.14",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-icons": "^5.5.0",
+    "react-router": "^7.9.4",
+    "recharts": "^3.2.1",
+    "sonner": "^2.0.7",
+    "tailwindcss": "^4.1.17",
+    "vite": "^7.3.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^5.5.7",
+    "eslint-plugin-react": "^7.37.5",
+    "prettier": "^3.9.10",
+    "vitest": "^5.0.5"
+  }
+}
