@@ -12,7 +12,6 @@ import { ReferenceCatalogPage } from '../features/reference-catalog/pages/Refere
 import { CustomersPage } from '../features/customers/pages/CustomersPage.jsx';
 import { NeedsPage } from '../features/needs/pages/NeedsPage.jsx';
 import { ManualDocumentsPage } from '../features/manual-documents/pages/ManualDocumentsPage.jsx';
-import { SettingsPage } from '../features/settings/pages/SettingsPage.jsx';
 import { ForbiddenPage } from '../features/errors/pages/ForbiddenPage.jsx';
 import { NotFoundPage } from '../features/errors/pages/NotFoundPage.jsx';
 
@@ -63,7 +62,6 @@ const router = createBrowserRouter([
       { path: 'customers', element: <CustomersPage /> },
       { path: 'needs', element: <NeedsPage /> },
       { path: 'manual-documents', element: <ManualDocumentsPage /> },
-      { path: 'settings', element: <SettingsPage /> },
       { path: 'forbidden', element: <ForbiddenPage /> },
     ],
   },
