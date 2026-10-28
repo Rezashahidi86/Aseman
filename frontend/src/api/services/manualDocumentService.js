@@ -27,3 +27,9 @@ export function getManualDocumentImageUrl(url) {
   const baseURL = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:3000/api/v1').replace(/\/$/, '');
   return `${baseURL.replace(/\/api\/v1$/, '')}${url}`;
 }
+
+export async function getManualDocumentImage(url) {
+  const apiPath = url.replace(/^\/api\/v1/, '');
+  const response = await apiClient.get(apiPath, { responseType: 'blob' });
+  return URL.createObjectURL(response.data);
+}
