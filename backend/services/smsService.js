@@ -34,7 +34,12 @@ export const sendSms = async ({ phone, message }) => {
   }
 
   if (!response.ok || payload?.return?.status !== 200) {
-    throw new AppError('The SMS provider could not send the message', 502);
+    const providerMessage = payload?.return?.message || 'Unknown provider error';
+    const providerStatus = payload?.return?.status ?? response.status;
+    throw new AppError(
+      `SMS provider error (${providerStatus}): ${providerMessage}`,
+      502,
+    );
   }
 
   return payload;
