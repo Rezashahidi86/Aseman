@@ -40,10 +40,7 @@ app.use(errorMiddleware);
 const startServer = async () => {
   try {
     await mongoose.connect(env.DATABASE_URL);
-
-
-    app.listen(env.PORT, () => {
-    });
+    app.listen(env.PORT);
   } catch (error) {
     console.error('Failed to start server:', error.message);
     process.exit(1);
