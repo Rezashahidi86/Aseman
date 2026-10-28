@@ -308,7 +308,7 @@ export function ManualDocumentsPage() {
                             {document.note && (
                               <p className="mb-3 whitespace-pre-wrap text-xs leading-6 text-slate-600 dark:text-slate-300">{document.note}</p>
                             )}
-                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 xl:grid-cols-6">
                               {(document.imageUrls || []).map((url, index) => (
                                 <a
                                   key={url}
@@ -318,7 +318,7 @@ export function ManualDocumentsPage() {
                                   onClick={(event) => {
                                     if (!loadedImageUrls[url]) event.preventDefault();
                                   }}
-                                  className="group flex aspect-square items-center justify-center overflow-hidden rounded-xl bg-slate-100 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700"
+                                  className="group flex aspect-[4/3] items-center justify-center overflow-hidden rounded-lg bg-slate-100 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700"
                                 >
                                   {loadedImageUrls[url] ? (
                                     <img
