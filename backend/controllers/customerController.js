@@ -83,7 +83,8 @@ const createCustomer = async (req, res, next) => {
             message: welcomeMessage.replace(/\{name\}/g, customer.name),
           });
           smsStatus = 'sent';
-        } catch {
+        } catch (error) {
+          console.error('Customer welcome SMS failed:', error.message);
           smsStatus = 'failed';
         }
       }
