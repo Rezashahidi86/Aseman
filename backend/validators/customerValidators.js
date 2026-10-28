@@ -4,6 +4,7 @@ const createCustomerSchema = z
   .object({
     name: z.string().trim().min(1).max(100),
     phone: z.string().trim().regex(/^09\d{9}$/, 'Invalid phone number'),
+    message: z.string().trim().max(1000).optional(),
   })
   .strict();
 
