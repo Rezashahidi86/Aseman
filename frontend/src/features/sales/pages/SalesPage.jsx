@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { FiSearch } from 'react-icons/fi';
+import { FiAlertCircle, FiSearch } from 'react-icons/fi';
 import { DashboardHeader } from '../../dashboard/components/DashboardHeader.jsx';
 import { DashboardSidebar } from '../../dashboard/components/DashboardSidebar.jsx';
 import { useAuth } from '../../../auth/AuthContext.jsx';
@@ -211,7 +211,12 @@ export function SalesPage() {
       idempotencyKeyRef.current = '';
       setNotice(response?.isDuplicate ? 'این فروش قبلاً ثبت شده بود؛ رسید موجود بازیابی شد.' : 'فروش با موفقیت ثبت شد.');
     } catch (error) {
-      setSubmitError(error.message || 'ثبت فروش انجام نشد. می‌توانید دوباره تلاش کنید.');
+      const message = /stock|inventory|insufficient|quantity|موجودی/i.test(error.message || '') || error.status === 409
+        ? 'موجودی این کالا تغییر کرده یا برای تعداد درخواستی کافی نیست. سبد را بررسی کنید و دوباره تلاش کنید.'
+        : error.code === 'ECONNABORTED' || /ارتباط با سرور|network|fetch|زمان انتظار/i.test(error.message || '')
+          ? 'ارتباط با سرور برقرار نشد یا پاسخ دیر رسید. فروش را دوباره بررسی و سپس تلاش کنید؛ درخواست با همان شناسه پیگیری می‌شود.'
+          : error.message || 'ثبت فروش ناموفق بود. اطلاعات سبد را بررسی کنید.';
+      setSubmitError(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -225,6 +230,7 @@ export function SalesPage() {
           <DashboardHeader />
           <main className="mx-auto w-full max-w-screen-2xl px-4 py-6 sm:px-8 sm:py-8">
             <div className="mb-6"><p className="mb-2 text-xs text-slate-500 dark:text-slate-400">ثبت خرید مشتری</p><h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">فروش جدید</h1><p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{activeBranch?.name ? `شعبه فعال: ${activeBranch.name}` : isAdmin ? 'برای شروع، شعبه فعال را انتخاب کنید.' : 'بارکد کالا را اسکن یا نام محصول را جست‌وجو کنید.'}</p></div>
+            {(pageError || submitError) && <div className="mb-4 flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-800 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-200" role="alert"><FiAlertCircle className="mt-0.5 shrink-0" size={18} /><div className="min-w-0"><p className="text-xs font-extrabold">{/موجودی|stock|inventory|quantity/i.test(pageError + ' ' + submitError) ? 'خطای موجودی کالا' : /ارتباط با سرور|network|fetch|زمان انتظار/i.test(pageError + ' ' + submitError) ? 'خطای ارتباط با سرور' : 'انجام عملیات ناموفق بود'}</p><p className="mt-1 text-xs leading-6">{pageError || submitError}</p>{submitError && <button className="mt-2 rounded-lg border border-rose-300 px-3 py-1.5 text-xs font-bold dark:border-rose-800" type="button" onClick={confirmSale} disabled={isSubmitting}>تلاش دوباره برای ثبت فروش</button>}</div><button className="mr-auto rounded-md px-2 py-1 text-xs" type="button" onClick={() => { setPageError(''); setSubmitError(''); }} aria-label="بستن پیام خطا">×</button></div>}
             {lastReceipt && <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/30"><div><p className="text-xs font-extrabold text-emerald-800 dark:text-emerald-300">رسید آخرین فروش: {lastReceipt.receiptNumber}</p><p className="mt-1 text-[10px] text-emerald-700 dark:text-emerald-400">{formatPersianDateTime(lastReceipt.createdAt)} · {new Intl.NumberFormat('fa-IR').format(lastReceipt.totalItemsSold || 0)} عدد</p></div><strong className="text-sm text-emerald-800 dark:text-emerald-300">{new Intl.NumberFormat('fa-IR').format(lastReceipt.totalSales || 0)} تومان</strong></div>}
             {branchRequired ? <div className="grid min-h-48 place-items-center rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm font-bold dark:border-slate-700 dark:bg-slate-900">برای ثبت فروش، ابتدا شعبه فعال را انتخاب کنید.</div> : (
               <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(380px,0.95fr)]">
