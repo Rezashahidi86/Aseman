@@ -1,5 +1,5 @@
-import { useCallback, useRef, useState } from 'react';
-import { FiAlertCircle, FiCheckCircle, FiSearch } from 'react-icons/fi';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { FiSearch } from 'react-icons/fi';
 import { DashboardHeader } from '../../dashboard/components/DashboardHeader.jsx';
 import { DashboardSidebar } from '../../dashboard/components/DashboardSidebar.jsx';
 import { useAuth } from '../../../auth/AuthContext.jsx';
@@ -7,6 +7,7 @@ import { useActiveBranch } from '../../../branches/ActiveBranchContext.jsx';
 import { getProducts } from '../../../api/services/productService.js';
 import { registerSale } from '../../../api/services/salesService.js';
 import { formatPersianDateTime } from '../../../shared/utils/date.js';
+import { showError, showSuccess } from '../../../shared/utils/notifications.js';
 import { BarcodeScannerInput } from '../components/BarcodeScannerInput.jsx';
 import { ProductSearchResults } from '../components/ProductSearchResults.jsx';
 import { SaleCart } from '../components/SaleCart.jsx';
@@ -30,6 +31,18 @@ export function SalesPage() {
   const [submitError, setSubmitError] = useState('');
   const [lastReceipt, setLastReceipt] = useState(null);
   const idempotencyKeyRef = useRef('');
+
+  useEffect(() => {
+    showError(pageError);
+  }, [pageError]);
+
+  useEffect(() => {
+    showSuccess(notice);
+  }, [notice]);
+
+  useEffect(() => {
+    showError(submitError);
+  }, [submitError]);
 
   const isAdmin = user?.role === 'ADMIN';
   const branchRequired = isAdmin && !activeBranchId;
@@ -205,7 +218,6 @@ export function SalesPage() {
           <DashboardHeader />
           <main className="mx-auto w-full max-w-screen-2xl px-4 py-6 sm:px-8 sm:py-8">
             <div className="mb-6"><p className="mb-2 text-xs text-slate-500 dark:text-slate-400">ثبت خرید مشتری</p><h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">فروش جدید</h1><p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{activeBranch?.name ? `شعبه فعال: ${activeBranch.name}` : isAdmin ? 'برای شروع، شعبه فعال را انتخاب کنید.' : 'بارکد کالا را اسکن یا نام محصول را جست‌وجو کنید.'}</p></div>
-            {(pageError || notice) && <div className={`mb-4 flex items-start gap-2 rounded-xl border p-3 text-xs leading-6 ${pageError ? 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300' : 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300'}`} role={pageError ? 'alert' : 'status'}>{pageError ? <FiAlertCircle className="mt-1 shrink-0" size={15} /> : <FiCheckCircle className="mt-1 shrink-0" size={15} />}<span>{pageError || notice}</span></div>}
             {lastReceipt && <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/30"><div><p className="text-xs font-extrabold text-emerald-800 dark:text-emerald-300">رسید آخرین فروش: {lastReceipt.receiptNumber}</p><p className="mt-1 text-[10px] text-emerald-700 dark:text-emerald-400">{formatPersianDateTime(lastReceipt.createdAt)} · {new Intl.NumberFormat('fa-IR').format(lastReceipt.totalItemsSold || 0)} عدد</p></div><strong className="text-sm text-emerald-800 dark:text-emerald-300">{new Intl.NumberFormat('fa-IR').format(lastReceipt.totalSales || 0)} تومان</strong></div>}
             {branchRequired ? <div className="grid min-h-48 place-items-center rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm font-bold dark:border-slate-700 dark:bg-slate-900">برای ثبت فروش، ابتدا شعبه فعال را انتخاب کنید.</div> : (
               <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(380px,0.95fr)]">
