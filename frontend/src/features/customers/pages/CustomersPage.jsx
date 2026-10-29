@@ -32,7 +32,7 @@ import {
 const emptyForm = { name: '', phone: '' };
 
 const inputClassName = 'mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-transparent px-3 text-sm dark:border-slate-700';
-const buttonClassName = 'inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 text-xs font-bold transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:hover:bg-slate-800';
+const buttonClassName = 'inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-3 text-xs font-bold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700';
 
 export function CustomersPage() {
   const { activeBranchId } = useActiveBranch();
@@ -281,6 +281,7 @@ export function CustomersPage() {
                     <th className="p-4">نام</th>
                     <th className="p-4">شماره تماس</th>
                     <th className="p-4">عملیات</th>
+                    <th className="p-4">ارسال پیام</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -290,21 +291,23 @@ export function CustomersPage() {
                       <td className="p-4" dir="ltr">{customer.phone}</td>
                       <td className="p-4">
                         <div className="flex gap-2">
-                          <button type="button" aria-label="ویرایش مشتری" title="ویرایش مشتری" onClick={() => { setEditingId(customer._id); setForm({ name: customer.name, phone: customer.phone }); }} className="rounded-lg border p-2">
+                          <button type="button" aria-label="ویرایش مشتری" title="ویرایش مشتری" onClick={() => { setEditingId(customer._id); setForm({ name: customer.name, phone: customer.phone }); }} className="rounded-lg border border-indigo-200 bg-indigo-50 p-2 text-indigo-700 transition hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300 dark:hover:bg-indigo-900">
                             <FiEdit2 />
                           </button>
-                          <button type="button" aria-label="حذف مشتری" title="حذف مشتری" onClick={() => remove(customer)} className="rounded-lg border border-rose-200 p-2 text-rose-600">
+                          <button type="button" aria-label="حذف مشتری" title="حذف مشتری" onClick={() => remove(customer)} className="rounded-lg border border-rose-200 bg-rose-50 p-2 text-rose-700 transition hover:bg-rose-100 dark:border-rose-800 dark:bg-rose-950/50 dark:text-rose-300 dark:hover:bg-rose-900">
                             <FiTrash2 />
                           </button>
-                          <button type="button" aria-label="ارسال پیامک" title="ارسال پیامک" onClick={() => openSmsModal(customer)} className={buttonClassName}>
-                            <FiMessageSquare /> <span>ارسال پیام</span>
-                          </button>
                         </div>
+                      </td>
+                      <td className="p-4">
+                        <button type="button" aria-label="ارسال پیامک" title="ارسال پیامک" onClick={() => openSmsModal(customer)} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 text-xs font-bold text-emerald-800 transition hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 dark:hover:bg-emerald-900">
+                          <FiMessageSquare /> <span>ارسال پیام</span>
+                        </button>
                       </td>
                     </tr>
                   ))}
                   {!customers.length && !loading && (
-                    <tr><td colSpan="3" className="p-8 text-center text-slate-500">مشتری‌ای پیدا نشد.</td></tr>
+                    <tr><td colSpan="4" className="p-8 text-center text-slate-500">مشتری‌ای پیدا نشد.</td></tr>
                   )}
                 </tbody>
               </table>
