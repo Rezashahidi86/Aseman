@@ -18,6 +18,23 @@ describe('Product validators', () => {
     expect(createProductSchema.safeParse(validProduct).success).toBe(true);
   });
 
+  it('should accept product data without a barcode', () => {
+    const product = { ...validProduct };
+    delete product.barcode;
+
+    expect(createProductSchema.safeParse(product).success).toBe(true);
+  });
+
+  it('should accept an empty barcode as omitted', () => {
+    const result = createProductSchema.safeParse({
+      ...validProduct,
+      barcode: '  ',
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.data.barcode).toBeUndefined();
+  });
+
   it('should accept barcode values without checking database uniqueness', () => {
     expect(createProductSchema.safeParse(validProduct).success).toBe(true);
   });
@@ -47,6 +64,13 @@ describe('Product validators', () => {
     });
 
     expect(result.success).toBe(false);
+  });
+
+  it('should allow clearing a barcode during update', () => {
+    const result = updateProductSchema.safeParse({ barcode: '' });
+
+    expect(result.success).toBe(true);
+    expect(result.data.barcode).toBeUndefined();
   });
 
   it('should reject fractional quantity', () => {
