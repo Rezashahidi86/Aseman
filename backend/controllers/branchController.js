@@ -44,7 +44,7 @@ export const selectBranch = async (req, res, next) => {
 
     const { branchId } = req.body;
 
-    if (!branchId || !/^[a-f\\d]{24}$/i.test(branchId)) {
+    if (!branchId || !/^[a-f\d]{24}$/i.test(branchId)) {
       throw new AppError('A valid branch ID is required', 400);
     }
 
