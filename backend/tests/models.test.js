@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import Branch from '../models/Branch.js';
 import User from '../models/User.js';
 import ReferenceCatalog from '../models/ReferenceCatalog.js';
+import SalesStats from '../models/SalesStats.js';
 import ROLES from '../constants/roles.js';
 
 describe('Branch model', () => {
@@ -81,5 +82,22 @@ describe('ReferenceCatalog model', () => {
     expect(index[1].partialFilterExpression).toEqual({
       barcode: { $type: 'string' },
     });
+  });
+});
+
+
+describe('SalesStats model', () => {
+  it('should allow negative profit when a sale is made at a loss', async () => {
+    const stats = new SalesStats({
+      branch: '507f1f77bcf86cd799439011',
+      periodType: 'daily',
+      periodKey: '2026-10-29',
+      totalSales: 100,
+      totalProfit: -25,
+      totalItemsSold: 1,
+      salesCount: 1,
+    });
+
+    await expect(stats.validate()).resolves.toBeUndefined();
   });
 });

@@ -7,6 +7,10 @@ import {
   saleCartSchema,
   saleRegistrationSchema,
 } from '../validators/salesValidators.js';
+import {
+  getTehranDateKey,
+  getTehranMonthKey,
+} from '../utils/dateKeys.js';
 
 const prepareSaleItems = async (items, branchId, session = null) => {
   const validation = saleCartSchema.safeParse({ items });
@@ -173,10 +177,8 @@ const registerSale = async ({ items, branchId, sellerId, idempotencyKey }) => {
         }
       }
 
-      const now = new Date();
-
-      const dailyKey = now.toISOString().slice(0, 10);
-      const monthlyKey = now.toISOString().slice(0, 7);
+      const dailyKey = getTehranDateKey();
+      const monthlyKey = getTehranMonthKey();
 
       const statsUpdate = {
         $inc: {

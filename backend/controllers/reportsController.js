@@ -9,6 +9,11 @@ import {
   getFilteredReport,
 } from '../services/reportsService.js';
 import AppError from '../utils/AppError.js';
+import {
+  getTehranDateKey,
+  getTehranMonthKey,
+  shiftDateKey,
+} from '../utils/dateKeys.js';
 
 const getDailyReport = async (req, res, next) => {
   try {
@@ -58,7 +63,7 @@ const getMonthlyReport = async (req, res, next) => {
     }
     const report = await getMonthlyBranchReport({
       branchId: req.branchId,
-      month: req.query.month || new Date().toISOString().slice(0, 7),
+      month: req.query.month || getTehranMonthKey(),
     });
 
     return res.status(200).json({
@@ -104,22 +109,8 @@ const getAllBranches = async (req, res, next) => {
 
 const getAllBranchesDaily = async (req, res, next) => {
   try {
-    const getTehranDateKey = (date) => {
-      const parts = new Intl.DateTimeFormat('en-CA', {
-        timeZone: 'Asia/Tehran',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      }).formatToParts(date);
-      const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
-
-      return `${values.year}-${values.month}-${values.day}`;
-    };
-    const today = getTehranDateKey(new Date());
-    const [year, month, day] = today.split('-').map(Number);
-    const sixDaysAgo = new Date(Date.UTC(year, month - 1, day - 6))
-      .toISOString()
-      .slice(0, 10);
+    const today = getTehranDateKey();
+    const sixDaysAgo = shiftDateKey(today, -6);
 
     const report = await getAllBranchesDailyReport({
       startDate: req.query.startDate || sixDaysAgo,
