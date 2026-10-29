@@ -23,6 +23,14 @@ describe('Product model', () => {
     expect(product.salesCount).toBe(0);
   });
 
+  it('should accept a product without a barcode', async () => {
+    const { barcode, ...productData } = validProduct;
+    const product = new Product(productData);
+
+    await expect(product.validate()).resolves.toBeUndefined();
+    expect(product.barcode).toBeUndefined();
+  });
+
   it.each([
     ['purchasePrice', -1],
     ['salePrice', -1],
@@ -47,7 +55,7 @@ describe('Product model', () => {
     await expect(product.validate()).rejects.toThrow();
   });
 
-  it('should define a unique compound index for barcode within each branch', () => {
+  it('should define a partial unique compound index for barcode within each branch', () => {
     const index = Product.schema.indexes().find(([fields, options]) => (
       fields.branch === 1 &&
       fields.barcode === 1 &&
@@ -55,6 +63,9 @@ describe('Product model', () => {
     ));
 
     expect(index).toBeDefined();
+    expect(index[1].partialFilterExpression).toEqual({
+      barcode: { $type: 'string' },
+    });
   });
 
   it('should not require product names to be unique within a branch', () => {
