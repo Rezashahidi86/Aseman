@@ -20,18 +20,25 @@ router.use(authMiddleware);
 router.get('/all-branches/daily', requireAdmin, getAllBranchesDaily);
 router.get('/all-branches', requireAdmin, getAllBranches);
 
-router.get('/:id/daily', setBranchContext, getDailyReport);
-router.get('/:id/weekly', setBranchContext, getWeeklyReport);
-router.get('/:id/monthly', setBranchContext, getMonthlyReport);
-router.get('/:id/monthly-comparison', setBranchContext, getMonthlyComparison);
+router.get('/daily', setBranchContext, getDailyReport);
+router.get('/:branchId/daily', setBranchContext, getDailyReport);
+
+router.get('/weekly', setBranchContext, getWeeklyReport);
+router.get('/:branchId/weekly', setBranchContext, getWeeklyReport);
+
+router.get('/monthly', setBranchContext, getMonthlyReport);
+router.get('/:branchId/monthly', setBranchContext, getMonthlyReport);
+
+router.get('/monthly-comparison', setBranchContext, getMonthlyComparison);
+router.get('/:branchId/monthly-comparison', setBranchContext, getMonthlyComparison);
 
 router.get(
-  '/:id/sellers/:sellerId',
+  '/:branchId/sellers/:sellerId',
   requireAdmin,
   setBranchContext,
   getSellerReportController,
 );
 
-router.get('/filtered', requireAdmin, getFilteredReportController);
+router.get('/filtered', setBranchContext, getFilteredReportController);
 
 export default router;
