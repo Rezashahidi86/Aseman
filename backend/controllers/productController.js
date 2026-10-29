@@ -21,6 +21,10 @@ const handleProductDuplicateKey = (error, next) => {
     return next(new AppError('Barcode already exists in this branch', 409));
   }
 
+  if (error.keyPattern?.name) {
+    return next(new AppError('Product name already exists in this branch', 409));
+  }
+
   return next(
     new AppError('Product conflicts with an existing record in this branch', 409),
   );
@@ -48,6 +52,18 @@ const createProduct = async (req, res, next) => {
 
     if (!branch) {
       return next(new AppError('Branch not found or inactive', 404));
+    }
+
+    const duplicateName = await Product.findOne({
+      branch: branch._id,
+      name: productData.name,
+    })
+      .collation({ locale: 'en', strength: 2 })
+      .select('_id')
+      .lean();
+
+    if (duplicateName) {
+      return next(new AppError('Product name already exists in this branch', 409));
     }
 
     const product = await Product.create({
@@ -267,6 +283,21 @@ const updateProduct = async (req, res, next) => {
 
     if (!product) {
       return next(new AppError('Product not found', 404));
+    }
+
+    if (validation.data.name !== undefined) {
+      const duplicateName = await Product.findOne({
+        _id: { $ne: product._id },
+        branch: product.branch,
+        name: validation.data.name,
+      })
+        .collation({ locale: 'en', strength: 2 })
+        .select('_id')
+        .lean();
+
+      if (duplicateName) {
+        return next(new AppError('Product name already exists in this branch', 409));
+      }
     }
 
     Object.assign(product, validation.data);
