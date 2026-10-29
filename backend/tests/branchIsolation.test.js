@@ -37,7 +37,7 @@ describe("Branch isolation", () => {
   });
 
   it("should reject access to another branch through params", () => {
-    req.params.id = anotherBranchId;
+    req.params.branchId = anotherBranchId;
 
     setBranchContext(req, res, next);
 
@@ -48,7 +48,7 @@ describe("Branch isolation", () => {
   });
 
   it("should allow access to the seller's own branch", () => {
-    req.params.id = ownBranchId;
+    req.params.branchId = ownBranchId;
 
     setBranchContext(req, res, next);
 
