@@ -49,9 +49,6 @@ const createManualDocument = async (req, res, next) => {
       return next(validation.error);
     }
 
-    if (!req.files || req.files.length === 0) {
-      return next(new AppError('At least one document image is required', 400));
-    }
     const branchFilter = getBranchFilter(req, next);
 
     if (!branchFilter) {
@@ -83,7 +80,7 @@ const createManualDocument = async (req, res, next) => {
       data: {
         document: {
           ...document.toObject(),
-          imageUrls: document.images.map(
+          imageUrls: (document.images || []).map(
             (image, index) =>
               `/api/v1/manual-documents/${document._id}/images/${index}?branchId=${document.branch}`,
           ),
@@ -121,7 +118,7 @@ const getManualDocuments = async (req, res, next) => {
 
     const documentsWithImageUrls = documents.map((document) => ({
       ...document,
-      imageUrls: document.images.map(
+      imageUrls: (document.images || []).map(
         (image, index) =>
           `/api/v1/manual-documents/${document._id}/images/${index}?branchId=${document.branch}`,
       ),
@@ -205,7 +202,7 @@ const deleteManualDocument = async (req, res, next) => {
     }
 
     await Promise.all(
-      document.images.map(async (image) => {
+      (document.images || []).map(async (image) => {
         const filename = path.basename(image);
         const imagePath = path.join(uploadDirectory, filename);
 
