@@ -21,7 +21,7 @@ const manualDocumentSchema = new mongoose.Schema(
         validator: (images) => images.length <= 10,
         message: 'You can upload up to 10 images',
       },
-    }
+    },
     branch: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Branch',
