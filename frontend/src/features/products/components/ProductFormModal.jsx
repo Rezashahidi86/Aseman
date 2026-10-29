@@ -46,6 +46,16 @@ function validateProduct(form) {
     }
   }
 
+  if (
+    form.purchasePrice !== '' &&
+    form.salePrice !== '' &&
+    Number.isFinite(Number(form.purchasePrice)) &&
+    Number.isFinite(Number(form.salePrice)) &&
+    Number(form.salePrice) < Number(form.purchasePrice)
+  ) {
+    errors.salePrice = 'قیمت فروش نمی‌تواند کمتر از قیمت خرید باشد.';
+  }
+
   return errors;
 }
 
