@@ -24,7 +24,8 @@ describe('Product model', () => {
   });
 
   it('should accept a product without a barcode', async () => {
-    const { barcode, ...productData } = validProduct;
+    const productData = { ...validProduct };
+    delete productData.barcode;
     const product = new Product(productData);
 
     await expect(product.validate()).resolves.toBeUndefined();
