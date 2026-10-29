@@ -9,10 +9,12 @@ export async function createManualDocument({ documentDetails, note, images, bran
   const formData = new FormData();
   formData.append('documentDetails', documentDetails);
   formData.append('note', note || '');
-  if (branchId) formData.append('branchId', branchId);
+  if (!branchId || !/^[a-f\d]{24}$/i.test(branchId)) {
+    throw new Error('لطفاً ابتدا یک شعبه معتبر از بالای صفحه انتخاب کنید.');
+  }
   for (const image of images) formData.append('images', image);
   const response = await apiClient.post('/manual-documents', formData, {
-    params: branchId ? { branchId } : {},
+    params: { branchId: String(branchId).trim() },
   });
   return response.data;
 }
