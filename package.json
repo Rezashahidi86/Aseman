@@ -16,6 +16,7 @@
     "seed:branches": "node backend/scripts/seedBranches.js",
     "seed:admin": "node backend/scripts/seedAdmin.js",
     "migrate:drop-product-name-unique-index": "node backend/scripts/dropProductNameUniqueIndex.js",
+    "migrate:product-name-index": "node backend/scripts/migrateProductNameIndex.js",
     "migrate:reference-catalog-barcode-index": "node backend/scripts/migrateReferenceCatalogBarcodeIndex.js",
     "migrate:product-barcode-index": "node backend/scripts/migrateProductBarcodeIndex.js",
     "rebuild:sales-stats": "node backend/scripts/rebuildSalesStats.js",
