@@ -291,7 +291,7 @@ export function ManualDocumentsPage() {
                           <section key={document._id} className="rounded-xl border border-slate-200 p-3 sm:p-4 dark:border-slate-700">
                             <div className="mb-3 flex items-start justify-between gap-3">
                               <div>
-                                <p className="text-xs font-bold">{formatDate(document.createdAt)}</p>
+                                <p className="text-xs font-bold">{formatPersianDate(document.createdAt)}</p>
                                 <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
                                   ثبت‌کننده: {document.createdBy?.name || 'کاربر'}
                                 </p>
