@@ -11,9 +11,9 @@ import { ProductFormModal } from '../components/ProductFormModal.jsx';
 import { ProductPagination } from '../components/ProductPagination.jsx';
 import { ProductTable } from '../components/ProductTable.jsx';
 import { confirmWithToast, showError, showSuccess } from '../../../shared/utils/notifications.js';
+import { formatNumber } from '../../../shared/utils/format.js';
 
 const DEFAULT_FILTERS = { name: '', barcode: '', stock: 'all', sort: '-createdAt' };
-const number = new Intl.NumberFormat('fa-IR');
 
 export function ProductsPage() {
   const { user } = useAuth();
@@ -181,7 +181,7 @@ export function ProductsPage() {
               <>
                 <ProductFilters filters={filters} onChange={setFilters} onApply={handleApplyFilters} onReset={handleResetFilters} />
                 <div className="mb-3 mt-5 flex items-center justify-between gap-3">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{number.format(pagination.total)} محصول در نتیجه جست‌وجو</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{formatNumber(pagination.total)} محصول در نتیجه جست‌وجو</p>
                   <span className="rounded-lg bg-slate-100 px-3 py-2 text-[10px] text-slate-600 dark:bg-slate-800 dark:text-slate-300">{activeBranch?.name || 'شعبه من'}</span>
                 </div>
                 <ProductTable products={products} isLoading={isLoading || isLoadingBranches} onEdit={(product) => { setEditingProduct(product); setIsCreating(false); }} onDelete={handleDeleteProduct} />
