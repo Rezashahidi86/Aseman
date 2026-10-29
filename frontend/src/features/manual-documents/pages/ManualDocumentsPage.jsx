@@ -164,11 +164,6 @@ export function ManualDocumentsPage() {
   const submit = async (event) => {
     event.preventDefault();
 
-    if (!images.length) {
-      showError('حداقل یک تصویر انتخاب کنید.');
-      return;
-    }
-
     setSaving(true);
 
     try {
@@ -401,7 +396,7 @@ export function ManualDocumentsPage() {
 
               <div>
                 <div className="mb-2 flex items-center justify-between gap-3">
-                  <span className="text-xs font-bold">تصاویر فاکتور <span className="font-normal text-slate-400">(حداکثر ۱۰ تصویر)</span></span>
+                  <span className="text-xs font-bold">تصاویر فاکتور <span className="font-normal text-slate-400">(اختیاری · حداکثر ۱۰ تصویر)</span></span>
                   <span className="text-[11px] text-slate-500">{formatNumber(images.length)} از ۱۰</span>
                 </div>
                 <input
@@ -445,7 +440,7 @@ export function ManualDocumentsPage() {
 
               <footer className="flex flex-col-reverse gap-2 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end dark:border-slate-800">
                 <button type="button" onClick={closeModal} disabled={saving} className="min-h-11 rounded-xl border border-slate-200 px-5 text-xs font-bold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">انصراف</button>
-                <button type="submit" disabled={saving || !details.trim() || images.length === 0} className="min-h-11 rounded-xl bg-indigo-600 px-6 text-xs font-bold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50">{saving ? 'در حال ثبت فاکتور...' : 'ثبت فاکتور'}</button>
+                <button type="submit" disabled={saving || !details.trim()} className="min-h-11 rounded-xl bg-indigo-600 px-6 text-xs font-bold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50">{saving ? 'در حال ثبت فاکتور...' : 'ثبت فاکتور'}</button>
               </footer>
             </form>
           </section>
