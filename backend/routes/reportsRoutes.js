@@ -17,8 +17,8 @@ const router = Router();
 
 router.use(authMiddleware);
 
-router.get('/all-branches/daily', requireAdmin, getAllBranchesDaily);
-router.get('/all-branches', requireAdmin, getAllBranches);
+router.get('/all-branches/daily', setBranchContext, getAllBranchesDaily);
+router.get('/all-branches', setBranchContext, getAllBranches);
 
 router.get('/:branchId/daily', setBranchContext, getDailyReport);
 router.get('/:branchId/weekly', setBranchContext, getWeeklyReport);
