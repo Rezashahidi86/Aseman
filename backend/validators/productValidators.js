@@ -1,9 +1,14 @@
 import { z } from 'zod';
 
+const optionalBarcode = z.preprocess(
+  (value) => (typeof value === 'string' && !value.trim() ? undefined : value),
+  z.string().trim().min(1, 'Barcode cannot be empty').optional(),
+);
+
 const createProductSchema = z
   .object({
     name: z.string().trim().min(1, 'Product name is required'),
-    barcode: z.string().trim().min(1, 'Barcode is required'),
+    barcode: optionalBarcode,
     purchasePrice: z.number().finite().min(0),
     salePrice: z.number().finite().min(0),
     quantity: z.number().int().min(0),
@@ -18,7 +23,7 @@ const createProductSchema = z
 const updateProductSchema = z
   .object({
     name: z.string().trim().min(1).optional(),
-    barcode: z.string().trim().min(1).optional(),
+    barcode: optionalBarcode,
     purchasePrice: z.number().finite().min(0).optional(),
     salePrice: z.number().finite().min(0).optional(),
     minimumStock: z.number().int().min(0).optional(),
