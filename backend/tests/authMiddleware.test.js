@@ -5,6 +5,7 @@ import requireAdmin from '../middlewares/roleMiddleware.js';
 import AppError from '../utils/AppError.js';
 import ROLES from '../constants/roles.js';
 import dotenv from 'dotenv';
+import env from '../config/env.js';
 dotenv.config();
 
 vi.mock('../models/User.js', () => ({
@@ -41,7 +42,7 @@ describe('Authentication and authorization middleware', () => {
   it('should reject an expired token', async () => {
     const token = jwt.sign(
       { sub: '507f1f77bcf86cd799439011' },
-      process.env.JWT_SECRET,
+      env.JWT_SECRET,
       { expiresIn: -1 },
     );
 
