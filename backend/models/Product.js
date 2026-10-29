@@ -73,7 +73,14 @@ productSchema.index(
   },
 );
 productSchema.index({ branch: 1 });
-productSchema.index({ branch: 1, name: 1 });
+productSchema.index(
+  { branch: 1, name: 1 },
+  {
+    unique: true,
+    name: 'unique_product_name_per_branch',
+    collation: { locale: 'en', strength: 2 },
+  },
+);
 
 const Product = mongoose.model('Product', productSchema);
 
