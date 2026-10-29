@@ -72,6 +72,11 @@ describe('Tehran date helpers', () => {
 
     expect(getTehranDateKey(date)).toBe('2026-10-30');
     expect(getTehranMonthKey(date)).toBe('2026-10');
+
+    const monthBoundary = new Date('2026-10-31T21:00:00.000Z');
+
+    expect(getTehranDateKey(monthBoundary)).toBe('2026-11-01');
+    expect(getTehranMonthKey(monthBoundary)).toBe('2026-11');
   });
 
   it('should shift dates across month and year boundaries', () => {
