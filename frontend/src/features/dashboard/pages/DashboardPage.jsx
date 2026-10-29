@@ -75,13 +75,17 @@ function SellerSummary({ dashboard, branchName }) {
     <>
       {dashboard.warnings.map((warning) => <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200" key={warning}>{warning}</p>)}
       <div className="mb-4 mt-8 flex items-center justify-between gap-4">
-        <div><h2 className="text-base font-extrabold">خلاصه شعبه</h2><p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">وضعیت اطلاعات شعبه</p></div>
+        <div><h2 className="text-base font-extrabold">خلاصه شعبه</h2><p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">آمار واقعی شعبه از گزارش فروش ثبت‌شده</p></div>
         <span className="max-w-40 rounded-full bg-indigo-50 px-3 py-2 text-center text-[10px] text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">{branchName}</span>
       </div>
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-label="خلاصه اطلاعات شعبه">
         <SummaryCard icon={FiBox} label="محصولات شعبه" value={dashboard.productCount === null ? '—' : formatNumber(dashboard.productCount)} hint="تعداد محصولات ثبت‌شده" />
-        <SummaryCard icon={FiTrendingUp} label="فروش امروز" value="—" hint="گزارش فروش فروشنده هنوز در API مجاز نشده است" />
-        <SummaryCard icon={FiBarChart2} label="سود امروز" value="—" hint="گزارش سود فروشنده هنوز در API مجاز نشده است" />
+        <SummaryCard icon={FiTrendingUp} label="فروش امروز" value={formatMoney(dashboard.todaySales)} hint="مجموع مبلغ فروش امروز" />
+        <SummaryCard icon={FiBarChart2} label="سود امروز" value={formatMoney(dashboard.todayProfit)} hint="سود فروش‌های ثبت‌شده امروز" />
+      </section>
+      <section className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <SummaryCard icon={FiFileText} label="تعداد فاکتور امروز" value={formatNumber(dashboard.todaySalesCount)} hint="تعداد فروش‌های ثبت‌شده امروز" />
+        <SummaryCard icon={FiTrendingUp} label="اقلام فروخته‌شده امروز" value={formatNumber(dashboard.todayItemsSold)} hint="جمع تعداد کالاهای فروخته‌شده" />
       </section>
     </>
   );
@@ -119,21 +123,38 @@ export function DashboardPage() {
       const branchId = getBranchId(user);
       if (!branchId) throw new Error('حساب کاربری شما به شعبه‌ای اختصاص داده نشده است.');
 
+      const today = getDateKeyInTimeZone();
       const results = await Promise.allSettled([
         getProducts({ limit: 1 }),
         getBranch(branchId),
+        getAllBranchesDailyReport({ startDate: today, endDate: today }),
       ]);
-      const [productsResult, branchResult] = results;
+      const [productsResult, branchResult, dailyResult] = results;
 
-      if (productsResult.status === 'rejected' && branchResult.status === 'rejected') throw productsResult.reason;
+      if (productsResult.status === 'rejected' && branchResult.status === 'rejected' && dailyResult.status === 'rejected') {
+        throw productsResult.reason;
+      }
+
+      const dailyReports = dailyResult.status === 'fulfilled' ? dailyResult.value?.data?.report?.reports || [] : [];
+      const todayStats = dailyReports.reduce((totals, item) => ({
+        totalSales: totals.totalSales + (Number(item.totalSales) || 0),
+        totalProfit: totals.totalProfit + (Number(item.totalProfit) || 0),
+        totalItemsSold: totals.totalItemsSold + (Number(item.totalItemsSold) || 0),
+        salesCount: totals.salesCount + (Number(item.salesCount) || 0),
+      }), { totalSales: 0, totalProfit: 0, totalItemsSold: 0, salesCount: 0 });
 
       setDashboard({
         type: 'seller',
         productCount: productsResult.status === 'fulfilled' ? productsResult.value?.pagination?.total ?? null : null,
         branch: branchResult.status === 'fulfilled' ? branchResult.value?.data?.branch || user.branch : user.branch,
+        todaySales: todayStats.totalSales,
+        todayProfit: todayStats.totalProfit,
+        todayItemsSold: todayStats.totalItemsSold,
+        todaySalesCount: todayStats.salesCount,
         warnings: [
           productsResult.status === 'rejected' ? 'تعداد محصولات دریافت نشد.' : '',
           branchResult.status === 'rejected' ? 'جزئیات شعبه دریافت نشد.' : '',
+          dailyResult.status === 'rejected' ? 'گزارش فروش امروز دریافت نشد.' : '',
         ].filter(Boolean),
       });
     } catch (loadError) {
