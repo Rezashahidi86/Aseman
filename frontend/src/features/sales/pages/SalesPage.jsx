@@ -10,6 +10,7 @@ import { formatPersianDateTime } from '../../../shared/utils/date.js';
 import { confirmWithToast, showError, showSuccess } from '../../../shared/utils/notifications.js';
 import { BarcodeScannerInput } from '../components/BarcodeScannerInput.jsx';
 import { ProductSearchResults } from '../components/ProductSearchResults.jsx';
+import { ProductPagination } from '../../products/components/ProductPagination.jsx';
 import { SaleCart } from '../components/SaleCart.jsx';
 import { SaleConfirmationModal } from '../components/SaleConfirmationModal.jsx';
 
@@ -21,6 +22,9 @@ export function SalesPage() {
   const [scannerValue, setScannerValue] = useState('');
   const [searchValue, setSearchValue] = useState('');
   const [products, setProducts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [pagination, setPagination] = useState({ total: 0, totalPages: 0 });
   const [hasSearched, setHasSearched] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [cart, setCart] = useState([]);
@@ -47,7 +51,7 @@ export function SalesPage() {
   const isAdmin = user?.role === 'ADMIN';
   const branchRequired = isAdmin && !activeBranchId;
 
-  const searchProducts = useCallback(async ({ barcode, name }) => {
+  const searchProducts = useCallback(async ({ barcode, name, page: requestedPage = 1, limit: requestedLimit = limit }) => {
     if (branchRequired || isLoadingBranches) {
       setPageError('ابتدا منتظر بارگذاری یا انتخاب شعبه فعال بمانید.');
       return [];
@@ -58,14 +62,20 @@ export function SalesPage() {
     setNotice('');
 
     try {
-      const params = { page: 1, limit: 20, sort: 'name' };
+      const params = { page: requestedPage, limit: requestedLimit, sort: 'name' };
       if (barcode) params.barcode = barcode;
       else if (name) params.name = name;
       if (isAdmin) params.branchId = activeBranchId;
 
       const response = await getProducts(params);
       const results = response?.data?.products || [];
+      const resultPagination = response?.pagination || {};
       setProducts(results);
+      setPagination({
+        total: Number(resultPagination.total) || 0,
+        totalPages: Number(resultPagination.totalPages) || 0,
+      });
+      setPage(Number(resultPagination.page) || requestedPage);
       setHasSearched(true);
 
       if (barcode && results.length === 1) {
@@ -80,12 +90,13 @@ export function SalesPage() {
     } catch (error) {
       setPageError(error.message || 'جست‌وجوی محصول ناموفق بود.');
       setProducts([]);
+      setPagination({ total: 0, totalPages: 0 });
       setHasSearched(true);
       return [];
     } finally {
       setIsSearching(false);
     }
-  }, [activeBranchId, branchRequired, isAdmin, isLoadingBranches]);
+  }, [activeBranchId, branchRequired, isAdmin, isLoadingBranches, limit]);
 
   const addProductToCart = (product) => {
     setPageError('');
@@ -130,7 +141,8 @@ export function SalesPage() {
     event.preventDefault();
     const value = searchValue.trim();
     if (!value) return;
-    searchProducts({ name: value });
+    setPage(1);
+    searchProducts({ name: value, page: 1, limit });
   };
 
   const updateQuantity = (productId, nextQuantity) => {
@@ -205,6 +217,8 @@ export function SalesPage() {
       setCart([]);
       setIsReviewOpen(false);
       setProducts([]);
+      setPagination({ total: 0, totalPages: 0 });
+      setPage(1);
       setHasSearched(false);
       setScannerValue('');
       setSearchValue('');
@@ -236,7 +250,8 @@ export function SalesPage() {
               <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(380px,0.95fr)]">
                 <section className="space-y-4">
                   <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900"><div className="mb-3"><h2 className="text-sm font-extrabold">اسکن بارکد</h2><p className="mt-1 text-[10px] leading-5 text-slate-500 dark:text-slate-400">بارکدخوان مانند صفحه‌کلید عمل می‌کند؛ پس از اسکن معمولاً Enter را ارسال می‌کند.</p></div><BarcodeScannerInput value={scannerValue} onChange={setScannerValue} onScan={handleBarcodeScan} disabled={isSearching || isLoadingBranches} /></div>
-                  <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900"><h2 className="mb-3 text-sm font-extrabold">جست‌وجوی نام محصول</h2><form className="mb-3 flex gap-2" onSubmit={handleSearch}><label className="relative min-w-0 flex-1"><FiSearch className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} /><input className="min-h-11 w-full rounded-xl border border-slate-200 bg-white pr-9 pl-3 text-xs outline-none focus:border-indigo-500 dark:border-slate-700 dark:bg-slate-950" value={searchValue} onChange={(event) => setSearchValue(event.target.value)} placeholder="نام محصول..." maxLength={100} /></label><button className="min-h-11 rounded-xl bg-slate-900 px-4 text-xs font-bold text-white disabled:opacity-50 dark:bg-indigo-600" type="submit" disabled={isSearching || !searchValue.trim()}>جست‌وجو</button></form><ProductSearchResults products={products} isLoading={isSearching} hasSearched={hasSearched} onAdd={addProductToCart} /></div>
+                  <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900"><h2 className="mb-3 text-sm font-extrabold">جست‌وجوی نام محصول</h2><form className="mb-3 flex gap-2" onSubmit={handleSearch}><label className="relative min-w-0 flex-1"><FiSearch className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} /><input className="min-h-11 w-full rounded-xl border border-slate-200 bg-white pr-9 pl-3 text-xs outline-none focus:border-indigo-500 dark:border-slate-700 dark:bg-slate-950" value={searchValue} onChange={(event) => setSearchValue(event.target.value)} placeholder="نام محصول..." maxLength={100} /></label><button className="min-h-11 rounded-xl bg-slate-900 px-4 text-xs font-bold text-white disabled:opacity-50 dark:bg-indigo-600" type="submit" disabled={isSearching || !searchValue.trim()}>جست‌وجو</button></form><ProductSearchResults products={products} isLoading={isSearching} hasSearched={hasSearched} onAdd={addProductToCart} />
+                    {hasSearched && pagination.total > 0 && <div className="mt-3"><ProductPagination page={page} limit={limit} total={pagination.total} totalPages={pagination.totalPages} onPageChange={(nextPage) => { setPage(nextPage); searchProducts({ name: searchValue.trim(), page: nextPage, limit }); }} onLimitChange={(nextLimit) => { setLimit(nextLimit); setPage(1); if (searchValue.trim()) searchProducts({ name: searchValue.trim(), page: 1, limit: nextLimit }); }} /></div>}</div>
                 </section>
                 <SaleCart items={cart} onQuantityChange={updateQuantity} onPriceChange={updatePrice} onRemove={removeItem} onClear={clearCart} onReview={openReview} />
               </div>
