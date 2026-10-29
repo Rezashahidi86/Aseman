@@ -1,4 +1,5 @@
 import ROLES from '../constants/roles.js';
+import AppError from '../utils/AppError.js';
 import {
   getDailyBranchReport,
   getMonthlyBranchReport,
@@ -47,7 +48,7 @@ const getDashboardSummary = async (req, res, next) => {
     }
 
     if (req.user.role !== ROLES.ADMIN) {
-      return next();
+      return next(new AppError('A valid branch is required', 400));
     }
 
     const today = getTehranDateKey(new Date());
