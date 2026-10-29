@@ -20,7 +20,10 @@ const envSchema = z.object({
     ? z.string().min(1).default('http://localhost:5173')
     : z.string().min(1, 'CORS_ORIGINS is required'),
   JWT_SECRET: isTestEnvironment
-    ? z.string().min(32).default('aseman-test-only-secret-not-for-production-123456')
+    ? z
+        .string()
+        .min(32)
+        .default('aseman-test-only-secret-not-for-production-123456')
     : z.string().min(32, 'JWT_SECRET must be at least 32 characters long'),
   JWT_EXPIRES_IN: z.string().min(1).default('7d'),
   SMS_API_KEY: z.string().optional(),
