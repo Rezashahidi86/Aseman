@@ -18,6 +18,7 @@ import { DashboardHeader } from '../../dashboard/components/DashboardHeader.jsx'
 import { DashboardSidebar } from '../../dashboard/components/DashboardSidebar.jsx';
 import { showError, showSuccess } from '../../../shared/utils/notifications.js';
 import { formatNumber } from '../../../shared/utils/format.js';
+import { formatPersianDate } from '../../../shared/utils/date.js';
 
 const statusLabels = {
   PENDING: 'در انتظار',
@@ -500,9 +501,7 @@ export function NeedsPage() {
                               {need.createdBy?.name || '—'}
                             </td>
                             <td className="p-4">
-                              {new Date(need.createdAt).toLocaleDateString(
-                                'fa-IR',
-                              )}
+                              {formatPersianDate(need.createdAt)}
                             </td>
                             <td className="p-4">
                               {statusLabels[need.status] || need.status}
