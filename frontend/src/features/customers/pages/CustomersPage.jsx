@@ -38,6 +38,9 @@ export function CustomersPage() {
   const { activeBranchId } = useActiveBranch();
   const [customers, setCustomers] = useState([]);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 0 });
+  const pageSize = 10;
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState('');
   const [loading, setLoading] = useState(false);
@@ -60,15 +63,30 @@ export function CustomersPage() {
       const response = await getCustomers({
         search: search.trim() || undefined,
         branchId: activeBranchId || undefined,
-        limit: 100,
+        page,
+        limit: pageSize,
       });
-      setCustomers(response?.data?.customers || []);
+      const nextCustomers = response?.data?.customers || [];
+      const nextPagination = response?.pagination || {
+        page,
+        limit: pageSize,
+        total: nextCustomers.length,
+        totalPages: nextCustomers.length ? 1 : 0,
+      };
+
+      if (page > nextPagination.totalPages && nextPagination.totalPages > 0) {
+        setPage(nextPagination.totalPages);
+        return;
+      }
+
+      setCustomers(nextCustomers);
+      setPagination(nextPagination);
     } catch (err) {
       setError(err.message || 'دریافت مشتریان ناموفق بود.');
     } finally {
       setLoading(false);
     }
-  }, [activeBranchId, search]);
+  }, [activeBranchId, page, search]);
 
   const loadSmsSettings = useCallback(async () => {
     if (!activeBranchId) {
@@ -246,7 +264,7 @@ export function CustomersPage() {
             <div className="mb-4 flex gap-2">
               <div className="relative flex-1">
                 <FiSearch className="absolute right-3 top-3.5 text-slate-400" />
-                <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="جست‌وجو بر اساس نام یا شماره تماس" className="min-h-11 w-full rounded-xl border border-slate-200 bg-white pr-10 pl-3 text-sm dark:border-slate-800 dark:bg-slate-900" />
+                <input value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder="جست‌وجو بر اساس نام یا شماره تماس" className="min-h-11 w-full rounded-xl border border-slate-200 bg-white pr-10 pl-3 text-sm dark:border-slate-800 dark:bg-slate-900" />
               </div>
             </div>
 
@@ -272,14 +290,14 @@ export function CustomersPage() {
                       <td className="p-4" dir="ltr">{customer.phone}</td>
                       <td className="p-4">
                         <div className="flex gap-2">
-                          <button type="button" aria-label="ارسال پیامک" title="ارسال پیامک" onClick={() => openSmsModal(customer)} className={buttonClassName}>
-                            <FiMessageSquare /> <span>ارسال پیام</span>
-                          </button>
                           <button type="button" aria-label="ویرایش مشتری" title="ویرایش مشتری" onClick={() => { setEditingId(customer._id); setForm({ name: customer.name, phone: customer.phone }); }} className="rounded-lg border p-2">
                             <FiEdit2 />
                           </button>
                           <button type="button" aria-label="حذف مشتری" title="حذف مشتری" onClick={() => remove(customer)} className="rounded-lg border border-rose-200 p-2 text-rose-600">
                             <FiTrash2 />
+                          </button>
+                          <button type="button" aria-label="ارسال پیامک" title="ارسال پیامک" onClick={() => openSmsModal(customer)} className={buttonClassName}>
+                            <FiMessageSquare /> <span>ارسال پیام</span>
                           </button>
                         </div>
                       </td>
@@ -291,6 +309,35 @@ export function CustomersPage() {
                 </tbody>
               </table>
               {loading && <p className="p-4 text-xs text-slate-500">در حال دریافت مشتریان...</p>}
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+              <p className="text-xs text-slate-500">
+                {pagination.total === 0
+                  ? 'مشتری‌ای برای نمایش وجود ندارد.'
+                  : `نمایش ${(page - 1) * pageSize + 1} تا ${Math.min(page * pageSize, pagination.total)} از ${pagination.total} مشتری`}
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={loading || page <= 1}
+                  onClick={() => setPage((current) => Math.max(1, current - 1))}
+                  className={buttonClassName}
+                >
+                  قبلی
+                </button>
+                <span className="min-w-20 text-center text-xs font-bold">
+                  صفحه {pagination.totalPages ? page : 0} از {pagination.totalPages}
+                </span>
+                <button
+                  type="button"
+                  disabled={loading || page >= pagination.totalPages}
+                  onClick={() => setPage((current) => Math.min(pagination.totalPages, current + 1))}
+                  className={buttonClassName}
+                >
+                  بعدی
+                </button>
+              </div>
             </div>
           </main>
         </div>
