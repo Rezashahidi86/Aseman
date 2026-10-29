@@ -1,50 +1,46 @@
-import express from 'express';
-import morgan from 'morgan';
 import mongoose from 'mongoose';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-import helmet from 'helmet';
-import errorMiddleware from './middlewares/errorMiddleware.js';
-import notFoundMiddleware from './middlewares/notFoundMiddleware.js';
+import app from './app.js';
 import env from './config/env.js';
-import API_PREFIX from './constants/api.js';
-import router from './routes/index.js';
-
-const app = express();
-const allowedOrigins = env.CORS_ORIGINS.split(',').map((origin) =>
-  origin.trim(),
-);
-
-app.use(helmet());
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      return callback(new Error('Not allowed by CORS'));
-    },
-    credentials: true,
-  }),
-);
-app.use(cookieParser());
-app.use(express.json({ limit: '10kb' }));
-if (env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
-}
-app.use(API_PREFIX, router);
-app.use(notFoundMiddleware);
-app.use(errorMiddleware);
 
 const startServer = async () => {
   try {
     await mongoose.connect(env.DATABASE_URL);
-    app.listen(env.PORT);
+
+    const server = app.listen(env.PORT, () => {
+      if (env.NODE_ENV !== 'test') {
+        console.info(`Aseman API listening on port ${env.PORT}`);
+      }
+    });
+
+    const shutdown = (signal) => {
+      console.info(`${signal} received. Shutting down gracefully.`);
+
+      server.close(async (error) => {
+        if (error) {
+          console.error('Failed to close HTTP server:', error.message);
+          process.exitCode = 1;
+        }
+
+        try {
+          await mongoose.disconnect();
+        } catch (disconnectError) {
+          console.error('Failed to disconnect from MongoDB:', disconnectError.message);
+          process.exitCode = 1;
+        }
+      });
+    };
+
+    process.once('SIGINT', () => shutdown('SIGINT'));
+    process.once('SIGTERM', () => shutdown('SIGTERM'));
   } catch (error) {
     console.error('Failed to start server:', error.message);
-    process.exit(1);
+    await mongoose.disconnect().catch(() => {});
+    process.exitCode = 1;
   }
 };
 
-startServer();
+if (env.NODE_ENV !== 'test') {
+  startServer();
+}
+
+export { startServer };
