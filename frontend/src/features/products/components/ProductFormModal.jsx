@@ -12,7 +12,7 @@ const EMPTY_FORM = {
 
 const FIELDS = [
   { name: 'name', label: 'نام محصول', type: 'text', required: true, maxLength: 120 },
-  { name: 'barcode', label: 'بارکد', type: 'text', required: true, maxLength: 100 },
+  { name: 'barcode', label: 'بارکد (اختیاری)', type: 'text', required: false, maxLength: 100 },
   { name: 'purchasePrice', label: 'قیمت خرید (تومان)', type: 'number', required: true, min: 0 },
   { name: 'salePrice', label: 'قیمت فروش (تومان)', type: 'number', required: true, min: 0 },
   { name: 'quantity', label: 'موجودی', type: 'number', required: true, min: 0, step: 1 },
@@ -32,8 +32,7 @@ function validateProduct(form) {
   if (!name) errors.name = 'نام محصول الزامی است.';
   else if (name.length > 120) errors.name = 'نام محصول حداکثر ۱۲۰ کاراکتر باشد.';
 
-  if (!barcode) errors.barcode = 'بارکد الزامی است.';
-  else if (barcode.length > 100) errors.barcode = 'بارکد حداکثر ۱۰۰ کاراکتر باشد.';
+  if (barcode.length > 100) errors.barcode = 'بارکد حداکثر ۱۰۰ کاراکتر باشد.';
 
   for (const field of ['purchasePrice', 'salePrice', 'quantity', 'minimumStock']) {
     if (form[field] === '' || !Number.isFinite(Number(form[field]))) {
@@ -95,7 +94,7 @@ export function ProductFormModal({ product, isSaving, onClose, onSubmit }) {
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             <h2 className="text-lg font-extrabold" id="product-form-title">{product ? 'ویرایش محصول' : 'افزودن محصول'}</h2>
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">اطلاعات محصول را وارد کنید. همه فیلدها الزامی هستند.</p>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">اطلاعات محصول را وارد کنید. بارکد اختیاری است.</p>
           </div>
           <button className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:hover:bg-slate-800" type="button" onClick={onClose} disabled={isSaving} aria-label="بستن فرم"><FiX size={18} /></button>
         </div>
