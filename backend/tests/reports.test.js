@@ -91,7 +91,7 @@ describe('REP-010: Report branch access', () => {
         branch: '507f1f77bcf86cd799439011',
       },
       params: {
-        id: '507f1f77bcf86cd799439012',
+        branchId: '507f1f77bcf86cd799439012',
       },
       body: {},
     };
@@ -116,7 +116,7 @@ describe('REP-010: Report branch access', () => {
         branch: '507f1f77bcf86cd799439011',
       },
       params: {
-        id: '507f1f77bcf86cd799439011',
+        branchId: '507f1f77bcf86cd799439011',
       },
       body: {},
     };
