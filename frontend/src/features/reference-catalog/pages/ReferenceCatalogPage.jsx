@@ -64,6 +64,10 @@ export function ReferenceCatalogPage() {
       showError('نام و قیمت‌های معتبر و غیرمنفی وارد کنید.');
       return;
     }
+    if (payload.salePrice < payload.purchasePrice) {
+      showError('قیمت فروش نمی‌تواند کمتر از قیمت خرید باشد.');
+      return;
+    }
     setIsSaving(true);
     try {
       if (editingId) await updateReferenceItem(editingId, payload);
