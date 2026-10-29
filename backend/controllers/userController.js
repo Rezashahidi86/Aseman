@@ -1,10 +1,12 @@
 import User from '../models/User.js';
 import Branch from '../models/Branch.js';
 import AppError from '../utils/AppError.js';
-import { createUserSchema } from '../validators/userValidators.js';
+import {
+  createUserSchema,
+  updateUserSchema,
+} from '../validators/userValidators.js';
 import { hashPassword } from '../services/passwordService.js';
 import ROLES from '../constants/roles.js';
-import { updateUserSchema } from '../validators/userValidators.js';
 
 export const createSeller = async (req, res, next) => {
   try {
