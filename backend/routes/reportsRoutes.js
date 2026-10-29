@@ -20,16 +20,9 @@ router.use(authMiddleware);
 router.get('/all-branches/daily', requireAdmin, getAllBranchesDaily);
 router.get('/all-branches', requireAdmin, getAllBranches);
 
-router.get('/daily', setBranchContext, getDailyReport);
 router.get('/:branchId/daily', setBranchContext, getDailyReport);
-
-router.get('/weekly', setBranchContext, getWeeklyReport);
 router.get('/:branchId/weekly', setBranchContext, getWeeklyReport);
-
-router.get('/monthly', setBranchContext, getMonthlyReport);
 router.get('/:branchId/monthly', setBranchContext, getMonthlyReport);
-
-router.get('/monthly-comparison', setBranchContext, getMonthlyComparison);
 router.get('/:branchId/monthly-comparison', setBranchContext, getMonthlyComparison);
 
 router.get(
