@@ -9,7 +9,11 @@ import {
   getFilteredReport,
 } from '../services/reportsService.js';
 import AppError from '../utils/AppError.js';
-import { getTehranDateKey, shiftDateKey } from '../utils/dateKeys.js';
+import {
+  getTehranDateKey,
+  getTehranMonthKey,
+  shiftDateKey,
+} from '../utils/dateKeys.js';
 
 const getDailyReport = async (req, res, next) => {
   try {
@@ -59,7 +63,7 @@ const getMonthlyReport = async (req, res, next) => {
     }
     const report = await getMonthlyBranchReport({
       branchId: req.branchId,
-      month: req.query.month || new Date().toISOString().slice(0, 7),
+      month: req.query.month || getTehranMonthKey(),
     });
 
     return res.status(200).json({
