@@ -3,6 +3,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import AppError from './utils/AppError.js';
 import env from './config/env.js';
 import API_PREFIX from './constants/api.js';
 import router from './routes/index.js';
@@ -23,7 +24,7 @@ app.use(
         return callback(null, true);
       }
 
-      return callback(new Error('Not allowed by CORS'));
+      return callback(new AppError('Origin is not allowed by CORS', 403));
     },
     credentials: true,
   }),
