@@ -423,53 +423,83 @@ const getFilteredReport = async ({
   const sortField = sortFields[filters.sortBy];
   const sortDirection = filters.sortOrder === 'asc' ? 1 : -1;
 
-  const pipeline = [
-    {
-      $match: {
-        branch: new mongoose.Types.ObjectId(filters.branchId),
-        periodType: 'daily',
-        periodKey: {
-          $gte: filters.startDate,
-          $lte: filters.endDate,
-        },
-      },
-    },
-  ];
+  let reports;
 
   if (filters.groupBy === 'month') {
-    pipeline.push({
-      $addFields: {
-        reportPeriod: {
-          $substr: ['$periodKey', 0, 7],
+    const dailyStats = await SalesStats.find({
+      branch: new mongoose.Types.ObjectId(filters.branchId),
+      periodType: 'daily',
+      periodKey: {
+        $gte: filters.startDate,
+        $lte: filters.endDate,
+      },
+    })
+      .select('periodKey totalSales totalProfit totalItemsSold salesCount')
+      .lean();
+
+    const jalaliMonthFormatter = new Intl.DateTimeFormat(
+      'en-US-u-ca-persian-nu-latn',
+      {
+        timeZone: 'UTC',
+        year: 'numeric',
+        month: '2-digit',
+      },
+    );
+    const monthlyStats = new Map();
+
+    for (const dailyStat of dailyStats) {
+      const date = new Date(`${dailyStat.periodKey}T00:00:00.000Z`);
+      const parts = Object.fromEntries(
+        jalaliMonthFormatter
+          .formatToParts(date)
+          .map(({ type, value }) => [type, value]),
+      );
+      const period = `${parts.year}-${parts.month.padStart(2, '0')}`;
+      const current = monthlyStats.get(period) || {
+        totalSales: 0,
+        totalProfit: 0,
+        totalItemsSold: 0,
+        salesCount: 0,
+      };
+
+      current.totalSales += dailyStat.totalSales;
+      current.totalProfit += dailyStat.totalProfit;
+      current.totalItemsSold += dailyStat.totalItemsSold;
+      current.salesCount += dailyStat.salesCount;
+      monthlyStats.set(period, current);
+    }
+
+    reports = Array.from(monthlyStats, ([_id, data]) => ({ _id, ...data })).sort(
+      (a, b) => (a[sortField] - b[sortField]) * sortDirection,
+    );
+  } else {
+    reports = await SalesStats.aggregate([
+      {
+        $match: {
+          branch: new mongoose.Types.ObjectId(filters.branchId),
+          periodType: 'daily',
+          periodKey: {
+            $gte: filters.startDate,
+            $lte: filters.endDate,
+          },
         },
       },
-    });
-  } else {
-    pipeline.push({
-      $addFields: {
-        reportPeriod: '$periodKey',
+      {
+        $group: {
+          _id: '$periodKey',
+          totalSales: { $sum: '$totalSales' },
+          totalProfit: { $sum: '$totalProfit' },
+          totalItemsSold: { $sum: '$totalItemsSold' },
+          salesCount: { $sum: '$salesCount' },
+        },
       },
-    });
+      {
+        $sort: {
+          [sortField]: sortDirection,
+        },
+      },
+    ]);
   }
-
-  pipeline.push(
-    {
-      $group: {
-        _id: '$reportPeriod',
-        totalSales: { $sum: '$totalSales' },
-        totalProfit: { $sum: '$totalProfit' },
-        totalItemsSold: { $sum: '$totalItemsSold' },
-        salesCount: { $sum: '$salesCount' },
-      },
-    },
-    {
-      $sort: {
-        [sortField]: sortDirection,
-      },
-    },
-  );
-
-  const reports = await SalesStats.aggregate(pipeline);
 
   const totals = reports.reduce(
     (result, report) => ({
