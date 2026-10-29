@@ -7,7 +7,10 @@ import {
   saleCartSchema,
   saleRegistrationSchema,
 } from '../validators/salesValidators.js';
-import { getTehranDateKey, getTehranMonthKey } from '../utils/dateKeys.js';
+import {
+  getTehranDateKey,
+  getTehranMonthKey,
+} from '../utils/dateKeys.js';
 
 const prepareSaleItems = async (items, branchId, session = null) => {
   const validation = saleCartSchema.safeParse({ items });
