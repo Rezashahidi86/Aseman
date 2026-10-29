@@ -166,7 +166,7 @@ export function SalesPage() {
     if (!Number.isFinite(parsed) || parsed < 0) return;
 
     setCart((current) => current.map((item) => item._id === productId
-      ? { ...item, finalSalePrice: Math.max(item.salePrice, parsed) }
+      ? { ...item, finalSalePrice: parsed }
       : item));
   };
 
