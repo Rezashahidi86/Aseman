@@ -24,7 +24,10 @@ const startServer = async () => {
         try {
           await mongoose.disconnect();
         } catch (disconnectError) {
-          console.error('Failed to disconnect from MongoDB:', disconnectError.message);
+          console.error(
+            'Failed to disconnect from MongoDB:',
+            disconnectError.message,
+          );
           process.exitCode = 1;
         }
       });
