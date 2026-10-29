@@ -139,7 +139,7 @@ const getSellerReportController = async (req, res, next) => {
   try {
     const report = await getSellerReport({
       sellerId: req.params.sellerId,
-      branchId: req.params.id,
+      branchId: req.params.branchId,
       startDate: req.query.startDate,
       endDate: req.query.endDate,
     });
@@ -156,7 +156,7 @@ const getSellerReportController = async (req, res, next) => {
 const getFilteredReportController = async (req, res, next) => {
   try {
     const report = await getFilteredReport({
-      branchId: req.query.branchId,
+      branchId: req.branchId,
       startDate: req.query.startDate,
       endDate: req.query.endDate,
       groupBy: req.query.groupBy,
