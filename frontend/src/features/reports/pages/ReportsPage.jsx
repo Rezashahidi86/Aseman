@@ -16,8 +16,14 @@ const dateKey = (date) => {
   const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
   return `${values.year}-${values.month}-${values.day}`;
 };
+function shiftDateKey(value, dayOffset) {
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day + dayOffset, 12));
+  return dateKey(date);
+}
+
 const today = dateKey(new Date());
-const weekStart = dateKey(new Date(Date.now() - 6 * 86400000));
+const weekStart = shiftDateKey(today, -6);
 const formatMoney = (value) => `${money.format(Number(value) || 0)} تومان`;
 
 function StatCard({ icon: Icon, label, value, hint }) {
@@ -92,8 +98,8 @@ export function ReportsPage() {
     <div className="mb-6"><p className="mb-2 text-xs text-slate-500 dark:text-slate-400">تحلیل عملکرد</p><h1 className="text-2xl font-extrabold">گزارش‌ها</h1><p className="mt-2 text-xs text-slate-500 dark:text-slate-400">آمار فروش و سود در بازه زمانی انتخاب‌شده{activeBranch?.name ? ` · ${activeBranch.name}` : ''}</p></div>
     <>
       <form className="mb-5 grid grid-cols-1 gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_180px_auto] dark:border-slate-800 dark:bg-slate-900" onSubmit={(event) => { event.preventDefault(); loadReport(); }}>
-        <label className="text-xs font-bold text-slate-600 dark:text-slate-300">از تاریخ شمسی<input className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950" type="text" inputMode="numeric" placeholder="۱۴۰۵/۰۸/۰۲" value={startDateText} onChange={(event) => { const value = event.target.value; setStartDateText(value); }} aria-label="تاریخ شروع شمسی با قالب سال/ماه/روز" required /></label>
-        <label className="text-xs font-bold text-slate-600 dark:text-slate-300">تا تاریخ شمسی<input className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950" type="text" inputMode="numeric" placeholder="۱۴۰۵/۰۸/۰۹" value={endDateText} onChange={(event) => { const value = event.target.value; setEndDateText(value); }} aria-label="تاریخ پایان شمسی با قالب سال/ماه/روز" required /></label>
+        <label className="text-xs font-bold text-slate-600 dark:text-slate-300">از تاریخ شمسی<input className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm tabular-nums dark:border-slate-700 dark:bg-slate-950" type="text" inputMode="numeric" dir="ltr" placeholder="۱۴۰۵/۰۸/۰۲" value={startDateText} onChange={(event) => setStartDateText(event.target.value)} aria-label="تاریخ شروع شمسی با قالب سال/ماه/روز" autoComplete="off" required /></label>
+        <label className="text-xs font-bold text-slate-600 dark:text-slate-300">تا تاریخ شمسی<input className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm tabular-nums dark:border-slate-700 dark:bg-slate-950" type="text" inputMode="numeric" dir="ltr" placeholder="۱۴۰۵/۰۸/۰۹" value={endDateText} onChange={(event) => setEndDateText(event.target.value)} aria-label="تاریخ پایان شمسی با قالب سال/ماه/روز" autoComplete="off" required /></label>
         <label className="text-xs font-bold text-slate-600 dark:text-slate-300">تجمیع آمار<select className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950" value={groupBy} onChange={(event) => setGroupBy(event.target.value)}><option value="day">روزانه</option><option value="month">ماهانه</option></select></label>
         <button className="self-end rounded-xl bg-indigo-600 px-5 py-3 text-xs font-bold text-white hover:bg-indigo-700 disabled:opacity-60" type="submit" disabled={isLoading || !activeBranchId}>{isLoading ? 'در حال دریافت...' : 'اعمال بازه'}</button>
       </form>
