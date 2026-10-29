@@ -18,6 +18,15 @@ const setBranchContext = (req, res, next) => {
 
   const requestedBranchId = requestedBranchIds[0] ?? null;
 
+  if (
+    requestedBranchIds.some(
+      (branchId) =>
+        typeof branchId !== 'string' || !/^[a-f\\d]{24}$/i.test(branchId),
+    )
+  ) {
+    return next(new AppError('Invalid branch ID', 400));
+  }
+
   if (req.user.role === ROLES.ADMIN) {
     req.branchId = requestedBranchId;
     return next();
