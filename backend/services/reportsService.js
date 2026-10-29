@@ -211,11 +211,12 @@ const getMonthlyComparisonReport = async ({ branchId }) => {
   };
 };
 
-const getAllBranchesReport = async () => {
+const getAllBranchesReport = async ({ branchId = null } = {}) => {
   const now = new Date();
   const month = now.toISOString().slice(0, 7);
 
-  const branches = await Branch.find().select('_id name code isActive').lean();
+  const branchFilter = branchId ? { _id: branchId } : {};
+  const branches = await Branch.find(branchFilter).select('_id name code isActive').lean();
 
   const stats = await SalesStats.find({
     branch: { $in: branches.map((branch) => branch._id) },
@@ -267,7 +268,7 @@ const getAllBranchesReport = async () => {
   };
 };
 
-const getAllBranchesDailyReport = async ({ startDate, endDate }) => {
+const getAllBranchesDailyReport = async ({ startDate, endDate, branchId = null }) => {
   const validation = reportRangeSchema.safeParse({ startDate, endDate });
 
   if (!validation.success) {
@@ -280,6 +281,7 @@ const getAllBranchesDailyReport = async ({ startDate, endDate }) => {
   const reports = await Sale.aggregate([
     {
       $match: {
+        ...(branchId ? { branch: new mongoose.Types.ObjectId(branchId) } : {}),
         createdAt: { $gte: start, $lte: end },
       },
     },
