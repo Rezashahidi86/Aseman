@@ -128,7 +128,10 @@ const getMonthlyComparisonReport = async ({ branchId }) => {
   }
 
   const currentMonth = getTehranMonthKey();
-  const previousMonth = shiftDateKey(`${currentMonth}-01`, -1).slice(0, 7);
+  const previousMonth = shiftDateKey(`${currentMonth}-01`, -1).slice(
+    0,
+    7,
+  );
 
   const reports = await SalesStats.find({
     branch: branchId,
