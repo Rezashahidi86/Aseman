@@ -21,8 +21,8 @@ import {
 import { DashboardHeader } from '../../dashboard/components/DashboardHeader.jsx';
 import { DashboardSidebar } from '../../dashboard/components/DashboardSidebar.jsx';
 import { showError, showSuccess, confirmWithToast } from '../../../shared/utils/notifications.js';
-
-const formatDate = (value) => new Date(value).toLocaleDateString('fa-IR');
+import { formatNumber } from '../../../shared/utils/format.js';
+import { formatPersianDate } from '../../../shared/utils/date.js';
 
 const getTitleKey = (value) => value.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
 
@@ -275,7 +275,7 @@ export function ManualDocumentsPage() {
                         <span className="min-w-0">
                           <span className="block truncate text-sm font-extrabold">{group.title || 'بدون عنوان'}</span>
                           <span className="mt-1 block text-[11px] text-slate-500 dark:text-slate-400">
-                            {group.documents.length.toLocaleString('fa-IR')} فاکتور · آخرین ثبت {formatDate(group.documents[0].createdAt)}
+                            {formatNumber(group.documents.length)} فاکتور · آخرین ثبت {formatPersianDate(group.documents[0].createdAt)}
                           </span>
                         </span>
                       </span>
@@ -402,7 +402,7 @@ export function ManualDocumentsPage() {
               <div>
                 <div className="mb-2 flex items-center justify-between gap-3">
                   <span className="text-xs font-bold">تصاویر فاکتور <span className="font-normal text-slate-400">(حداکثر ۱۰ تصویر)</span></span>
-                  <span className="text-[11px] text-slate-500">{images.length.toLocaleString('fa-IR')} از ۱۰</span>
+                  <span className="text-[11px] text-slate-500">{formatNumber(images.length)} از ۱۰</span>
                 </div>
                 <input
                   ref={fileInputRef}

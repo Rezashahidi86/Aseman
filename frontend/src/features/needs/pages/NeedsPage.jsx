@@ -17,13 +17,14 @@ import { getProducts } from '../../../api/services/dashboardService.js';
 import { DashboardHeader } from '../../dashboard/components/DashboardHeader.jsx';
 import { DashboardSidebar } from '../../dashboard/components/DashboardSidebar.jsx';
 import { showError, showSuccess } from '../../../shared/utils/notifications.js';
+import { formatNumber } from '../../../shared/utils/format.js';
+import { formatPersianDate } from '../../../shared/utils/date.js';
 
 const statusLabels = {
   PENDING: 'در انتظار',
   FULFILLED: 'تأمین‌شده',
   REJECTED: 'ردشده',
 };
-const number = new Intl.NumberFormat('fa-IR');
 const pageSizes = [10, 20, 50];
 
 function Pagination({
@@ -39,8 +40,8 @@ function Pagination({
   return (
     <div className="flex flex-col gap-3 border-t border-slate-100 px-4 py-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800 dark:text-slate-400">
       <span>
-        نمایش {number.format((page - 1) * limit + 1)} تا{' '}
-        {number.format(Math.min(page * limit, total))} از {number.format(total)}{' '}
+        نمایش {formatNumber((page - 1) * limit + 1)} تا{' '}
+        {formatNumber(Math.min(page * limit, total))} از {formatNumber(total)}{' '}
         {label}
       </span>
       <div className="flex items-center gap-2">
@@ -53,7 +54,7 @@ function Pagination({
           >
             {pageSizes.map((size) => (
               <option key={size} value={size}>
-                {number.format(size)}
+                {formatNumber(size)}
               </option>
             ))}
           </select>
@@ -67,7 +68,7 @@ function Pagination({
           قبلی
         </button>
         <span>
-          صفحه {number.format(page)} از {number.format(Math.max(totalPages, 1))}
+          صفحه {formatNumber(page)} از {formatNumber(Math.max(totalPages, 1))}
         </span>
         <button
           type="button"
@@ -365,7 +366,7 @@ export function NeedsPage() {
                       </div>
                     </div>
                     <span className="rounded-full bg-white px-3 py-2 text-xs font-bold text-amber-800 dark:bg-slate-900 dark:text-amber-300">
-                      {number.format(lowStockPagination.total)} کالا
+                      {formatNumber(lowStockPagination.total)} کالا
                     </span>
                   </div>
                   <div className="overflow-x-auto">
@@ -395,10 +396,10 @@ export function NeedsPage() {
                             <td className="p-4 font-bold">{product.name}</td>
                             <td className="p-4">{product.barcode}</td>
                             <td className="p-4 font-bold text-rose-600">
-                              {number.format(product.quantity)}
+                              {formatNumber(product.quantity)}
                             </td>
                             <td className="p-4">
-                              {number.format(product.minimumStock)}
+                              {formatNumber(product.minimumStock)}
                             </td>
                             <td className="p-4">
                               <span className="rounded-full bg-rose-50 px-2.5 py-1 text-rose-700 dark:bg-rose-950 dark:text-rose-300">
@@ -455,7 +456,7 @@ export function NeedsPage() {
                       </p>
                     </div>
                     <span className="rounded-xl border border-indigo-100 bg-white px-4 py-2 text-sm font-bold text-indigo-700 dark:border-indigo-900 dark:bg-slate-900 dark:text-indigo-300">
-                      {number.format(needsPagination.total)} درخواست باز
+                      {formatNumber(needsPagination.total)} درخواست باز
                     </span>
                     <button
                       type="button"
@@ -494,15 +495,13 @@ export function NeedsPage() {
                               {need.productName || need.product?.name}
                             </td>
                             <td className="p-4">
-                              {number.format(need.requestedQuantity)}
+                              {formatNumber(need.requestedQuantity)}
                             </td>
                             <td className="p-4">
                               {need.createdBy?.name || '—'}
                             </td>
                             <td className="p-4">
-                              {new Date(need.createdAt).toLocaleDateString(
-                                'fa-IR',
-                              )}
+                              {formatPersianDate(need.createdAt)}
                             </td>
                             <td className="p-4">
                               {statusLabels[need.status] || need.status}
@@ -683,7 +682,7 @@ export function NeedsPage() {
                 )}
                 <p className="mt-2 text-xs text-slate-500">
                   {appliedCatalogSearch
-                    ? `${number.format(catalogPagination.total)} نتیجه برای جست‌وجو`
+                    ? `${formatNumber(catalogPagination.total)} نتیجه برای جست‌وجو`
                     : 'برای انتخاب کالا، نام یا بارکد آن را جست‌وجو کنید.'}
                 </p>
                 {loadingCatalog && (
@@ -706,7 +705,7 @@ export function NeedsPage() {
                           </span>
                           <span className="mt-1 block text-[11px] text-slate-500">
                             بارکد: {product.barcode || '—'} · موجودی:{' '}
-                            {number.format(product.quantity ?? 0)}
+                            {formatNumber(product.quantity ?? 0)}
                           </span>
                         </span>
                         <span

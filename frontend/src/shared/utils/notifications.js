@@ -17,7 +17,15 @@ function registerToastShortcuts() {
       return;
     }
 
-    if (event.key === 'Enter' && activeConfirmation) {
+    const target = event.target;
+    const isInteractiveTarget =
+      target instanceof HTMLElement &&
+      (target.isContentEditable ||
+        target.closest(
+          'input, textarea, select, button, [role="button"], [contenteditable="true"]',
+        ));
+
+    if (event.key === 'Enter' && activeConfirmation && !isInteractiveTarget) {
       event.preventDefault();
       event.stopPropagation();
       const confirm = activeConfirmation;

@@ -7,24 +7,18 @@ import { getAllBranchesReport } from '../../../api/services/dashboardService.js'
 import { DashboardHeader } from '../../dashboard/components/DashboardHeader.jsx';
 import { DashboardSidebar } from '../../dashboard/components/DashboardSidebar.jsx';
 import { showError } from '../../../shared/utils/notifications.js';
+import { getDateKeyInTimeZone } from '../../../shared/utils/date.js';
 import { formatJalaliDate, parseJalaliDate } from '../utils/jalaliDate.js';
+import { formatMoney, formatNumber } from '../../../shared/utils/format.js';
 
-const money = new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 0 });
-const digits = new Intl.NumberFormat('fa-IR');
-const dateKey = (date) => {
-  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tehran', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(date);
-  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
-  return `${values.year}-${values.month}-${values.day}`;
-};
 function shiftDateKey(value, dayOffset) {
   const [year, month, day] = value.split('-').map(Number);
   const date = new Date(Date.UTC(year, month - 1, day + dayOffset, 12));
-  return dateKey(date);
+  return getDateKeyInTimeZone(date);
 }
 
-const today = dateKey(new Date());
+const today = getDateKeyInTimeZone(new Date());
 const weekStart = shiftDateKey(today, -6);
-const formatMoney = (value) => `${money.format(Number(value) || 0)} تومان`;
 
 function StatCard({ icon: Icon, label, value, hint }) {
   return <article className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900"><div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300"><Icon size={19} /></span><span className="text-xs text-slate-500 dark:text-slate-400">{label}</span></div><p className="mt-4 break-words text-xl font-extrabold">{value}</p><p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">{hint}</p></article>;
@@ -108,11 +102,11 @@ export function ReportsPage() {
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard icon={FiTrendingUp} label="مجموع فروش بازه" value={formatMoney(totals.totalSales)} hint="مبلغ فروش ثبت‌شده" />
         <StatCard icon={FiBarChart2} label="سود ناخالص" value={formatMoney(totals.totalProfit)} hint="بر پایه قیمت خرید ثبت‌شده" />
-        <StatCard icon={FiPackage} label="تعداد کالاهای فروخته‌شده" value={digits.format(totals.totalItemsSold || 0)} hint="جمع تعداد اقلام" />
-        <StatCard icon={FiFileText} label="تعداد فروش‌ها" value={digits.format(totals.salesCount || 0)} hint="تراکنش‌های ثبت‌شده" />
+        <StatCard icon={FiPackage} label="تعداد کالاهای فروخته‌شده" value={formatNumber(totals.totalItemsSold || 0)} hint="جمع تعداد اقلام" />
+        <StatCard icon={FiFileText} label="تعداد فروش‌ها" value={formatNumber(totals.salesCount || 0)} hint="تراکنش‌های ثبت‌شده" />
       </section>
-      <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"><div className="flex items-center gap-2 border-b border-slate-200 p-4 dark:border-slate-800"><FiCalendar /><h2 className="text-sm font-extrabold">جزئیات {groupBy === 'day' ? 'روزانه' : 'ماهانه'}</h2></div><div className="overflow-x-auto"><table className="w-full min-w-[640px] text-right text-xs"><thead className="bg-slate-50 text-slate-500 dark:bg-slate-950 dark:text-slate-400"><tr>{['بازه','فروش','سود','تعداد اقلام','تعداد فروش'].map((item) => <th className="px-4 py-3 font-bold" key={item}>{item}</th>)}</tr></thead><tbody>{rows.map((row) => <tr className="border-t border-slate-100 dark:border-slate-800" key={row.period}><td className="px-4 py-3 font-bold">{(groupBy === 'month' ? row.period.replace('-', '/') : formatJalaliDate(row.period)) || row.period}</td><td className="px-4 py-3">{formatMoney(row.totalSales)}</td><td className="px-4 py-3 text-emerald-700 dark:text-emerald-400">{formatMoney(row.totalProfit)}</td><td className="px-4 py-3">{digits.format(row.totalItemsSold || 0)}</td><td className="px-4 py-3">{digits.format(row.salesCount || 0)}</td></tr>)}{!rows.length && !isLoading && <tr><td className="px-4 py-8 text-center text-slate-500" colSpan={5}>در این بازه اطلاعاتی ثبت نشده است.</td></tr>}</tbody></table></div></section>
-      {allBranches && <section className="mt-6 rounded-2xl border border-indigo-100 bg-indigo-50/70 p-5 dark:border-indigo-900 dark:bg-indigo-950/30"><h2 className="text-sm font-extrabold">خلاصه همه شعبه‌ها در ماه جاری</h2><p className="mt-3 text-xs text-slate-600 dark:text-slate-300">فروش: {formatMoney(adminTotals.totalSales)} · سود: {formatMoney(adminTotals.totalProfit)} · تعداد فروش: {digits.format(adminTotals.salesCount || 0)}</p></section>}
+      <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"><div className="flex items-center gap-2 border-b border-slate-200 p-4 dark:border-slate-800"><FiCalendar /><h2 className="text-sm font-extrabold">جزئیات {groupBy === 'day' ? 'روزانه' : 'ماهانه'}</h2></div><div className="overflow-x-auto"><table className="w-full min-w-[640px] text-right text-xs"><thead className="bg-slate-50 text-slate-500 dark:bg-slate-950 dark:text-slate-400"><tr>{['بازه','فروش','سود','تعداد اقلام','تعداد فروش'].map((item) => <th className="px-4 py-3 font-bold" key={item}>{item}</th>)}</tr></thead><tbody>{rows.map((row) => <tr className="border-t border-slate-100 dark:border-slate-800" key={row.period}><td className="px-4 py-3 font-bold">{(groupBy === 'month' ? row.period.replace('-', '/') : formatJalaliDate(row.period)) || row.period}</td><td className="px-4 py-3">{formatMoney(row.totalSales)}</td><td className="px-4 py-3 text-emerald-700 dark:text-emerald-400">{formatMoney(row.totalProfit)}</td><td className="px-4 py-3">{formatNumber(row.totalItemsSold || 0)}</td><td className="px-4 py-3">{formatNumber(row.salesCount || 0)}</td></tr>)}{!rows.length && !isLoading && <tr><td className="px-4 py-8 text-center text-slate-500" colSpan={5}>در این بازه اطلاعاتی ثبت نشده است.</td></tr>}</tbody></table></div></section>
+      {allBranches && <section className="mt-6 rounded-2xl border border-indigo-100 bg-indigo-50/70 p-5 dark:border-indigo-900 dark:bg-indigo-950/30"><h2 className="text-sm font-extrabold">خلاصه همه شعبه‌ها در ماه جاری</h2><p className="mt-3 text-xs text-slate-600 dark:text-slate-300">فروش: {formatMoney(adminTotals.totalSales)} · سود: {formatMoney(adminTotals.totalProfit)} · تعداد فروش: {formatNumber(adminTotals.salesCount || 0)}</p></section>}
     </>
   </main></div></div></div>;
 }

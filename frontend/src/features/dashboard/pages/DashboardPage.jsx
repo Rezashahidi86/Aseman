@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { FiAlertCircle, FiBarChart2, FiBox, FiFileText, FiTrendingUp } from 'react-icons/fi';
 import { getAllBranchesDailyReport, getAllBranchesReport, getBranch, getProducts } from '../../../api/services/dashboardService.js';
 import { formatPersianMonth, getDateKeyInTimeZone } from '../../../shared/utils/date.js';
+import { formatMoney, formatNumber } from '../../../shared/utils/format.js';
 import { useAuth } from '../../../auth/AuthContext.jsx';
 import { BranchPerformance } from '../components/BranchPerformance.jsx';
 import { DashboardHeader } from '../components/DashboardHeader.jsx';
@@ -9,17 +10,6 @@ import { DashboardSidebar } from '../components/DashboardSidebar.jsx';
 import { DashboardWelcome } from '../components/DashboardWelcome.jsx';
 import { SummaryCard } from '../components/SummaryCard.jsx';
 import { WeeklySalesCharts } from '../components/WeeklySalesCharts.jsx';
-
-const money = new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 0 });
-const number = new Intl.NumberFormat('fa-IR');
-
-function formatMoney(value) {
-  return money.format(Number(value) || 0) + ' تومان';
-}
-
-function formatNumber(value) {
-  return number.format(Number(value) || 0);
-}
 
 function getBranchId(user) {
   if (!user?.branch) return '';
