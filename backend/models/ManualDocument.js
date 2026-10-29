@@ -15,18 +15,13 @@ const manualDocumentSchema = new mongoose.Schema(
       maxlength: 500,
     },
     images: {
-      type: [
-        {
-          type: String,
-          required: true,
-        },
-      ],
-      required: true,
+      type: [String],
+      default: [],
       validate: {
-        validator: (images) => images.length >= 1 && images.length <= 10,
-        message: 'You must upload between 1 and 10 images',
+        validator: (images) => images.length <= 10,
+        message: 'You can upload up to 10 images',
       },
-    },
+    }
     branch: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Branch',
