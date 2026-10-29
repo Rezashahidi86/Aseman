@@ -7,22 +7,18 @@ import { getAllBranchesReport } from '../../../api/services/dashboardService.js'
 import { DashboardHeader } from '../../dashboard/components/DashboardHeader.jsx';
 import { DashboardSidebar } from '../../dashboard/components/DashboardSidebar.jsx';
 import { showError } from '../../../shared/utils/notifications.js';
+import { getDateKeyInTimeZone } from '../../../shared/utils/date.js';
 import { formatJalaliDate, parseJalaliDate } from '../utils/jalaliDate.js';
 
 const money = new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 0 });
 const digits = new Intl.NumberFormat('fa-IR');
-const dateKey = (date) => {
-  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tehran', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(date);
-  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
-  return `${values.year}-${values.month}-${values.day}`;
-};
 function shiftDateKey(value, dayOffset) {
   const [year, month, day] = value.split('-').map(Number);
   const date = new Date(Date.UTC(year, month - 1, day + dayOffset, 12));
-  return dateKey(date);
+  return getDateKeyInTimeZone(date);
 }
 
-const today = dateKey(new Date());
+const today = getDateKeyInTimeZone(new Date());
 const weekStart = shiftDateKey(today, -6);
 const formatMoney = (value) => `${money.format(Number(value) || 0)} تومان`;
 
