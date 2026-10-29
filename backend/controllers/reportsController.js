@@ -91,7 +91,7 @@ const getMonthlyComparison = async (req, res, next) => {
 
 const getAllBranches = async (req, res, next) => {
   try {
-    const report = await getAllBranchesReport();
+    const report = await getAllBranchesReport({ branchId: req.branchId });
 
     return res.status(200).json({
       status: 'success',
@@ -124,6 +124,7 @@ const getAllBranchesDaily = async (req, res, next) => {
     const report = await getAllBranchesDailyReport({
       startDate: req.query.startDate || sixDaysAgo,
       endDate: req.query.endDate || today,
+      branchId: req.branchId,
     });
 
     return res.status(200).json({
