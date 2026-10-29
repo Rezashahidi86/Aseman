@@ -1,7 +1,8 @@
 import Branch from '../models/Branch.js';
 import ROLES from '../constants/roles.js';
 import AppError from '../utils/AppError.js';
-import { createBranchSchema } from '../validators/branchValidators.js';
+import validateMongoId from '../utils/validateMongoId.js';
+import { createBranchSchema, updateBranchStatusSchema } from '../validators/branchValidators.js';
 
 export const getBranches = async (req, res, next) => {
   try {
@@ -10,6 +11,7 @@ export const getBranches = async (req, res, next) => {
     if (req.user.role === ROLES.ADMIN) {
       branches = await Branch.find()
         .select('name code isActive createdAt')
+        .sort({ createdAt: 1, _id: 1 })
         .lean();
     } else {
       if (!req.user.branch) {
@@ -42,7 +44,7 @@ export const selectBranch = async (req, res, next) => {
 
     const { branchId } = req.body;
 
-    if (!branchId || !/^[a-f\d]{24}$/i.test(branchId)) {
+    if (!branchId || !/^[a-f\\d]{24}$/i.test(branchId)) {
       throw new AppError('A valid branch ID is required', 400);
     }
 
@@ -69,6 +71,7 @@ export const selectBranch = async (req, res, next) => {
 
 export const getBranchById = async (req, res, next) => {
   try {
+    validateMongoId(req.params.id);
     const branch = await Branch.findById(req.params.id)
       .select('name code isActive createdAt')
       .lean();
@@ -102,7 +105,6 @@ export const createBranch = async (req, res, next) => {
     }
 
     const { name, code } = validation.data;
-
     const existingBranch = await Branch.findOne({ code });
 
     if (existingBranch) {
@@ -120,6 +122,34 @@ export const createBranch = async (req, res, next) => {
       return next(new AppError('Branch code already exists', 409));
     }
 
+    return next(error);
+  }
+};
+
+export const updateBranchStatus = async (req, res, next) => {
+  try {
+    validateMongoId(req.params.id);
+    const validation = updateBranchStatusSchema.safeParse(req.body);
+
+    if (!validation.success) {
+      return next(new AppError('A valid isActive boolean is required', 400));
+    }
+
+    const branch = await Branch.findByIdAndUpdate(
+      req.params.id,
+      { isActive: validation.data.isActive },
+      { new: true, runValidators: true },
+    ).select('name code isActive createdAt');
+
+    if (!branch) {
+      return next(new AppError('Branch not found', 404));
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      data: { branch },
+    });
+  } catch (error) {
     return next(error);
   }
 };
