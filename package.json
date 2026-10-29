@@ -17,6 +17,7 @@
     "seed:admin": "node backend/scripts/seedAdmin.js",
     "migrate:drop-product-name-unique-index": "node backend/scripts/dropProductNameUniqueIndex.js",
     "migrate:reference-catalog-barcode-index": "node backend/scripts/migrateReferenceCatalogBarcodeIndex.js",
+    "migrate:product-barcode-index": "node backend/scripts/migrateProductBarcodeIndex.js",
     "rebuild:sales-stats": "node backend/scripts/rebuildSalesStats.js",
     "dev:frontend": "vite --config frontend/vite.config.js frontend",
     "build:frontend": "vite build --config frontend/vite.config.js frontend",
@@ -68,7 +69,6 @@
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^5.5.7",
-    "eslint-plugin-react": "^7.37.5",
     "prettier": "^3.9.10",
     "vitest": "^5.0.5"
   }

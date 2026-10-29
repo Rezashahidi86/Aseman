@@ -43,7 +43,7 @@ export function ProductTable({ products, isLoading, onEdit, onDelete }) {
               return (
                 <tr className="transition hover:bg-slate-50/80 dark:hover:bg-slate-800/40" key={product._id}>
                   <td className="max-w-52 px-4 py-4"><span className="block truncate font-extrabold text-slate-800 dark:text-slate-100">{product.name}</span></td>
-                  <td className="px-4 py-4 font-mono text-slate-500" dir="ltr">{product.barcode}</td>
+                  <td className="px-4 py-4 font-mono text-slate-500" dir="ltr">{product.barcode || '—'}</td>
                   <td className="whitespace-nowrap px-4 py-4">{formatMoney(product.purchasePrice)}</td>
                   <td className="whitespace-nowrap px-4 py-4 font-bold">{formatMoney(product.salePrice)}</td>
                   <td className="px-4 py-4 font-bold">{formatNumber(product.quantity)}</td>

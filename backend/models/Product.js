@@ -9,8 +9,8 @@ const productSchema = new mongoose.Schema(
     },
     barcode: {
       type: String,
-      required: true,
       trim: true,
+      minlength: 1,
     },
     purchasePrice: {
       type: Number,
@@ -63,7 +63,11 @@ const productSchema = new mongoose.Schema(
 
 productSchema.index(
   { branch: 1, barcode: 1 },
-  { unique: true, name: 'unique_barcode_per_branch' },
+  {
+    unique: true,
+    name: 'unique_barcode_per_branch',
+    partialFilterExpression: { barcode: { $type: 'string' } },
+  },
 );
 productSchema.index({ branch: 1 });
 productSchema.index({ branch: 1, name: 1 });
