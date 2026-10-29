@@ -11,6 +11,9 @@ const productSchema = new mongoose.Schema(
       type: String,
       trim: true,
       minlength: 1,
+      set: (value) => (
+        typeof value === 'string' && !value.trim() ? undefined : value
+      ),
     },
     purchasePrice: {
       type: Number,
