@@ -2,12 +2,15 @@ import AppError from '../utils/AppError.js';
 import ROLES from '../constants/roles.js';
 
 const setBranchContext = (req, res, next) => {
+  const requestedBranchId =
+    req.params?.branchId ||
+    req.params?.id ||
+    req.query?.branchId ||
+    req.body?.branchId ||
+    null;
+
   if (req.user.role === ROLES.ADMIN) {
-    req.branchId =
-      req.params?.branchId ||
-      req.query?.branchId ||
-      req.body?.branchId ||
-      null;
+    req.branchId = requestedBranchId;
     return next();
   }
 
@@ -18,10 +21,7 @@ const setBranchContext = (req, res, next) => {
 
     const ownBranchId = req.user.branch.toString();
 
-    if (
-      (req.body?.branchId && req.body.branchId !== ownBranchId) ||
-      (req.params?.branchId && req.params.branchId !== ownBranchId)
-    ) {
+    if (requestedBranchId && requestedBranchId !== ownBranchId) {
       return next(new AppError('Access denied to this branch', 403));
     }
 
