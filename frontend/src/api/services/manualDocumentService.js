@@ -11,7 +11,9 @@ export async function createManualDocument({ documentDetails, note, images, bran
   formData.append('note', note || '');
   if (branchId) formData.append('branchId', branchId);
   for (const image of images) formData.append('images', image);
-  const response = await apiClient.post('/manual-documents', formData);
+  const response = await apiClient.post('/manual-documents', formData, {
+    params: branchId ? { branchId } : {},
+  });
   return response.data;
 }
 
