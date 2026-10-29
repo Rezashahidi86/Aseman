@@ -47,6 +47,27 @@ describe("Branch isolation", () => {
     expect(req.branchId).toBeUndefined();
   });
 
+  it("should not treat a resource id as a branch id", () => {
+    req.params.id = anotherBranchId;
+
+    setBranchContext(req, res, next);
+
+    expect(req.branchId).toBe(ownBranchId);
+    expect(next).toHaveBeenCalledWith();
+  });
+
+  it("should reject conflicting branch IDs", () => {
+    req.params.branchId = ownBranchId;
+    req.query.branchId = anotherBranchId;
+
+    setBranchContext(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({ statusCode: 400 }),
+    );
+    expect(req.branchId).toBeUndefined();
+  });
+
   it("should allow access to the seller's own branch", () => {
     req.params.branchId = ownBranchId;
 
