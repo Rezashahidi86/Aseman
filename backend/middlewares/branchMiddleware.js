@@ -2,12 +2,21 @@ import AppError from '../utils/AppError.js';
 import ROLES from '../constants/roles.js';
 
 const setBranchContext = (req, res, next) => {
-  const requestedBranchId =
-    req.params?.branchId ||
-    req.params?.id ||
-    req.query?.branchId ||
-    req.body?.branchId ||
-    null;
+  const requestedBranchIds = [
+    req.params?.branchId,
+    req.query?.branchId,
+    req.body?.branchId,
+  ].filter((branchId) => branchId !== undefined && branchId !== null && branchId !== '');
+
+  const normalizedBranchIds = requestedBranchIds.map((branchId) =>
+    String(branchId).toLowerCase(),
+  );
+
+  if (new Set(normalizedBranchIds).size > 1) {
+    return next(new AppError('Conflicting branch IDs were provided', 400));
+  }
+
+  const requestedBranchId = requestedBranchIds[0] ?? null;
 
   if (req.user.role === ROLES.ADMIN) {
     req.branchId = requestedBranchId;
@@ -19,13 +28,15 @@ const setBranchContext = (req, res, next) => {
       return next(new AppError('Seller is not assigned to a branch', 403));
     }
 
-    const ownBranchId = req.user.branch.toString();
+    const ownBranchId = req.user.branch.toString().toLowerCase();
 
-    if (requestedBranchId && requestedBranchId !== ownBranchId) {
+    if (
+      normalizedBranchIds.some((branchId) => branchId !== ownBranchId)
+    ) {
       return next(new AppError('Access denied to this branch', 403));
     }
 
-    req.branchId = ownBranchId;
+    req.branchId = req.user.branch.toString();
     return next();
   }
 
