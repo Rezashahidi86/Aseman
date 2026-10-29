@@ -37,10 +37,6 @@ export function ReportsPage() {
   const [error, setError] = useState('');
 
   const loadReport = useCallback(async () => {
-    if (!isAdmin) {
-      setError('گزارش‌گیری در حال حاضر فقط برای مدیر سامانه مجاز است.');
-      return;
-    }
     if (!activeBranchId) {
       setReport(null);
       setError('برای دریافت گزارش، شعبه فعال را انتخاب کنید.');
@@ -60,12 +56,22 @@ export function ReportsPage() {
     setIsLoading(true);
     setError('');
     try {
-      const [filtered, all] = await Promise.all([
-        getFilteredReport({ branchId: activeBranchId, startDate: parsedStartDate, endDate: parsedEndDate, groupBy, sortBy: 'totalSales', sortOrder: 'desc' }),
-        getAllBranchesReport(),
-      ]);
+      const filtered = await getFilteredReport({
+        branchId: activeBranchId,
+        startDate: parsedStartDate,
+        endDate: parsedEndDate,
+        groupBy,
+        sortBy: 'totalSales',
+        sortOrder: 'desc',
+      });
       setReport(filtered?.data?.report || null);
-      setAllBranches(all?.data?.report || null);
+
+      if (isAdmin) {
+        const all = await getAllBranchesReport();
+        setAllBranches(all?.data?.report || null);
+      } else {
+        setAllBranches(null);
+      }
     } catch (requestError) {
       setError(requestError.message || 'دریافت گزارش با خطا مواجه شد.');
       showError(requestError.message || 'دریافت گزارش با خطا مواجه شد.');
@@ -84,7 +90,7 @@ export function ReportsPage() {
 
   return <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100" dir="rtl"><div className="grid min-h-screen grid-cols-1 md:grid-cols-[230px_minmax(0,1fr)]"><DashboardSidebar /><div className="min-w-0"><DashboardHeader /><main className="mx-auto w-full max-w-screen-2xl px-4 py-6 sm:px-8 sm:py-8">
     <div className="mb-6"><p className="mb-2 text-xs text-slate-500 dark:text-slate-400">تحلیل عملکرد</p><h1 className="text-2xl font-extrabold">گزارش‌ها</h1><p className="mt-2 text-xs text-slate-500 dark:text-slate-400">آمار فروش و سود در بازه زمانی انتخاب‌شده{activeBranch?.name ? ` · ${activeBranch.name}` : ''}</p></div>
-    {!isAdmin ? <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">گزارش‌های این بخش فقط برای مدیر سامانه فعال است.</div> : <>
+    <>
       <form className="mb-5 grid grid-cols-1 gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_180px_auto] dark:border-slate-800 dark:bg-slate-900" onSubmit={(event) => { event.preventDefault(); loadReport(); }}>
         <label className="text-xs font-bold text-slate-600 dark:text-slate-300">از تاریخ شمسی<input className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950" type="text" inputMode="numeric" placeholder="۱۴۰۵/۰۸/۰۲" value={startDateText} onChange={(event) => { const value = event.target.value; setStartDateText(value); }} aria-label="تاریخ شروع شمسی با قالب سال/ماه/روز" required /></label>
         <label className="text-xs font-bold text-slate-600 dark:text-slate-300">تا تاریخ شمسی<input className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950" type="text" inputMode="numeric" placeholder="۱۴۰۵/۰۸/۰۹" value={endDateText} onChange={(event) => { const value = event.target.value; setEndDateText(value); }} aria-label="تاریخ پایان شمسی با قالب سال/ماه/روز" required /></label>
@@ -101,6 +107,6 @@ export function ReportsPage() {
       </section>
       <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"><div className="flex items-center gap-2 border-b border-slate-200 p-4 dark:border-slate-800"><FiCalendar /><h2 className="text-sm font-extrabold">جزئیات {groupBy === 'day' ? 'روزانه' : 'ماهانه'}</h2></div><div className="overflow-x-auto"><table className="w-full min-w-[640px] text-right text-xs"><thead className="bg-slate-50 text-slate-500 dark:bg-slate-950 dark:text-slate-400"><tr>{['بازه','فروش','سود','تعداد اقلام','تعداد فروش'].map((item) => <th className="px-4 py-3 font-bold" key={item}>{item}</th>)}</tr></thead><tbody>{rows.map((row) => <tr className="border-t border-slate-100 dark:border-slate-800" key={row.period}><td className="px-4 py-3 font-bold">{(groupBy === 'month' ? row.period.replace('-', '/') : formatJalaliDate(row.period)) || row.period}</td><td className="px-4 py-3">{formatMoney(row.totalSales)}</td><td className="px-4 py-3 text-emerald-700 dark:text-emerald-400">{formatMoney(row.totalProfit)}</td><td className="px-4 py-3">{digits.format(row.totalItemsSold || 0)}</td><td className="px-4 py-3">{digits.format(row.salesCount || 0)}</td></tr>)}{!rows.length && !isLoading && <tr><td className="px-4 py-8 text-center text-slate-500" colSpan={5}>در این بازه اطلاعاتی ثبت نشده است.</td></tr>}</tbody></table></div></section>
       {allBranches && <section className="mt-6 rounded-2xl border border-indigo-100 bg-indigo-50/70 p-5 dark:border-indigo-900 dark:bg-indigo-950/30"><h2 className="text-sm font-extrabold">خلاصه همه شعبه‌ها در ماه جاری</h2><p className="mt-3 text-xs text-slate-600 dark:text-slate-300">فروش: {formatMoney(adminTotals.totalSales)} · سود: {formatMoney(adminTotals.totalProfit)} · تعداد فروش: {digits.format(adminTotals.salesCount || 0)}</p></section>}
-    </>}
+    </>
   </main></div></div></div>;
 }
