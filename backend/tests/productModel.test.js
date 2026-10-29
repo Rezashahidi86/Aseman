@@ -32,6 +32,13 @@ describe('Product model', () => {
     expect(product.barcode).toBeUndefined();
   });
 
+  it('should normalize a blank barcode to an absent value', async () => {
+    const product = new Product({ ...validProduct, barcode: '   ' });
+
+    await expect(product.validate()).resolves.toBeUndefined();
+    expect(product.barcode).toBeUndefined();
+  });
+
   it.each([
     ['purchasePrice', -1],
     ['salePrice', -1],
