@@ -11,6 +11,12 @@ import {
 import Branch from '../models/Branch.js';
 import User from '../models/User.js';
 import Sale from '../models/Sale.js';
+import {
+  getTehranDateKey,
+  getTehranMonthKey,
+  shiftDateKey,
+  getTehranDateRange,
+} from '../utils/dateKeys.js';
 
 const getDailyBranchReport = async ({ branchId, date }) => {
   if (!branchId) {
@@ -23,8 +29,7 @@ const getDailyBranchReport = async ({ branchId, date }) => {
     throw validation.error;
   }
 
-  const reportDate =
-    validation.data.date || new Date().toISOString().slice(0, 10);
+  const reportDate = validation.data.date || getTehranDateKey();
 
   const report = await SalesStats.findOne({
     branch: branchId,
@@ -122,18 +127,8 @@ const getMonthlyComparisonReport = async ({ branchId }) => {
     throw new AppError('A valid branch is required', 400);
   }
 
-  const now = new Date();
-
-  const currentMonthDate = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
-  );
-
-  const previousMonthDate = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1),
-  );
-
-  const currentMonth = currentMonthDate.toISOString().slice(0, 7);
-  const previousMonth = previousMonthDate.toISOString().slice(0, 7);
+  const currentMonth = getTehranMonthKey();
+  const previousMonth = shiftDateKey(`${currentMonth}-01`, -1).slice(0, 7);
 
   const reports = await SalesStats.find({
     branch: branchId,
@@ -212,8 +207,7 @@ const getMonthlyComparisonReport = async ({ branchId }) => {
 };
 
 const getAllBranchesReport = async ({ branchId = null } = {}) => {
-  const now = new Date();
-  const month = now.toISOString().slice(0, 7);
+  const month = getTehranMonthKey();
 
   const branchFilter = branchId ? { _id: branchId } : {};
   const branches = await Branch.find(branchFilter).select('_id name code isActive').lean();
@@ -275,8 +269,10 @@ const getAllBranchesDailyReport = async ({ startDate, endDate, branchId = null }
     throw validation.error;
   }
 
-  const start = new Date(`${validation.data.startDate}T00:00:00.000+03:30`);
-  const end = new Date(`${validation.data.endDate}T23:59:59.999+03:30`);
+  const { start, end } = getTehranDateRange(
+    validation.data.startDate,
+    validation.data.endDate,
+  );
 
   const reports = await Sale.aggregate([
     {
@@ -343,8 +339,10 @@ const getSellerReport = async ({ sellerId, branchId, startDate, endDate }) => {
     throw new AppError('Seller not found in this branch', 404);
   }
 
-  const start = new Date(`${startDate}T00:00:00.000Z`);
-  const end = new Date(`${endDate}T23:59:59.999Z`);
+  const { start, end } = getTehranDateRange(
+    validation.data.startDate,
+    validation.data.endDate,
+  );
 
   const result = await Sale.aggregate([
     {
