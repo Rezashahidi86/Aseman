@@ -76,14 +76,16 @@ describe('Product model', () => {
     });
   });
 
-  it('should not require product names to be unique within a branch', () => {
+  it('should enforce case-insensitive unique product names within each branch', () => {
     const index = Product.schema.indexes().find(([fields, options]) => (
       fields.branch === 1 &&
       fields.name === 1 &&
       options.unique === true
     ));
 
-    expect(index).toBeUndefined();
+    expect(index).toBeDefined();
+    expect(index[1].name).toBe('unique_product_name_per_branch');
+    expect(index[1].collation).toEqual({ locale: 'en', strength: 2 });
   });
 
   it('should reference the Branch model', () => {
