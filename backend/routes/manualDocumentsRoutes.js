@@ -7,7 +7,6 @@ import {
 } from '../controllers/manualDocumentController.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
 import setBranchContext from '../middlewares/branchMiddleware.js';
-import requireAdmin from '../middlewares/roleMiddleware.js';
 import uploadManualDocumentImage from '../middlewares/manualDocumentUpload.js';
 
 const router = Router();
@@ -26,6 +25,6 @@ router
 router.post('/list', setBranchContext, getManualDocuments);
 
 router.get('/:id/images/:index', getManualDocumentImage);
-router.delete('/:id', requireAdmin, deleteManualDocument);
+router.delete('/:id', setBranchContext, deleteManualDocument);
 
 export default router;
