@@ -1,12 +1,71 @@
+gitignore
+# Dependencies
 node_modules/
+package-lock.json
+# Environment variables
 .env
 .env.*
 !.env.example
-coverage/
-dist/
+
+# Logs
 logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Coverage and test reports
+coverage/
+.nyc_output/
+
+# Build output
+dist/
+build/
+
+# Cache and temporary files
+.cache/
+.tmp/
+temp/
+tmp/
+
+# Operating system files
 .DS_Store
 Thumbs.db
-uploads/manual-documents/*
-!uploads/manual-documents/.gitkeep
+Desktop.ini
+
+# IDE and editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local configuration files
+.eslintrc.cjs
+.prettierrc.json
+
+# Runtime files
+pids/
+*.pid
+*.pid.lock
+
+# Local databases and backups
+*.sqlite
+*.sqlite3
+*.db
+*.bak
+
+# Certificates and private keys
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Debug files
+npm-debug.log
+yarn-debug.log
+lerna-debug.log
+*.stackdump
+
+# Editor and formatting configs
+.eslintrc.cjs
+.prettierrc.json
