@@ -13,7 +13,7 @@ import User from '../models/User.js';
 import Sale from '../models/Sale.js';
 import {
   getTehranDateKey,
-  getTehranMonthKey,
+  getJalaliMonthDateRange,
   shiftDateKey,
   getTehranDateRange,
 } from '../utils/dateKeys.js';
@@ -96,7 +96,7 @@ const getWeeklyBranchReport = async ({ branchId, startDate, endDate }) => {
 };
 
 const getMonthlyBranchReport = async ({ branchId, month }) => {
-  if (!branchId) {
+  if (!mongoose.isValidObjectId(branchId)) {
     throw new AppError('A valid branch is required', 400);
   }
 
@@ -106,15 +106,32 @@ const getMonthlyBranchReport = async ({ branchId, month }) => {
     throw validation.error;
   }
 
-  const report = await SalesStats.findOne({
-    branch: branchId,
-    periodType: 'monthly',
-    periodKey: month,
-  }).lean();
+  const { startDate, endDate } = getJalaliMonthDateRange(validation.data.month);
+  const { start, end } = getTehranDateRange(startDate, endDate);
+
+  const [report] = await Sale.aggregate([
+    {
+      $match: {
+        branch: new mongoose.Types.ObjectId(branchId),
+        createdAt: { $gte: start, $lte: end },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalSales: { $sum: '$totalSales' },
+        totalProfit: { $sum: '$totalProfit' },
+        totalItemsSold: { $sum: '$totalItemsSold' },
+        salesCount: { $sum: 1 },
+      },
+    },
+  ]);
 
   return {
     branch: branchId,
-    month,
+    month: validation.data.month,
+    startDate,
+    endDate,
     totalSales: report?.totalSales ?? 0,
     totalProfit: report?.totalProfit ?? 0,
     totalItemsSold: report?.totalItemsSold ?? 0,
