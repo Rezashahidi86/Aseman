@@ -96,3 +96,27 @@ export function getJalaliMonthKey(value = new Date()) {
   const values = Object.fromEntries(parts.map(({ type, value: partValue }) => [type, partValue]));
   return `${values.year}-${values.month.padStart(2, '0')}`;
 }
+
+export function formatJalaliMonth(value, fallback = '—') {
+  if (typeof value !== 'string' || !/^\\d{4}-(0[1-9]|1[0-2])$/.test(value)) {
+    return fallback;
+  }
+
+  const [year, month] = value.split('-').map(Number);
+  const months = [
+    'فروردین',
+    'اردیبهشت',
+    'خرداد',
+    'تیر',
+    'مرداد',
+    'شهریور',
+    'مهر',
+    'آبان',
+    'آذر',
+    'دی',
+    'بهمن',
+    'اسفند',
+  ];
+
+  return `${months[month - 1]} ${new Intl.NumberFormat('fa-IR').format(year)}`;
+}
