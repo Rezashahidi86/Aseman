@@ -10,6 +10,13 @@ export async function getAllBranchesDailyReport(params) {
   return response.data;
 }
 
+export async function getBranchMonthlyReport(branchId) {
+  const response = await apiClient.get(
+    `/reports/${encodeURIComponent(branchId)}/monthly`,
+  );
+  return response.data;
+}
+
 export async function getProducts(params) {
   const response = await apiClient.get('/products', { params });
   return response.data;
