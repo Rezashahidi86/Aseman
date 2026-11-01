@@ -68,3 +68,7 @@ lerna-debug.log
 # Editor and formatting configs
 .eslintrc.cjs
 .prettierrc.json
+
+# Docker backups and local secrets
+/backups/
+/.secrets/
