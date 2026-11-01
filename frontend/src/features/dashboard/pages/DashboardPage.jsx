@@ -101,13 +101,13 @@ export function DashboardPage() {
               const branchId = branch._id || branch.id;
               const response = await getBranchMonthlyReport(branchId, currentJalaliMonth);
               return {
+                ...response?.data?.report,
                 branch: {
                   id: branchId,
                   name: branch.name,
                   code: branch.code,
                   isActive: branch.isActive,
                 },
-                ...response?.data?.report,
               };
             }),
           ),
