@@ -12,7 +12,7 @@ mongo_args=(
   --quiet
 )
 
-until mongosh "${mongo_args[@]}" --eval 'db.adminCommand({ ping: 1 }).ok' 2>/dev/null | grep -q 1; do
+until mongosh "${mongo_args[@]}" --eval 'quit(db.adminCommand({ ping: 1 }).ok === 1 ? 0 : 1)' 2>/dev/null; do
   sleep 2
 done
 
@@ -29,8 +29,8 @@ try {
     throw error;
   }
 }
-
-while (!db.hello().isWritablePrimary) {
-  sleep(1000);
-}
 '
+
+until mongosh "${mongo_args[@]}" --eval 'quit(db.hello().isWritablePrimary ? 0 : 1)' 2>/dev/null; do
+  sleep 2
+done
