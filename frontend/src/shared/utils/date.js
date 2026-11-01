@@ -98,7 +98,7 @@ export function getJalaliMonthKey(value = new Date()) {
 }
 
 export function formatJalaliMonth(value, fallback = '—') {
-  if (typeof value !== 'string' || !/^\\d{4}-(0[1-9]|1[0-2])$/.test(value)) {
+  if (typeof value !== 'string' || !/^\d{4}-(0[1-9]|1[0-2])$/.test(value)) {
     return fallback;
   }
 
