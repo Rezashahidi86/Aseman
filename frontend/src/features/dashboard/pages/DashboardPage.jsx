@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { FiAlertCircle, FiBarChart2, FiBox, FiFileText, FiTrendingUp } from 'react-icons/fi';
-import { getAllBranchesDailyReport, getAllBranchesReport, getBranch, getProducts } from '../../../api/services/dashboardService.js';
+import { getAllBranchesDailyReport, getAllBranchesReport, getBranch, getBranchMonthlyReport, getProducts } from '../../../api/services/dashboardService.js';
 import { formatPersianMonth, getDateKeyInTimeZone } from '../../../shared/utils/date.js';
 import { formatMoney, formatNumber } from '../../../shared/utils/format.js';
 import { useAuth } from '../../../auth/AuthContext.jsx';
@@ -65,17 +65,23 @@ function SellerSummary({ dashboard, branchName }) {
     <>
       {dashboard.warnings.map((warning) => <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200" key={warning}>{warning}</p>)}
       <div className="mb-4 mt-8 flex items-center justify-between gap-4">
-        <div><h2 className="text-base font-extrabold">خلاصه شعبه</h2><p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">آمار واقعی شعبه از گزارش فروش ثبت‌شده</p></div>
+        <div><h2 className="text-base font-extrabold">خلاصه شعبه</h2><p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">آمار فروش روزانه و ماهانه شعبه</p></div>
         <span className="max-w-40 rounded-full bg-indigo-50 px-3 py-2 text-center text-[10px] text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">{branchName}</span>
       </div>
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-label="خلاصه اطلاعات شعبه">
+      <h3 className="mb-3 mt-5 text-sm font-extrabold">عملکرد ماه {formatPersianMonth(dashboard.monthlyStats.month)}</h3>
+      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="آمار ماهانه شعبه">
+        <SummaryCard icon={FiTrendingUp} label="فروش این ماه" value={formatMoney(dashboard.monthlyStats.totalSales)} hint="مجموع فروش از ابتدای ماه جاری" />
+        <SummaryCard icon={FiBarChart2} label="سود این ماه" value={formatMoney(dashboard.monthlyStats.totalProfit)} hint="سود ناخالص فروش‌های این ماه" />
+        <SummaryCard icon={FiFileText} label="فاکتورهای این ماه" value={formatNumber(dashboard.monthlyStats.salesCount)} hint="تعداد فاکتورهای ثبت‌شده در ماه جاری" />
+        <SummaryCard icon={FiBox} label="اقلام فروخته‌شده این ماه" value={formatNumber(dashboard.monthlyStats.totalItemsSold)} hint="جمع تعداد کالاهای فروخته‌شده در ماه جاری" />
+      </section>
+      <h3 className="mb-3 mt-7 text-sm font-extrabold">عملکرد امروز</h3>
+      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-label="آمار روزانه شعبه">
         <SummaryCard icon={FiBox} label="محصولات شعبه" value={dashboard.productCount === null ? '—' : formatNumber(dashboard.productCount)} hint="تعداد محصولات ثبت‌شده" />
         <SummaryCard icon={FiTrendingUp} label="فروش امروز" value={formatMoney(dashboard.todaySales)} hint="مجموع مبلغ فروش امروز" />
         <SummaryCard icon={FiBarChart2} label="سود امروز" value={formatMoney(dashboard.todayProfit)} hint="سود فروش‌های ثبت‌شده امروز" />
-      </section>
-      <section className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <SummaryCard icon={FiFileText} label="تعداد فاکتور امروز" value={formatNumber(dashboard.todaySalesCount)} hint="تعداد فروش‌های ثبت‌شده امروز" />
-        <SummaryCard icon={FiTrendingUp} label="اقلام فروخته‌شده امروز" value={formatNumber(dashboard.todayItemsSold)} hint="جمع تعداد کالاهای فروخته‌شده" />
+        <SummaryCard icon={FiTrendingUp} label="اقلام فروخته‌شده امروز" value={formatNumber(dashboard.todayItemsSold)} hint="جمع تعداد کالاهای فروخته‌شده امروز" />
       </section>
     </>
   );
@@ -118,10 +124,11 @@ export function DashboardPage() {
         getProducts({ limit: 1 }),
         getBranch(branchId),
         getAllBranchesDailyReport({ startDate: today, endDate: today }),
+        getBranchMonthlyReport(branchId),
       ]);
-      const [productsResult, branchResult, dailyResult] = results;
+      const [productsResult, branchResult, dailyResult, monthlyResult] = results;
 
-      if (productsResult.status === 'rejected' && branchResult.status === 'rejected' && dailyResult.status === 'rejected') {
+      if (results.every((result) => result.status === 'rejected')) {
         throw productsResult.reason;
       }
 
@@ -133,10 +140,21 @@ export function DashboardPage() {
         salesCount: totals.salesCount + (Number(item.salesCount) || 0),
       }), { totalSales: 0, totalProfit: 0, totalItemsSold: 0, salesCount: 0 });
 
+      const monthlyStats = monthlyResult.status === 'fulfilled'
+        ? monthlyResult.value?.data?.report || {}
+        : {};
+
       setDashboard({
         type: 'seller',
         productCount: productsResult.status === 'fulfilled' ? productsResult.value?.pagination?.total ?? null : null,
         branch: branchResult.status === 'fulfilled' ? branchResult.value?.data?.branch || user.branch : user.branch,
+        monthlyStats: {
+          month: monthlyStats.month || getDateKeyInTimeZone().slice(0, 7),
+          totalSales: Number(monthlyStats.totalSales) || 0,
+          totalProfit: Number(monthlyStats.totalProfit) || 0,
+          totalItemsSold: Number(monthlyStats.totalItemsSold) || 0,
+          salesCount: Number(monthlyStats.salesCount) || 0,
+        },
         todaySales: todayStats.totalSales,
         todayProfit: todayStats.totalProfit,
         todayItemsSold: todayStats.totalItemsSold,
@@ -145,6 +163,7 @@ export function DashboardPage() {
           productsResult.status === 'rejected' ? 'تعداد محصولات دریافت نشد.' : '',
           branchResult.status === 'rejected' ? 'جزئیات شعبه دریافت نشد.' : '',
           dailyResult.status === 'rejected' ? 'گزارش فروش امروز دریافت نشد.' : '',
+          monthlyResult.status === 'rejected' ? 'گزارش فروش ماه جاری دریافت نشد.' : '',
         ].filter(Boolean),
       });
     } catch (loadError) {
