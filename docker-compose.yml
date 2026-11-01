@@ -13,7 +13,7 @@ services:
       MONGO_APP_PASSWORD: ${MONGO_APP_PASSWORD:?Set MONGO_APP_PASSWORD in .env}
       MONGO_REPLICA_SET_KEY: ${MONGO_REPLICA_SET_KEY:?Set MONGO_REPLICA_SET_KEY in .env}
     ports:
-      - "127.0.0.1:${MONGO_HOST_PORT:-27018}:27017"
+      - '127.0.0.1:${MONGO_HOST_PORT:-27018}:27017'
     volumes:
       - mongodb_data:/data/db
       - mongodb_config:/data/configdb
@@ -36,7 +36,7 @@ services:
 
   mongodb-init:
     image: mongo:9.0.4
-    restart: "no"
+    restart: 'no'
     depends_on:
       mongodb:
         condition: service_healthy
@@ -45,7 +45,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?Set MONGO_ROOT_PASSWORD in .env}
     volumes:
       - ./docker/mongodb/init-replica-set.sh:/scripts/init-replica-set.sh:ro
-    entrypoint: ["/bin/bash", "/scripts/init-replica-set.sh"]
+    entrypoint: ['/bin/bash', '/scripts/init-replica-set.sh']
     networks:
       - aseman_network
 
@@ -55,13 +55,15 @@ services:
       dockerfile: docker/backend/Dockerfile
     image: aseman-backend:1.0.0
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       NODE_ENV: production
       PORT: 3000
-      DATABASE_URL: "mongodb://${MONGO_APP_USERNAME}:${MONGO_APP_PASSWORD}@mongodb:27017/aseman?authSource=aseman&replicaSet=rs0"
+      DATABASE_URL: 'mongodb://${MONGO_APP_USERNAME}:${MONGO_APP_PASSWORD}@mongodb:27017/aseman?authSource=aseman&replicaSet=rs0'
       CORS_ORIGINS: ${DOCKER_CORS_ORIGINS:-http://localhost:8080}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      SMS_API_KEY: ${SMS_API_KEY:-}
+      SMS_SENDER: ${SMS_SENDER:-}
     volumes:
       - uploads_data:/app/uploads
     depends_on:
@@ -89,12 +91,12 @@ services:
     image: aseman-frontend:1.0.0
     restart: unless-stopped
     ports:
-      - "127.0.0.1:${APP_HOST_PORT:-8080}:80"
+      - '127.0.0.1:${APP_HOST_PORT:-8080}:80'
     depends_on:
       backend:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1/ || exit 1"]
+      test: ['CMD-SHELL', 'wget -q --spider http://127.0.0.1/ || exit 1']
       interval: 30s
       timeout: 5s
       start_period: 10s
