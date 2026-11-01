@@ -23,11 +23,10 @@ export function ProductTable({ products, isLoading, onEdit, onDelete }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[850px] text-right text-xs">
+        <table className="w-full min-w-[760px] text-right text-xs">
           <thead className="bg-slate-50 text-[11px] text-slate-500 dark:bg-slate-800/70 dark:text-slate-400">
             <tr>
               <th className="px-4 py-4 font-bold">محصول</th>
-              <th className="px-4 py-4 font-bold">بارکد</th>
               <th className="px-4 py-4 font-bold">قیمت خرید</th>
               <th className="px-4 py-4 font-bold">قیمت فروش</th>
               <th className="px-4 py-4 font-bold">موجودی</th>
@@ -43,7 +42,6 @@ export function ProductTable({ products, isLoading, onEdit, onDelete }) {
               return (
                 <tr className="transition hover:bg-slate-50/80 dark:hover:bg-slate-800/40" key={product._id}>
                   <td className="max-w-52 px-4 py-4"><span className="block truncate font-extrabold text-slate-800 dark:text-slate-100">{product.name}</span></td>
-                  <td className="px-4 py-4 font-mono text-slate-500" dir="ltr">{product.barcode || '—'}</td>
                   <td className="whitespace-nowrap px-4 py-4">{formatMoney(product.purchasePrice)}</td>
                   <td className="whitespace-nowrap px-4 py-4 font-bold">{formatMoney(product.salePrice)}</td>
                   <td className="px-4 py-4 font-bold">{formatNumber(product.quantity)}</td>
