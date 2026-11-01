@@ -22,13 +22,15 @@ const seedAdmin = async () => {
     await User.updateOne(
       { email: ADMIN_EMAIL.toLowerCase().trim() },
       {
-        $setOnInsert: {
+        $set: {
           name: ADMIN_NAME.trim(),
-          email: ADMIN_EMAIL.toLowerCase().trim(),
-          passwordHash,
           role: ROLES.ADMIN,
           branch: null,
           isActive: true,
+        },
+        $setOnInsert: {
+          email: ADMIN_EMAIL.toLowerCase().trim(),
+          passwordHash,
         },
       },
       { upsert: true },
