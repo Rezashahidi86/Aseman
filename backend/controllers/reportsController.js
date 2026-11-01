@@ -11,7 +11,7 @@ import {
 import AppError from '../utils/AppError.js';
 import {
   getTehranDateKey,
-  getTehranMonthKey,
+  getTehranJalaliMonthKey,
   shiftDateKey,
 } from '../utils/dateKeys.js';
 
@@ -63,7 +63,7 @@ const getMonthlyReport = async (req, res, next) => {
     }
     const report = await getMonthlyBranchReport({
       branchId: req.branchId,
-      month: req.query.month || getTehranMonthKey(),
+      month: req.query.month || getTehranJalaliMonthKey(),
     });
 
     return res.status(200).json({
