@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { FiAlertCircle, FiBarChart2, FiBox, FiFileText, FiTrendingUp } from 'react-icons/fi';
-import { getAllBranchesDailyReport, getAllBranchesReport, getBranch, getBranchMonthlyReport, getProducts } from '../../../api/services/dashboardService.js';
-import { formatPersianMonth, getDateKeyInTimeZone } from '../../../shared/utils/date.js';
+import { getAllBranchesDailyReport, getBranch, getBranchMonthlyReport, getProducts } from '../../../api/services/dashboardService.js';
+import { getBranches } from '../../../api/services/branchService.js';
+import { formatPersianMonth, getDateKeyInTimeZone, getJalaliMonthKey } from '../../../shared/utils/date.js';
 import { formatMoney, formatNumber } from '../../../shared/utils/format.js';
 import { useAuth } from '../../../auth/AuthContext.jsx';
 import { BranchPerformance } from '../components/BranchPerformance.jsx';
@@ -91,13 +92,33 @@ export function DashboardPage() {
         const startDate = new Date(Date.UTC(year, month - 1, day - 6))
           .toISOString()
           .slice(0, 10);
-        const [summaryResponse, dailyResponse] = await Promise.all([
-          getAllBranchesReport(),
+        const branchesResponse = await getBranches();
+        const branches = branchesResponse?.data?.branches || [];
+        const currentJalaliMonth = getJalaliMonthKey();
+        const [monthlyResults, dailyResponse] = await Promise.all([
+          Promise.all(
+            branches.map(async (branch) => {
+              const branchId = branch._id || branch.id;
+              const response = await getBranchMonthlyReport(branchId, currentJalaliMonth);
+              return {
+                branch: {
+                  id: branchId,
+                  name: branch.name,
+                  code: branch.code,
+                  isActive: branch.isActive,
+                },
+                ...response?.data?.report,
+              };
+            }),
+          ),
           getAllBranchesDailyReport({ startDate, endDate }),
         ]);
         setDashboard({
           type: 'admin',
-          report: summaryResponse?.data?.report || {},
+          report: {
+            month: currentJalaliMonth,
+            branches: monthlyResults,
+          },
           dailyReports: dailyResponse?.data?.report?.reports || [],
         });
         return;
@@ -111,7 +132,7 @@ export function DashboardPage() {
         getProducts({ limit: 1 }),
         getBranch(branchId),
         getAllBranchesDailyReport({ startDate: today, endDate: today }),
-        getBranchMonthlyReport(branchId),
+        getBranchMonthlyReport(branchId, getJalaliMonthKey()),
       ]);
       const [productsResult, branchResult, dailyResult, monthlyResult] = results;
 
@@ -136,7 +157,7 @@ export function DashboardPage() {
         productCount: productsResult.status === 'fulfilled' ? productsResult.value?.pagination?.total ?? null : null,
         branch: branchResult.status === 'fulfilled' ? branchResult.value?.data?.branch || user.branch : user.branch,
         monthlyStats: {
-          month: monthlyStats.month || getDateKeyInTimeZone().slice(0, 7),
+          month: monthlyStats.month || getJalaliMonthKey(),
           totalSales: Number(monthlyStats.totalSales) || 0,
           totalProfit: Number(monthlyStats.totalProfit) || 0,
           totalItemsSold: Number(monthlyStats.totalItemsSold) || 0,
