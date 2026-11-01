@@ -1,0 +1,14 @@
+**/node_modules
+**/dist
+**/coverage
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+uploads
+backups
+.secrets
+*.log
+.DS_Store
+Thumbs.db
