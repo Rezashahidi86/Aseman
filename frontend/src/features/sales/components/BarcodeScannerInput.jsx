@@ -17,6 +17,10 @@ export function BarcodeScannerInput({ value, onChange, onScan, disabled }) {
     return () => window.removeEventListener('keydown', focusInput);
   }, []);
 
+  useEffect(() => {
+    if (!disabled) inputRef.current?.focus();
+  }, [disabled]);
+
   return (
     <form className="flex min-w-0 flex-col gap-2 sm:flex-row" onSubmit={(event) => { event.preventDefault(); onScan(value.trim()); }}>
       <label className="relative block min-w-0 flex-1">
