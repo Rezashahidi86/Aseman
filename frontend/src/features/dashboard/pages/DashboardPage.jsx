@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { FiAlertCircle, FiBarChart2, FiBox, FiFileText, FiTrendingUp } from 'react-icons/fi';
 import { getAllBranchesDailyReport, getBranch, getBranchMonthlyReport, getProducts } from '../../../api/services/dashboardService.js';
 import { getBranches } from '../../../api/services/branchService.js';
-import { formatPersianMonth, getDateKeyInTimeZone, getJalaliMonthKey } from '../../../shared/utils/date.js';
+import { formatJalaliMonth, getDateKeyInTimeZone, getJalaliMonthKey } from '../../../shared/utils/date.js';
 import { formatMoney, formatNumber } from '../../../shared/utils/format.js';
 import { useAuth } from '../../../auth/AuthContext.jsx';
 import { BranchPerformance } from '../components/BranchPerformance.jsx';
@@ -56,7 +56,7 @@ function SellerSummary({ dashboard, branchName }) {
         <div><h2 className="text-base font-extrabold">خلاصه شعبه</h2><p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">آمار فروش روزانه و ماهانه شعبه</p></div>
         <span className="max-w-40 rounded-full bg-indigo-50 px-3 py-2 text-center text-[10px] text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">{branchName}</span>
       </div>
-      <h3 className="mb-3 mt-5 text-sm font-extrabold">عملکرد ماه {formatPersianMonth(dashboard.monthlyStats.month)}</h3>
+      <h3 className="mb-3 mt-5 text-sm font-extrabold">عملکرد ماه {formatJalaliMonth(dashboard.monthlyStats.month)}</h3>
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="آمار ماهانه شعبه">
         <SummaryCard icon={FiTrendingUp} label="فروش این ماه" value={formatMoney(dashboard.monthlyStats.totalSales)} hint="مجموع فروش از ابتدای ماه جاری" />
         <SummaryCard icon={FiBarChart2} label="سود این ماه" value={formatMoney(dashboard.monthlyStats.totalProfit)} hint="سود ناخالص فروش‌های این ماه" />
