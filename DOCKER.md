@@ -171,3 +171,27 @@ The following command is destructive and must not be used as routine cleanup:
 ```text
 docker compose down -v
 ```
+
+## Automated host backups
+
+The repository includes host-side backup and restore scripts:
+
+- `scripts/backup-docker.sh`: dumps MongoDB and archives the persistent uploads directory, writes SHA-256 checksums, and applies a configurable retention period.
+- `scripts/restore-docker.sh`: verifies checksums and requires typing `RESTORE` before restoring. It deliberately does not use `--drop`.
+
+These scripts require MongoDB Database Tools (`mongodump` and `mongorestore`) on the Docker host. Run them from the repository root after the stack is healthy:
+
+```bash
+bash scripts/backup-docker.sh
+bash scripts/restore-docker.sh ./backups/aseman-YYYYMMDDTHHMMSSZ
+```
+
+The default retention is 14 days. Set `BACKUP_RETENTION_DAYS` and optionally `BACKUP_ROOT` in the host environment to change it. Store the backup directory on a separate disk or remote backup destination; the repository-local `backups/` directory is ignored by Git.
+
+Example Linux cron entry for a daily 02:00 UTC backup (replace the project path):
+
+```cron
+0 2 * * * cd /opt/aseman && /bin/bash scripts/backup-docker.sh >> /var/log/aseman-backup.log 2>&1
+```
+
+Create the log file/directory with suitable permissions before enabling the cron job. Monitor failures and periodically test a restore in an isolated environment. Database and uploads are captured sequentially, so schedule backups during a quiet period or a planned write-free maintenance window when strict cross-resource consistency is required.
