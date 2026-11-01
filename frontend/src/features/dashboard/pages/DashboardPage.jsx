@@ -41,19 +41,6 @@ function ErrorState({ message, onRetry }) {
 function AdminSummary({ report }) {
   return (
     <>
-      <div className="mb-4 mt-8 flex items-center justify-between gap-4">
-        <div>
-          <h2 className="text-base font-extrabold">خلاصه عملکرد شعبه‌ها</h2>
-          <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">آمار ماه {formatPersianMonth(report.month)}</p>
-        </div>
-        <span className="rounded-full border border-indigo-100 bg-indigo-50 px-3 py-2 text-[10px] text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950 dark:text-indigo-300">دسترسی مدیر</span>
-      </div>
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="خلاصه آمار">
-        <SummaryCard icon={FiTrendingUp} label="مجموع فروش ماه" value={formatMoney(report.totals?.totalSales ?? report.totalSales)} hint="مجموع مبلغ فروش ثبت‌شده" />
-        <SummaryCard icon={FiBarChart2} label="سود ناخالص ماه" value={formatMoney(report.totals?.totalProfit ?? report.totalProfit)} hint="بر اساس قیمت خرید ثبت‌شده" />
-        <SummaryCard icon={FiFileText} label="تعداد فاکتور" value={formatNumber(report.totals?.salesCount ?? report.salesCount)} hint="تعداد فروش‌های ثبت‌شده" />
-        <SummaryCard icon={FiBox} label="تعداد شعبه‌ها" value={formatNumber(report.branches?.length)} hint="شعبه‌های موجود در سامانه" />
-      </section>
       <WeeklySalesCharts reports={report.dailyReports} />
       <BranchPerformance branches={report.branches} />
     </>
