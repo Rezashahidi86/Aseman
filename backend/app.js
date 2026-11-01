@@ -1,4 +1,5 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import morgan from 'morgan';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -16,6 +17,19 @@ const allowedOrigins = env.CORS_ORIGINS.split(',').map((origin) =>
 );
 
 app.disable('x-powered-by');
+
+app.get('/health/live', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
+app.get('/health/ready', (req, res) => {
+  const isDatabaseReady = mongoose.connection.readyState === 1;
+
+  res.status(isDatabaseReady ? 200 : 503).json({
+    status: isDatabaseReady ? 'ok' : 'unavailable',
+    database: isDatabaseReady ? 'connected' : 'disconnected',
+  });
+});
 app.use(helmet());
 app.use(
   cors({
