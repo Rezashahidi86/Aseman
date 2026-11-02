@@ -121,7 +121,9 @@ describe('Sales service', () => {
       session: vi.fn().mockResolvedValue(product),
     });
 
-    mocks.saleFindOne.mockResolvedValue(null);
+    mocks.saleFindOne.mockImplementation(() => ({
+      select: vi.fn().mockResolvedValue(null),
+    }));
 
     mocks.saleCreate.mockImplementation(async ([data]) => [
       {
@@ -241,7 +243,9 @@ describe('Sales service', () => {
       totalProfit: 120,
     };
 
-    mocks.saleFindOne.mockResolvedValue(existingSale);
+    mocks.saleFindOne.mockReturnValue({
+      select: vi.fn().mockResolvedValue(existingSale),
+    });
 
     const result = await registerSale({
       items,
@@ -330,10 +334,12 @@ describe('Sales service', () => {
   });
 
   it('SALE-024: rejects an idempotency key already used by another branch or seller', async () => {
-    mocks.saleFindOne.mockResolvedValue({
-      _id: '507f1f77bcf86cd799439014',
-      branch: '507f1f77bcf86cd799439099',
-      createdBy: sellerId,
+    mocks.saleFindOne.mockReturnValue({
+      select: vi.fn().mockResolvedValue({
+        _id: '507f1f77bcf86cd799439014',
+        branch: '507f1f77bcf86cd799439099',
+        createdBy: sellerId,
+      }),
     });
 
     await expect(
@@ -414,10 +420,12 @@ describe('Sales service', () => {
   });
 
   it('SALE-028: rejects an idempotency key already used by a different seller', async () => {
-    mocks.saleFindOne.mockResolvedValue({
-      _id: '507f1f77bcf86cd799439014',
-      branch: branchId,
-      createdBy: '507f1f77bcf86cd799439099',
+    mocks.saleFindOne.mockReturnValue({
+      select: vi.fn().mockResolvedValue({
+        _id: '507f1f77bcf86cd799439014',
+        branch: branchId,
+        createdBy: '507f1f77bcf86cd799439099',
+      }),
     });
 
     await expect(
@@ -428,6 +436,31 @@ describe('Sales service', () => {
         idempotencyKey,
       }),
     ).rejects.toThrow('Idempotency key has already been used');
+
+    expect(mocks.startSession).not.toHaveBeenCalled();
+    expect(mocks.productUpdateOne).not.toHaveBeenCalled();
+    expect(mocks.saleCreate).not.toHaveBeenCalled();
+  });
+
+
+  it('SALE-029: rejects reuse of an idempotency key with different cart contents', async () => {
+    mocks.saleFindOne.mockReturnValue({
+      select: vi.fn().mockResolvedValue({
+        _id: '507f1f77bcf86cd799439014',
+        branch: branchId,
+        createdBy: sellerId,
+        requestHash: 'different-request-hash',
+      }),
+    });
+
+    await expect(
+      registerSale({
+        items,
+        branchId,
+        sellerId,
+        idempotencyKey,
+      }),
+    ).rejects.toThrow('Idempotency key has already been used for a different sale');
 
     expect(mocks.startSession).not.toHaveBeenCalled();
     expect(mocks.productUpdateOne).not.toHaveBeenCalled();
