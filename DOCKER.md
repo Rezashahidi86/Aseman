@@ -264,7 +264,7 @@ Get-ChildItem .\\backups\\mongodb
 
 The backup directory is excluded from Git. Keep it private and do not upload backup archives to GitHub or share them in chats. These archives contain application data and are not encrypted by this local backup worker. Protect the host account and disk, and copy important backups to a separate, access-controlled storage location. A backup stored only on the same computer does not protect against loss of that computer.
 
-Do not consider the backup process production-ready until a restore test has been completed successfully. See the next section for the restore verification procedure.
+Do not consider the backup process production-ready until a restore test has been completed successfully. The restore verification procedure will be added alongside the restore-test task.
 
 ## 8. Troubleshooting
 
