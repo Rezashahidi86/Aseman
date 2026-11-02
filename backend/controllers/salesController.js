@@ -18,6 +18,7 @@ const createSale = async (req, res, next) => {
       branchId: req.branchId,
       sellerId: req.user._id,
       idempotencyKey,
+      req,
     });
 
     const { sale } = result;
