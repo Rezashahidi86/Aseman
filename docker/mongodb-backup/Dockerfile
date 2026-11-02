@@ -3,7 +3,7 @@ FROM ubuntu:22.04
 ARG DATABASE_TOOLS_VERSION=100.20.0
 
 RUN apt-get update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates curl tar bash findutils coreutils \
+  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates curl tar bash findutils coreutils openssl \
   && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /tmp/mongodb-tools \
