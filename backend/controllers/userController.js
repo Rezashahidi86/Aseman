@@ -144,7 +144,9 @@ export const updateUser = async (req, res, next) => {
 
 export const deactivateUser = async (req, res, next) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.params.id).select(
+      'name email role branch isActive',
+    );
 
     if (!user) {
       throw new AppError('User not found', 404);
