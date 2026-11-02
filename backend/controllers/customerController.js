@@ -16,6 +16,7 @@ import {
   createCustomerSchema,
   updateCustomerSchema,
 } from '../validators/customerValidators.js';
+import { createAuditLog } from '../services/auditLogService.js';
 
 const escapeRegex = (value) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -68,6 +69,15 @@ const createCustomer = async (req, res, next) => {
     const customer = await Customer.create({
       ...validation.data,
       branch: branch._id,
+    });
+
+    await createAuditLog({
+      req,
+      action: 'CREATE',
+      resource: 'CUSTOMER',
+      resourceId: customer._id,
+      branchId: customer.branch,
+      after: customer,
     });
 
     let smsStatus = 'no_template';
@@ -331,8 +341,19 @@ const updateCustomer = async (req, res, next) => {
       return next(new AppError('Customer not found', 404));
     }
 
+    const before = customer.toObject();
     Object.assign(customer, validation.data);
     await customer.save();
+
+    await createAuditLog({
+      req,
+      action: 'UPDATE',
+      resource: 'CUSTOMER',
+      resourceId: customer._id,
+      branchId: customer.branch,
+      before,
+      after: customer,
+    });
 
     return res.status(200).json({
       status: 'success',
@@ -361,11 +382,22 @@ const deleteCustomer = async (req, res, next) => {
 
     filter._id = req.params.id;
 
-    const customer = await Customer.findOneAndDelete(filter);
+    const customer = await Customer.findOne(filter);
 
     if (!customer) {
       return next(new AppError('Customer not found', 404));
     }
+
+    await customer.deleteOne();
+
+    await createAuditLog({
+      req,
+      action: 'DELETE',
+      resource: 'CUSTOMER',
+      resourceId: customer._id,
+      branchId: customer.branch,
+      before: customer,
+    });
 
     return res.status(204).send();
   } catch (error) {
