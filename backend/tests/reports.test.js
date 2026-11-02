@@ -9,6 +9,7 @@ import {
   getMonthlyBranchReport,
   getMonthlyComparisonReport,
   getAllBranchesReport,
+  getFilteredReport,
 } from '../services/reportsService.js';
 import setBranchContext from '../middlewares/branchMiddleware.js';
 import {
@@ -21,6 +22,7 @@ vi.mock('../models/SalesStats.js', () => ({
   default: {
     aggregate: vi.fn(),
     findOne: vi.fn(),
+    find: vi.fn(),
   },
 }));
 
@@ -228,6 +230,57 @@ describe('REP-009: Daily, weekly and monthly report accuracy', () => {
     });
   });
 });
+
+  it('groups report months by the Shamsi year across Nowruz', async () => {
+    const dailyStats = [
+      {
+        periodKey: '2026-03-20',
+        totalSales: 100,
+        totalProfit: 20,
+        totalItemsSold: 1,
+        salesCount: 1,
+      },
+      {
+        periodKey: '2026-03-21',
+        totalSales: 200,
+        totalProfit: 50,
+        totalItemsSold: 2,
+        salesCount: 1,
+      },
+    ];
+    SalesStats.find.mockReturnValue({
+      select: vi.fn().mockReturnThis(),
+      lean: vi.fn().mockResolvedValue(dailyStats),
+    });
+
+    const report = await getFilteredReport({
+      branchId,
+      startDate: '2026-03-20',
+      endDate: '2026-03-21',
+      groupBy: 'month',
+      sortBy: 'totalSales',
+      sortOrder: 'asc',
+    });
+
+    expect(report.reports).toEqual([
+      expect.objectContaining({
+        period: '1404-12',
+        totalSales: 100,
+        totalProfit: 20,
+      }),
+      expect.objectContaining({
+        period: '1405-01',
+        totalSales: 200,
+        totalProfit: 50,
+      }),
+    ]);
+    expect(report.totals).toEqual({
+      totalSales: 300,
+      totalProfit: 70,
+      totalItemsSold: 3,
+      salesCount: 2,
+    });
+  });
 
 describe('REP-010: Report branch access', () => {
   it('denies a seller access to another branch report', () => {
