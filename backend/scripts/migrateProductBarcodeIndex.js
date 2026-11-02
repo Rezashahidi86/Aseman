@@ -25,14 +25,16 @@ const migrateProductBarcodeIndex = async () => {
         index.partialFilterExpression?.barcode?.$type === 'string',
     );
 
-    for (const index of barcodeIndexes) {
-      if (correctIndex && index.name === correctIndex.name) {
-        continue;
-      }
+    const outdatedIndexes = barcodeIndexes.filter(
+      (index) => !correctIndex || index.name !== correctIndex.name,
+    );
 
-      await collection.dropIndex(index.name);
-      console.log(`Dropped outdated unique barcode index: ${index.name}`);
-    }
+    await Promise.all(
+      outdatedIndexes.map(async (index) => {
+        await collection.dropIndex(index.name);
+        console.log(`Dropped outdated unique barcode index: ${index.name}`);
+      }),
+    );
 
     indexes = await collection.indexes();
 
