@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { createHash } from 'node:crypto';
 import Product from '../models/Product.js';
 import Sale from '../models/Sale.js';
 import SalesStats from '../models/SalesStats.js';
@@ -109,6 +110,9 @@ const registerSale = async ({
   }
 
   const normalizedKey = validation.data.idempotencyKey;
+  const requestHash = createHash('sha256')
+    .update(JSON.stringify(validation.data.items))
+    .digest('hex');
 
   const existingSale = await Sale.findOne({
     idempotencyKey: normalizedKey,
@@ -120,6 +124,10 @@ const registerSale = async ({
       existingSale.createdBy.toString() !== sellerId.toString()
     ) {
       throw new AppError('Idempotency key has already been used', 409);
+    }
+
+    if (existingSale.requestHash && existingSale.requestHash !== requestHash) {
+      throw new AppError('Idempotency key has already been used for a different sale', 409);
     }
 
     return {
@@ -229,6 +237,7 @@ const registerSale = async ({
         [
           {
             idempotencyKey: normalizedKey,
+            requestHash,
             branch: branchId,
             createdBy: sellerId,
             ...saleData,
@@ -266,6 +275,10 @@ const registerSale = async ({
           duplicateSale.createdBy.toString() !== sellerId.toString()
         ) {
           throw new AppError('Idempotency key has already been used', 409);
+        }
+
+        if (duplicateSale.requestHash && duplicateSale.requestHash !== requestHash) {
+          throw new AppError('Idempotency key has already been used for a different sale', 409);
         }
 
         return {
