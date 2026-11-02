@@ -132,7 +132,7 @@ const createAuditLog = async ({
     request: {
       requestId: req.get?.('x-request-id') || undefined,
       method: req.method,
-      path: req.originalUrl?.slice(0, 500),
+      path: req.path?.slice(0, 500),
       ip: req.ip,
       userAgent: req.get?.('user-agent')?.slice(0, 500),
     },
