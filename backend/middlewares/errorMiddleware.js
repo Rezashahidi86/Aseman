@@ -42,11 +42,17 @@ const errorMiddleware = (err, req, res, next) => {
 
     return res.status(400).json({
       status: 'fail',
-      message: isFileTooLarge
-        ? 'Uploaded file exceeds the maximum allowed size'
-        : isTooManyFiles
-          ? 'Too many files were uploaded'
-          : 'File upload failed',
+      message: (() => {
+        if (isFileTooLarge) {
+          return 'Uploaded file exceeds the maximum allowed size';
+        }
+
+        if (isTooManyFiles) {
+          return 'Too many files were uploaded';
+        }
+
+        return 'File upload failed';
+      })(),
     });
   }
 
