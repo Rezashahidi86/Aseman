@@ -13,11 +13,45 @@ import User from '../models/User.js';
 import Sale from '../models/Sale.js';
 import {
   getTehranDateKey,
-  getTehranMonthKey,
+  getTehranJalaliMonthKey,
   getJalaliMonthDateRange,
-  shiftDateKey,
   getTehranDateRange,
 } from '../utils/dateKeys.js';
+
+const getPreviousJalaliMonthKey = (monthKey) => {
+  const [year, month] = monthKey.split('-').map(Number);
+  const previous = month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 };
+  return `${previous.year}-${String(previous.month).padStart(2, '0')}`;
+};
+
+const getMonthTotals = async (branchId, month) => {
+  const { startDate, endDate } = getJalaliMonthDateRange(month);
+  const { start, end } = getTehranDateRange(startDate, endDate);
+  const [totals] = await Sale.aggregate([
+    {
+      $match: {
+        ...(branchId ? { branch: branchId } : {}),
+        createdAt: { $gte: start, $lte: end },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalSales: { $sum: '$totalSales' },
+        totalProfit: { $sum: '$totalProfit' },
+        totalItemsSold: { $sum: '$totalItemsSold' },
+        salesCount: { $sum: 1 },
+      },
+    },
+  ]);
+
+  return {
+    totalSales: totals?.totalSales ?? 0,
+    totalProfit: totals?.totalProfit ?? 0,
+    totalItemsSold: totals?.totalItemsSold ?? 0,
+    salesCount: totals?.salesCount ?? 0,
+  };
+};
 
 const getDailyBranchReport = async ({ branchId, date }) => {
   if (!branchId) {
@@ -145,43 +179,12 @@ const getMonthlyComparisonReport = async ({ branchId }) => {
     throw new AppError('A valid branch is required', 400);
   }
 
-  const currentMonth = getTehranMonthKey();
-  const previousMonth = shiftDateKey(`${currentMonth}-01`, -1).slice(0, 7);
-
-  const reports = await SalesStats.find({
-    branch: branchId,
-    periodType: 'monthly',
-    periodKey: { $in: [currentMonth, previousMonth] },
-  }).lean();
-
-  const emptyStats = () => ({
-    totalSales: 0,
-    totalProfit: 0,
-    totalItemsSold: 0,
-    salesCount: 0,
-  });
-
-  const current = reports.find((report) => report.periodKey === currentMonth);
-
-  const previous = reports.find((report) => report.periodKey === previousMonth);
-
-  const currentStats = current
-    ? {
-        totalSales: current.totalSales,
-        totalProfit: current.totalProfit,
-        totalItemsSold: current.totalItemsSold,
-        salesCount: current.salesCount,
-      }
-    : emptyStats();
-
-  const previousStats = previous
-    ? {
-        totalSales: previous.totalSales,
-        totalProfit: previous.totalProfit,
-        totalItemsSold: previous.totalItemsSold,
-        salesCount: previous.salesCount,
-      }
-    : emptyStats();
+  const currentMonth = getTehranJalaliMonthKey();
+  const previousMonth = getPreviousJalaliMonthKey(currentMonth);
+  const [currentStats, previousStats] = await Promise.all([
+    getMonthTotals(new mongoose.Types.ObjectId(branchId), currentMonth),
+    getMonthTotals(new mongoose.Types.ObjectId(branchId), previousMonth),
+  ]);
 
   const calculateChange = (currentValue, previousValue) => ({
     difference: currentValue - previousValue,
@@ -204,42 +207,46 @@ const getMonthlyComparisonReport = async ({ branchId }) => {
       ...previousStats,
     },
     comparison: {
-      totalSales: calculateChange(
-        currentStats.totalSales,
-        previousStats.totalSales,
-      ),
-      totalProfit: calculateChange(
-        currentStats.totalProfit,
-        previousStats.totalProfit,
-      ),
-      totalItemsSold: calculateChange(
-        currentStats.totalItemsSold,
-        previousStats.totalItemsSold,
-      ),
-      salesCount: calculateChange(
-        currentStats.salesCount,
-        previousStats.salesCount,
-      ),
+      totalSales: calculateChange(currentStats.totalSales, previousStats.totalSales),
+      totalProfit: calculateChange(currentStats.totalProfit, previousStats.totalProfit),
+      totalItemsSold: calculateChange(currentStats.totalItemsSold, previousStats.totalItemsSold),
+      salesCount: calculateChange(currentStats.salesCount, previousStats.salesCount),
     },
   };
 };
 
 const getAllBranchesReport = async ({ branchId = null } = {}) => {
-  const month = getTehranMonthKey();
-
+  const month = getTehranJalaliMonthKey();
+  const { startDate, endDate } = getJalaliMonthDateRange(month);
+  const { start, end } = getTehranDateRange(startDate, endDate);
   const branchFilter = branchId ? { _id: branchId } : {};
   const branches = await Branch.find(branchFilter)
     .select('_id name code isActive')
     .lean();
 
-  const stats = await SalesStats.find({
-    branch: { $in: branches.map((branch) => branch._id) },
-    periodType: 'monthly',
-    periodKey: month,
-  }).lean();
+  const branchIds = branches.map((branch) => branch._id);
+  const stats = branchIds.length
+    ? await Sale.aggregate([
+        {
+          $match: {
+            branch: { $in: branchIds },
+            createdAt: { $gte: start, $lte: end },
+          },
+        },
+        {
+          $group: {
+            _id: '$branch',
+            totalSales: { $sum: '$totalSales' },
+            totalProfit: { $sum: '$totalProfit' },
+            totalItemsSold: { $sum: '$totalItemsSold' },
+            salesCount: { $sum: 1 },
+          },
+        },
+      ])
+    : [];
 
   const statsByBranch = new Map(
-    stats.map((item) => [item.branch.toString(), item]),
+    stats.map((item) => [item._id.toString(), item]),
   );
 
   const branchReports = branches.map((branch) => {

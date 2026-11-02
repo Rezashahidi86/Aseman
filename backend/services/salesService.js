@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { createHash } from 'node:crypto';
 import Product from '../models/Product.js';
 import Sale from '../models/Sale.js';
 import SalesStats from '../models/SalesStats.js';
@@ -8,7 +9,7 @@ import {
   saleCartSchema,
   saleRegistrationSchema,
 } from '../validators/salesValidators.js';
-import { getTehranDateKey, getTehranMonthKey } from '../utils/dateKeys.js';
+import { getTehranDateKey, getTehranJalaliMonthKey } from '../utils/dateKeys.js';
 
 const prepareSaleItems = async (items, branchId, session = null) => {
   const validation = saleCartSchema.safeParse({ items });
@@ -109,10 +110,13 @@ const registerSale = async ({
   }
 
   const normalizedKey = validation.data.idempotencyKey;
+  const requestHash = createHash('sha256')
+    .update(JSON.stringify(validation.data.items))
+    .digest('hex');
 
   const existingSale = await Sale.findOne({
     idempotencyKey: normalizedKey,
-  });
+  }).select('+requestHash');
 
   if (existingSale) {
     if (
@@ -120,6 +124,10 @@ const registerSale = async ({
       existingSale.createdBy.toString() !== sellerId.toString()
     ) {
       throw new AppError('Idempotency key has already been used', 409);
+    }
+
+    if (existingSale.requestHash && existingSale.requestHash !== requestHash) {
+      throw new AppError('Idempotency key has already been used for a different sale', 409);
     }
 
     return {
@@ -186,7 +194,7 @@ const registerSale = async ({
       /* eslint-enable no-await-in-loop */
 
       const dailyKey = getTehranDateKey();
-      const monthlyKey = getTehranMonthKey();
+      const monthlyKey = getTehranJalaliMonthKey();
 
       const statsUpdate = {
         $inc: {
@@ -229,6 +237,7 @@ const registerSale = async ({
         [
           {
             idempotencyKey: normalizedKey,
+            requestHash,
             branch: branchId,
             createdBy: sellerId,
             ...saleData,
@@ -258,7 +267,7 @@ const registerSale = async ({
     if (error?.code === 11000) {
       const duplicateSale = await Sale.findOne({
         idempotencyKey: normalizedKey,
-      });
+      }).select('+requestHash');
 
       if (duplicateSale) {
         if (
@@ -266,6 +275,10 @@ const registerSale = async ({
           duplicateSale.createdBy.toString() !== sellerId.toString()
         ) {
           throw new AppError('Idempotency key has already been used', 409);
+        }
+
+        if (duplicateSale.requestHash && duplicateSale.requestHash !== requestHash) {
+          throw new AppError('Idempotency key has already been used for a different sale', 409);
         }
 
         return {

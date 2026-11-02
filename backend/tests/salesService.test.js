@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { registerSale } from '../services/salesService.js';
+import { getTehranJalaliMonthKey } from '../utils/dateKeys.js';
 
 const mocks = vi.hoisted(() => ({
   startSession: vi.fn(),
@@ -120,7 +121,9 @@ describe('Sales service', () => {
       session: vi.fn().mockResolvedValue(product),
     });
 
-    mocks.saleFindOne.mockResolvedValue(null);
+    mocks.saleFindOne.mockImplementation(() => ({
+      select: vi.fn().mockResolvedValue(null),
+    }));
 
     mocks.saleCreate.mockImplementation(async ([data]) => [
       {
@@ -146,9 +149,24 @@ describe('Sales service', () => {
     expect(result.sale.totalSales).toBe(240);
     expect(result.sale.totalProfit).toBe(120);
     expect(result.sale.totalItemsSold).toBe(2);
+    expect(result.sale.items[0]).toEqual(expect.objectContaining({
+      purchasePrice: 60,
+      finalSalePrice: 120,
+      lineTotal: 240,
+      lineProfit: 120,
+    }));
     expect(stock).toBe(8);
     expect(salesCount).toBe(2);
     expect(mocks.statsUpdateOne).toHaveBeenCalledTimes(2);
+    expect(mocks.statsUpdateOne).toHaveBeenCalledWith(
+      expect.objectContaining({
+        branch: branchId,
+        periodType: 'monthly',
+        periodKey: getTehranJalaliMonthKey(),
+      }),
+      expect.objectContaining({ $inc: expect.objectContaining({ totalSales: 240, totalProfit: 120 }) }),
+      expect.objectContaining({ upsert: true, session: expect.anything() }),
+    );
     expect(mocks.auditCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         action: 'CREATE',
@@ -225,7 +243,9 @@ describe('Sales service', () => {
       totalProfit: 120,
     };
 
-    mocks.saleFindOne.mockResolvedValue(existingSale);
+    mocks.saleFindOne.mockReturnValue({
+      select: vi.fn().mockResolvedValue(existingSale),
+    });
 
     const result = await registerSale({
       items,
@@ -316,10 +336,12 @@ describe('Sales service', () => {
   });
 
   it('SALE-024: rejects an idempotency key already used by another branch or seller', async () => {
-    mocks.saleFindOne.mockResolvedValue({
-      _id: '507f1f77bcf86cd799439014',
-      branch: '507f1f77bcf86cd799439099',
-      createdBy: sellerId,
+    mocks.saleFindOne.mockReturnValue({
+      select: vi.fn().mockResolvedValue({
+        _id: '507f1f77bcf86cd799439014',
+        branch: '507f1f77bcf86cd799439099',
+        createdBy: sellerId,
+      }),
     });
 
     await expect(
@@ -335,4 +357,116 @@ describe('Sales service', () => {
     expect(mocks.productUpdateOne).not.toHaveBeenCalled();
     expect(mocks.saleCreate).not.toHaveBeenCalled();
   });
+
+  it('SALE-025: rejects duplicate cart lines when their combined quantity exceeds stock', async () => {
+    stock = 4;
+
+    await expect(
+      registerSale({
+        items: [
+          { productId, quantity: 2, finalSalePrice: 120 },
+          { productId, quantity: 3, finalSalePrice: 120 },
+        ],
+        branchId,
+        sellerId,
+        idempotencyKey,
+      }),
+    ).rejects.toThrow('Insufficient product stock');
+
+    expect(mocks.productUpdateOne).toHaveBeenCalledWith(
+      expect.objectContaining({ quantity: { $gte: 5 } }),
+      expect.anything(),
+      expect.anything(),
+    );
+    expect(mocks.saleCreate).not.toHaveBeenCalled();
+    expect(mocks.statsUpdateOne).not.toHaveBeenCalled();
+    expect(transactionCommitted).toBe(false);
+  });
+
+  it('SALE-026: stores the purchase price and the final basket sale price per line', async () => {
+    const result = await registerSale({
+      items: [{ productId, quantity: 3, finalSalePrice: 150 }],
+      branchId,
+      sellerId,
+      idempotencyKey,
+    });
+
+    expect(result.sale.items[0]).toEqual(expect.objectContaining({
+      purchasePrice: 60,
+      finalSalePrice: 150,
+      lineTotal: 450,
+      lineProfit: 270,
+    }));
+    expect(result.sale.totalSales).toBe(450);
+    expect(result.sale.totalProfit).toBe(270);
+  });
+
+  it('SALE-027: rejects a product missing from the selected branch during the atomic stock update', async () => {
+    mocks.productExists.mockReturnValue({
+      session: vi.fn().mockResolvedValue(null),
+    });
+    mocks.productUpdateOne.mockResolvedValue({ matchedCount: 0 });
+
+    await expect(
+      registerSale({
+        items,
+        branchId,
+        sellerId,
+        idempotencyKey,
+      }),
+    ).rejects.toThrow('Product not found in the current branch');
+
+    expect(mocks.saleCreate).not.toHaveBeenCalled();
+    expect(mocks.statsUpdateOne).not.toHaveBeenCalled();
+    expect(transactionCommitted).toBe(false);
+  });
+
+  it('SALE-028: rejects an idempotency key already used by a different seller', async () => {
+    mocks.saleFindOne.mockReturnValue({
+      select: vi.fn().mockResolvedValue({
+        _id: '507f1f77bcf86cd799439014',
+        branch: branchId,
+        createdBy: '507f1f77bcf86cd799439099',
+      }),
+    });
+
+    await expect(
+      registerSale({
+        items,
+        branchId,
+        sellerId,
+        idempotencyKey,
+      }),
+    ).rejects.toThrow('Idempotency key has already been used');
+
+    expect(mocks.startSession).not.toHaveBeenCalled();
+    expect(mocks.productUpdateOne).not.toHaveBeenCalled();
+    expect(mocks.saleCreate).not.toHaveBeenCalled();
+  });
+
+
+  it('SALE-029: rejects reuse of an idempotency key with different cart contents', async () => {
+    mocks.saleFindOne.mockReturnValue({
+      select: vi.fn().mockResolvedValue({
+        _id: '507f1f77bcf86cd799439014',
+        branch: branchId,
+        createdBy: sellerId,
+        requestHash: 'different-request-hash',
+      }),
+    });
+
+    await expect(
+      registerSale({
+        items,
+        branchId,
+        sellerId,
+        idempotencyKey,
+      }),
+    ).rejects.toThrow('Idempotency key has already been used for a different sale');
+
+    expect(mocks.startSession).not.toHaveBeenCalled();
+    expect(mocks.productUpdateOne).not.toHaveBeenCalled();
+    expect(mocks.saleCreate).not.toHaveBeenCalled();
+  });
+
 });
