@@ -49,6 +49,24 @@ services:
     networks:
       - aseman_network
 
+  mongodb-backup:
+    image: mongodb/mongodb-database-tools:100.13.0-ubuntu2204
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      MONGO_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:?Set MONGO_ROOT_USERNAME in .env}
+      MONGO_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?Set MONGO_ROOT_PASSWORD in .env}
+      BACKUP_INTERVAL_SECONDS: ${BACKUP_INTERVAL_SECONDS:-86400}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-14}
+    volumes:
+      - ./backups/mongodb:/backups
+      - ./docker/mongodb-backup/backup.sh:/scripts/backup.sh:ro
+    entrypoint: ['/bin/bash', '/scripts/backup.sh']
+    networks:
+      - aseman_network
+
   backend:
     build:
       context: .
