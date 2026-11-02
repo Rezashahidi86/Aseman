@@ -19,7 +19,7 @@ create_backup() {
 
   timestamp="$(date -u +'%Y%m%dT%H%M%SZ')"
   encrypted_file="$BACKUP_DIR/aseman-$timestamp.archive.gz.enc"
-  raw_file="$BACKUP_DIR/aseman-$timestamp.archive.gz.partial"
+  raw_file="/tmp/aseman-$timestamp.archive.gz"
   encrypted_temporary_file="$encrypted_file.partial"
 
   printf '[%s] Starting MongoDB backup\n' "$(date -u +'%FT%TZ')"
