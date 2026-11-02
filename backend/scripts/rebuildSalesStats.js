@@ -3,6 +3,19 @@ import env from '../config/env.js';
 import Sale from '../models/Sale.js';
 import SalesStats from '../models/SalesStats.js';
 
+const jalaliMonthFormatter = new Intl.DateTimeFormat('en-US-u-ca-persian-nu-latn', {
+  timeZone: 'Asia/Tehran',
+  year: 'numeric',
+  month: '2-digit',
+});
+
+const getJalaliMonthKey = (date) => {
+  const parts = Object.fromEntries(
+    jalaliMonthFormatter.formatToParts(date).map(({ type, value }) => [type, value]),
+  );
+  return `${parts.year}-${parts.month.padStart(2, '0')}`;
+};
+
 const aggregateStats = async (format, periodType) =>
   Sale.aggregate([
     {
@@ -49,10 +62,34 @@ const rebuildSalesStats = async () => {
       );
     }
 
-    const [dailyStats, monthlyStats] = await Promise.all([
+    const [dailyStats, sales] = await Promise.all([
       aggregateStats('%Y-%m-%d', 'daily'),
-      aggregateStats('%Y-%m', 'monthly'),
+      Sale.find().select('branch createdAt totalSales totalProfit totalItemsSold').lean(),
     ]);
+
+    const monthlyMap = new Map();
+
+    for (const sale of sales) {
+      const periodKey = getJalaliMonthKey(sale.createdAt);
+      const key = `${sale.branch.toString()}:${periodKey}`;
+      const current = monthlyMap.get(key) || {
+        branch: sale.branch,
+        periodType: 'monthly',
+        periodKey,
+        totalSales: 0,
+        totalProfit: 0,
+        totalItemsSold: 0,
+        salesCount: 0,
+      };
+
+      current.totalSales += sale.totalSales;
+      current.totalProfit += sale.totalProfit;
+      current.totalItemsSold += sale.totalItemsSold;
+      current.salesCount += 1;
+      monthlyMap.set(key, current);
+    }
+
+    const monthlyStats = [...monthlyMap.values()];
 
     const expectedStats = [...dailyStats, ...monthlyStats];
     const operations = expectedStats.map((stats) => ({
