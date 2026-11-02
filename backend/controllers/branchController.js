@@ -163,6 +163,7 @@ export const updateBranchStatus = async (req, res, next) => {
       action: 'UPDATE',
       resource: 'BRANCH',
       resourceId: branch._id,
+      branchId: branch._id,
       before,
       after: branch,
     });
