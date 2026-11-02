@@ -49,7 +49,7 @@ describe('Audit log service', () => {
       },
       branchId: '507f1f77bcf86cd799439012',
       method: 'PATCH',
-      originalUrl: '/api/v1/products/507f1f77bcf86cd799439013',
+      path: '/api/v1/products/507f1f77bcf86cd799439013',
       ip: '127.0.0.1',
       get: (header) => ({
         'x-request-id': 'request-123',
@@ -74,7 +74,7 @@ describe('Audit log service', () => {
     expect(data.request).toEqual({
       requestId: 'request-123',
       method: 'PATCH',
-      path: req.originalUrl,
+      path: req.path,
       ip: '127.0.0.1',
       userAgent: 'Vitest',
     });
