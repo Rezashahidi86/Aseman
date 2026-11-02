@@ -45,7 +45,7 @@ const createProduct = async (req, res, next) => {
     }
 
     const { branchId: _branchId, ...productData } = validation.data;
-    const branchId = req.branchId;
+    const { branchId } = req;
 
     if (!branchId || !mongoose.isValidObjectId(branchId)) {
       return next(new AppError('A valid branch is required', 400));
