@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import Product from '../models/Product.js';
 import Sale from '../models/Sale.js';
 import SalesStats from '../models/SalesStats.js';
+import { createAuditLog } from './auditLogService.js';
 import AppError from '../utils/AppError.js';
 import {
   saleCartSchema,
@@ -87,7 +88,7 @@ const prepareSaleItems = async (items, branchId, session = null) => {
   };
 };
 
-const registerSale = async ({ items, branchId, sellerId, idempotencyKey }) => {
+const registerSale = async ({ items, branchId, sellerId, idempotencyKey, req }) => {
   const validation = saleRegistrationSchema.safeParse({
     items,
     idempotencyKey,
@@ -228,6 +229,16 @@ const registerSale = async ({ items, branchId, sellerId, idempotencyKey }) => {
         ],
         { session },
       );
+
+      await createAuditLog({
+        req,
+        action: 'CREATE',
+        resource: 'SALE',
+        resourceId: sale._id,
+        branchId,
+        after: sale,
+        session,
+      });
 
       createdSale = sale;
     });
