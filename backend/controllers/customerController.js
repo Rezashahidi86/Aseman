@@ -94,7 +94,7 @@ const createCustomer = async (req, res, next) => {
           });
           smsStatus = 'sent';
         } catch (error) {
-          console.error('Customer welcome SMS failed:', error.message);
+          console.error('Customer welcome SMS failed');
           smsStatus = 'failed';
         }
       }
