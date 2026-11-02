@@ -17,7 +17,7 @@ const startServer = async () => {
 
       server.close(async (error) => {
         if (error) {
-          console.error('Failed to close HTTP server:', error.message);
+          console.error('Failed to close HTTP server:', error.name);
           process.exitCode = 1;
         }
 
@@ -26,7 +26,7 @@ const startServer = async () => {
         } catch (disconnectError) {
           console.error(
             'Failed to disconnect from MongoDB:',
-            disconnectError.message,
+            disconnectError.name,
           );
           process.exitCode = 1;
         }
@@ -36,7 +36,7 @@ const startServer = async () => {
     process.once('SIGINT', () => shutdown('SIGINT'));
     process.once('SIGTERM', () => shutdown('SIGTERM'));
   } catch (error) {
-    console.error('Failed to start server:', error.message);
+    console.error('Failed to start server:', error.name);
     await mongoose.disconnect().catch(() => {});
     process.exitCode = 1;
   }
