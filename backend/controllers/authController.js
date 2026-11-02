@@ -45,7 +45,7 @@ export const login = async (req, res, next) => {
 
 export const getMe = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id).select('-passwordHash -__v');
+    const user = await User.findById(req.user.id).select('-passwordHash -tokenVersion -__v');
 
     if (!user || !user.isActive) {
       throw new AppError('User not found', 404);
