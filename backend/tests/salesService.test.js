@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   saleFindOne: vi.fn(),
   saleCreate: vi.fn(),
   statsUpdateOne: vi.fn(),
+  auditCreate: vi.fn(),
 }));
 
 vi.mock('mongoose', async (importOriginal) => {
@@ -44,6 +45,10 @@ vi.mock('../models/SalesStats.js', () => ({
   default: {
     updateOne: mocks.statsUpdateOne,
   },
+}));
+
+vi.mock('../services/auditLogService.js', () => ({
+  createAuditLog: mocks.auditCreate,
 }));
 
 import { registerSale } from '../services/salesService.js';
@@ -127,6 +132,7 @@ describe('Sales service', () => {
     ]);
 
     mocks.statsUpdateOne.mockResolvedValue({ acknowledged: true });
+    mocks.auditCreate.mockResolvedValue({});
   });
 
   it('SALE-017: registers a sale, calculates profit and decreases stock', async () => {
@@ -144,6 +150,13 @@ describe('Sales service', () => {
     expect(stock).toBe(8);
     expect(salesCount).toBe(2);
     expect(mocks.statsUpdateOne).toHaveBeenCalledTimes(2);
+    expect(mocks.auditCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'CREATE',
+        resource: 'SALE',
+        session: expect.anything(),
+      }),
+    );
     expect(transactionCommitted).toBe(true);
   });
 
@@ -209,5 +222,6 @@ describe('Sales service', () => {
     expect(mocks.startSession).not.toHaveBeenCalled();
     expect(mocks.productUpdateOne).not.toHaveBeenCalled();
     expect(mocks.statsUpdateOne).not.toHaveBeenCalled();
+    expect(mocks.auditCreate).not.toHaveBeenCalled();
   });
 });
