@@ -15,6 +15,7 @@ import {
 import {
   createCustomerSchema,
   updateCustomerSchema,
+  customerQuerySchema,
 } from '../validators/customerValidators.js';
 import { createAuditLog } from '../services/auditLogService.js';
 
@@ -226,7 +227,14 @@ const sendCustomerSms = async (req, res, next) => {
 
 const getCustomers = async (req, res, next) => {
   try {
-    const { search, name, phone, page, limit, sort, fields } = req.query;
+    const queryValidation = customerQuerySchema.safeParse(req.query);
+
+    if (!queryValidation.success) {
+      return next(queryValidation.error);
+    }
+
+    const { search, name, phone, page, limit, sort, fields } =
+      queryValidation.data;
 
     const {
       page: currentPage,
