@@ -1,34 +1,34 @@
-# راهنمای اجرای Aseman با Docker
+# Running Aseman with Docker
 
-این راهنما برای اجرای کامل Aseman روی یک سیستم دیگر، با استفاده از Docker Compose نوشته شده است. لازم نیست Node.js یا MongoDB را جداگانه روی سیستم میزبان نصب کنید؛ سرویس‌های برنامه و دیتابیس در کانتینرهای مستقل اجرا می‌شوند.
+This guide explains how to run the complete Aseman application on another computer using Docker Compose. You do not need to install Node.js or MongoDB separately on the host; the application services and database run in separate containers.
 
-> تمام دستورها را از پوشه اصلی مخزن، یعنی جایی که فایل `docker-compose.yml` قرار دارد، اجرا کنید. نمونه دستورهای این راهنما برای PowerShell ویندوز نوشته شده‌اند.
+> Run all commands from the repository root, where `docker-compose.yml` is located. The examples in this guide use Windows PowerShell.
 
-## ۱. فایل محیطی را آماده کنید
+## 1. Prepare the environment file
 
-اگر هنوز فایل `.env` ندارید، از فایل نمونه یک کپی بسازید:
+If you do not have a `.env` file yet, copy the example file:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-فایل `.env` را باز کنید و مقادیر زیر را تنظیم کنید. هیچ‌کدام از رمزها و کلیدهای واقعی خود را در GitHub، چت یا اختیار افراد دیگر قرار ندهید.
+Open `.env` and configure the values below. Never publish real passwords or secret keys on GitHub, in chats, or share them with other people.
 
-### متغیرهای ضروری
+### Required variables
 
-| متغیر | کاربرد |
+| Variable | Purpose |
 |---|---|
-| `JWT_SECRET` | کلید امضای توکن‌های ورود؛ حداقل ۳۲ کاراکتر تصادفی و غیرقابل حدس |
-| `MONGO_ROOT_USERNAME` | نام کاربر مدیریتی MongoDB |
-| `MONGO_ROOT_PASSWORD` | رمز کاربر مدیریتی MongoDB |
-| `MONGO_APP_USERNAME` | نام کاربر محدودشده‌ای که Backend با آن به دیتابیس وصل می‌شود |
-| `MONGO_APP_PASSWORD` | رمز کاربر برنامه |
-| `MONGO_REPLICA_SET_KEY` | کلید محرمانه احراز هویت اعضای Replica Set |
-| `ADMIN_NAME` | نام ادمین اولیه |
-| `ADMIN_EMAIL` | ایمیل ادمین اولیه |
-| `ADMIN_PASSWORD` | رمز عبور ادمین اولیه |
+| `JWT_SECRET` | Secret used to sign authentication tokens; use at least 32 random, unpredictable characters |
+| `MONGO_ROOT_USERNAME` | MongoDB administrative username |
+| `MONGO_ROOT_PASSWORD` | MongoDB administrative password |
+| `MONGO_APP_USERNAME` | Restricted MongoDB user used by the Backend to connect to the database |
+| `MONGO_APP_PASSWORD` | Application database user's password |
+| `MONGO_REPLICA_SET_KEY` | Secret key used for Replica Set member authentication |
+| `ADMIN_NAME` | Initial administrator's name |
+| `ADMIN_EMAIL` | Initial administrator's email address |
+| `ADMIN_PASSWORD` | Initial administrator's password |
 
-برای سه رمز MongoDB و کلید Replica Set، سه مقدار مستقل و تصادفی بسازید. در PowerShell می‌توانید برای هر مقدار این دستور را اجرا کنید:
+Generate independent random values for the MongoDB passwords and the Replica Set key. In PowerShell, run the following command separately for each value:
 
 ```powershell
 $bytes = New-Object byte[] 32
@@ -38,67 +38,67 @@ $rng.Dispose()
 ([BitConverter]::ToString($bytes)).Replace('-', '').ToLowerInvariant()
 ```
 
-این دستور را سه بار اجرا کنید و هر بار خروجی متفاوت را در یکی از این متغیرها قرار دهید: `MONGO_ROOT_PASSWORD`، `MONGO_APP_PASSWORD` و `MONGO_REPLICA_SET_KEY`.
+Run this command three times and use a different output for each of these variables: `MONGO_ROOT_PASSWORD`, `MONGO_APP_PASSWORD`, and `MONGO_REPLICA_SET_KEY`.
 
-برای `JWT_SECRET` نیز یک مقدار تصادفی مستقل و حداقل ۳۲ کاراکتری قرار دهید. رمز ادمین را قوی و منحصربه‌فرد انتخاب کنید.
+Set `JWT_SECRET` to a separate random value of at least 32 characters. Choose a strong, unique administrator password.
 
-### متغیرهای اختیاری و پورت‌ها
+### Optional variables and ports
 
-- `APP_HOST_PORT=8080`: پورت پنل روی سیستم میزبان.
-- `MONGO_HOST_PORT=27018`: پورت اتصال محلی به MongoDB.
-- `DOCKER_CORS_ORIGINS=http://localhost:8080,http://127.0.0.1:8080`: مبدأهای مجاز پنل.
-- `JWT_EXPIRES_IN=7d`: مدت اعتبار توکن.
-- `SMS_API_KEY` و `SMS_SENDER`: اطلاعات سرویس پیامک؛ در صورت استفاده از قابلیت پیامک باید مقادیر معتبر وارد شوند.
+- `APP_HOST_PORT=8080`: Port used to access the frontend on the host.
+- `MONGO_HOST_PORT=27018`: Host port for local MongoDB connections.
+- `DOCKER_CORS_ORIGINS=http://localhost:8080,http://127.0.0.1:8080`: Allowed frontend origins.
+- `JWT_EXPIRES_IN=7d`: Token expiration period.
+- `SMS_API_KEY` and `SMS_SENDER`: SMS provider credentials; configure valid values if you intend to use SMS functionality.
 
-مقادیر پورت پیش‌فرض را فقط در صورت تداخل با برنامه دیگری تغییر دهید. اگر پورت‌ها را تغییر دادید، برای ورود به پنل از پورت جدید استفاده کنید.
+Keep the default ports unless another application is already using them. If you change a port, use the new port when opening the frontend.
 
-در فایل نمونه ممکن است `NODE_ENV` و `DATABASE_URL` برای توسعه محلی تنظیم شده باشند. در سرویس Docker، Compose مقدار `NODE_ENV=production` و آدرس دیتابیس داخلی Docker را به Backend می‌دهد؛ بنابراین آدرس دیتابیس محلی ویندوز جایگزین اتصال Docker نمی‌شود.
+The example file may contain `NODE_ENV` and `DATABASE_URL` values intended for local development. In Docker, Compose supplies `NODE_ENV=production` and the internal Docker database URL to the Backend. The local Windows database URL is therefore not used by the Docker Backend.
 
-## ۲. اعتبارسنجی تنظیمات و اجرای پروژه
+## 2. Validate the configuration and start the application
 
-ابتدا مطمئن شوید فایل `.env` کامل است. سپس از پوشه اصلی پروژه اجرا کنید:
+Make sure your `.env` file is complete. From the repository root, run:
 
 ```powershell
 docker compose config --quiet
 ```
 
-اگر دستور بدون خطا تمام شد، Imageها را بسازید و سرویس‌ها را اجرا کنید:
+If the command completes without errors, build the images and start the services:
 
 ```powershell
 docker compose up -d --build
 ```
 
-وضعیت سرویس‌ها را بررسی کنید:
+Check the service status:
 
 ```powershell
 docker compose ps -a
 ```
 
-سرویس‌های اصلی باید در وضعیت `healthy` باشند:
+The main services should reach the `healthy` state:
 
-- `mongodb`: دیتابیس MongoDB.
-- `backend`: API پروژه.
-- `frontend`: پنل کاربری که توسط Nginx ارائه می‌شود.
+- `mongodb`: MongoDB database.
+- `backend`: Application API.
+- `frontend`: Web interface served by Nginx.
 
-سرویس `mongodb-init` یک سرویس یک‌باره است؛ پس از اجرای موفق، وضعیت `Exited (0)` برای آن طبیعی است. این سرویس Replica Set را مقداردهی اولیه می‌کند.
+The `mongodb-init` service runs only once. After successful execution, the `Exited (0)` status is expected. This service initializes the Replica Set.
 
-پس از سالم شدن سرویس‌ها، پنل را باز کنید:
+When the services are healthy, open the application:
 
 - http://localhost:8080
 
-## ۳. ساخت ادمین اولیه در دیتابیس Docker
+## 3. Create the initial administrator in the Docker database
 
-دیتابیس تازه خالی است و برای ورود به پنل باید ادمین اولیه ساخته شود. پروژه اسکریپت آماده زیر را دارد:
+The database starts empty, so you must create an initial administrator before signing in. The project already includes this script:
 
 `backend/scripts/seedAdmin.js`
 
-ابتدا مطمئن شوید MongoDB و Backend اجرا شده‌اند:
+First, make sure MongoDB and the Backend are running:
 
 ```powershell
 docker compose ps
 ```
 
-سپس دستور زیر را در PowerShell و از پوشه اصلی پروژه اجرا کنید. این دستور فقط سه متغیر ادمین را از فایل محلی `.env` می‌خواند و آن‌ها را فقط به کانتینر موقت اجرای Seed می‌دهد؛ این مقادیر به محیط دائمی سرویس Backend اضافه نمی‌شوند.
+Then run the following command in PowerShell from the repository root. It reads only the three administrator variables from your local `.env` file and passes them only to the temporary seed container. These values are not added to the permanent Backend service environment.
 
 ```powershell
 $adminKeys = @('ADMIN_NAME', 'ADMIN_EMAIL', 'ADMIN_PASSWORD')
@@ -123,61 +123,61 @@ Get-Content .env | ForEach-Object {
 
 foreach ($key in $adminKeys) {
     if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($key, 'Process'))) {
-        throw " مقدار $key در فایل .env تنظیم نشده است."
+        throw "The $key variable is not configured in .env."
     }
 }
 
 docker compose run --rm --no-deps -e ADMIN_NAME -e ADMIN_EMAIL -e ADMIN_PASSWORD backend node backend/scripts/seedAdmin.js
 ```
 
-در صورت موفقیت، پیام زیر نمایش داده می‌شود:
+On success, the following message is displayed:
 
 ```text
 Admin seed completed successfully
 ```
 
-اکنون با ایمیل و رمز عبوری که در `.env` تنظیم کرده‌اید، از صفحه ورود پنل وارد شوید.
+You can now sign in to the application using the email address and password configured in `.env`.
 
-**نکات مهم ساخت ادمین:**
+**Important notes about administrator creation:**
 
-- این کار را برای دیتابیس تازه و فقط یک‌بار انجام دهید.
-- از ایمیلی استفاده کنید که از قبل در دیتابیس به کاربر دیگری اختصاص داده نشده باشد.
-- اسکریپت در صورت وجود همان ایمیل، رکورد موجود را به نقش ADMIN تغییر می‌دهد؛ پس آن را برای ایمیل یک فروشنده یا کاربر موجود اجرا نکنید.
-- اجرای مجدد اسکریپت رمز عبور کاربر موجود را تغییر نمی‌دهد؛ رمز عبور فقط هنگام ایجاد رکورد جدید ذخیره می‌شود.
-- پس از ساخت ادمین، برای ورود از همان ایمیل و رمز تعریف‌شده در `.env` استفاده کنید. فایل `.env` را با دیگران به اشتراک نگذارید.
+- Run this for a fresh database, and normally only once.
+- Use an email address that is not already assigned to another user in the database.
+- If the email already exists, the script changes that existing user's role to ADMIN. Do not run it with the email address of an existing seller or other user.
+- Running the script again does not change the password of an existing user; the password is stored only when a new record is created.
+- After creating the administrator, sign in with the same email address and password configured in `.env`. Do not share your `.env` file.
 
-## ۴. دسترسی‌ها و ارتباط سرویس‌ها
+## 4. Service access and communication
 
-- آدرس پنل: `http://localhost:8080`
-- Backend از طریق شبکه داخلی Docker در دسترس Frontend قرار می‌گیرد و پورت ۳۰۰۰ به‌صورت عمومی روی میزبان منتشر نشده است.
-- MongoDB به‌طور پیش‌فرض فقط روی `127.0.0.1:27018` میزبان منتشر می‌شود؛ از اینترنت یا سایر دستگاه‌های شبکه قابل دسترسی نیست.
-- Backend با کاربر جداگانه MongoDB و دسترسی `readWrite` به دیتابیس `aseman` متصل می‌شود؛ از حساب root برای اتصال برنامه استفاده نمی‌کند.
+- Frontend URL: `http://localhost:8080`
+- The Backend is accessible to the Frontend through the internal Docker network. Port 3000 is not published directly on the host.
+- By default, MongoDB is published only on the host's `127.0.0.1:27018` interface. It is not accessible from the internet or other devices on the network.
+- The Backend connects to the `aseman` database using a separate MongoDB account with `readWrite` access; it does not use the root account.
 
-### اتصال اختیاری با MongoDB Compass
+### Optional: connect with MongoDB Compass
 
-برای مشاهده دیتابیس Docker از Compass، از اتصال محلی زیر استفاده کنید و نام کاربری و رمز واقعی root را از فایل `.env` خودتان وارد کنید:
+To inspect the Docker database using Compass, use the following local connection string and replace the username and password with your actual root credentials from your own `.env` file:
 
 ```text
 mongodb://MONGO_ROOT_USERNAME:MONGO_ROOT_PASSWORD@127.0.0.1:27018/?authSource=admin&directConnection=true
 ```
 
-گزینه `directConnection=true` لازم است، چون Replica Set نام داخلی `mongodb:27017` را به کانتینرها معرفی می‌کند و این نام از سیستم میزبان قابل resolve نیست.
+The `directConnection=true` option is required because the Replica Set advertises the internal hostname `mongodb:27017`, which cannot be resolved by applications running directly on the host.
 
-## ۵. دستورهای روزمره
+## 5. Everyday commands
 
-مشاهده وضعیت:
+Check service status:
 
 ```powershell
 docker compose ps
 ```
 
-مشاهده لاگ همه سرویس‌ها:
+View logs from all services:
 
 ```powershell
 docker compose logs --tail 100
 ```
 
-مشاهده لاگ یک سرویس:
+View logs for an individual service:
 
 ```powershell
 docker compose logs --tail 100 backend
@@ -186,67 +186,67 @@ docker compose logs --tail 100 mongodb
 docker compose logs mongodb-init
 ```
 
-دنبال کردن زنده لاگ Backend:
+Follow Backend logs in real time:
 
 ```powershell
 docker compose logs -f backend
 ```
 
-راه‌اندازی مجدد یک سرویس:
+Restart a service:
 
 ```powershell
 docker compose restart backend
 ```
 
-توقف سرویس‌ها بدون حذف کانتینرها و Volumeها:
+Stop services without deleting containers or volumes:
 
 ```powershell
 docker compose stop
 ```
 
-اجرای مجدد سرویس‌های متوقف‌شده:
+Start stopped services again:
 
 ```powershell
 docker compose start
 ```
 
-اعمال تغییرات کد و ساخت دوباره Imageها:
+Apply code changes and rebuild the images:
 
 ```powershell
 docker compose up -d --build
 ```
 
-برای اعمال تغییرات فایل `.env` روی سرویس‌ها، کانتینرهای مربوطه باید دوباره ساخته شوند:
+To apply changes to `.env`, recreate the relevant containers:
 
 ```powershell
 docker compose up -d --force-recreate backend frontend
 ```
 
-اگر متغیرهای MongoDB یا کلید Replica Set را تغییر می‌دهید، قبل از هر اقدامی درباره اثر آن بر دیتابیس موجود بررسی جداگانه انجام دهید؛ تغییر رمزها در فایل `.env` به‌تنهایی لزوماً اعتبارنامه ذخیره‌شده داخل دیتابیس را تغییر نمی‌دهد.
+If you change MongoDB credentials or the Replica Set key, first review the impact on the existing database. Changing values in `.env` alone does not necessarily update credentials already stored inside MongoDB.
 
-## ۶. اطلاعات دیتابیس و فایل‌های آپلودشده
+## 6. Database and uploaded files
 
-اطلاعات پایدار در Named Volumeهای Docker نگهداری می‌شوند:
+Persistent data is stored in Docker named volumes:
 
-- `mongodb_data`: اطلاعات اصلی دیتابیس.
-- `mongodb_config`: اطلاعات پیکربندی MongoDB.
-- `uploads_data`: فایل‌های آپلودشده برنامه.
+- `mongodb_data`: Main database files.
+- `mongodb_config`: MongoDB configuration database files.
+- `uploads_data`: Files uploaded by the application.
 
-ساخت مجدد Image یا کانتینر با دستورهای معمول بالا، این Volumeها را حذف نمی‌کند. دیتابیس Docker مستقل از MongoDB نصب‌شده روی ویندوز یا سیستم میزبان است؛ هیچ اطلاعاتی از دیتابیس محلی به‌صورت خودکار وارد دیتابیس Docker نمی‌شود.
+Rebuilding images or recreating containers with the normal commands above does not remove these volumes. The Docker database is independent of MongoDB installed on Windows or the host machine. No data is automatically copied from the host's local database into the Docker database.
 
-**هشدار مهم:** دستور زیر Volumeها، از جمله دیتابیس و فایل‌های آپلودشده را حذف می‌کند. آن را برای توقف، به‌روزرسانی یا پاک‌سازی معمول اجرا نکنید:
+**Important warning:** The following command removes the volumes, including the database and uploaded files. Do not use it for routine stopping, updating, or cleanup:
 
 ```powershell
 docker compose down -v
 ```
 
-اگر اطلاعات مهمی در برنامه ثبت شده است، پیش از هر عملیات نگهداری یا انتقال، از دیتابیس و Volume فایل‌های آپلودشده نسخه پشتیبان تهیه کنید. فایل پشتیبان را خارج از Volumeها و ترجیحاً در محل جداگانه نگهداری کنید.
+If the application contains important data, create backups of both the database and the uploaded-files volume before maintenance or migration. Store backups outside the Docker volumes, preferably in a separate location.
 
-## ۷. رفع خطاهای متداول
+## 7. Troubleshooting
 
-### سرویس‌ها به وضعیت healthy نمی‌رسند
+### Services do not become healthy
 
-لاگ سرویس مشکل‌دار را ببینید:
+Check the status and logs of the affected services:
 
 ```powershell
 docker compose ps -a
@@ -256,37 +256,37 @@ docker compose logs --tail 150 backend
 docker compose logs --tail 150 frontend
 ```
 
-### خطای متغیر محیطی یا Set variable
+### Missing environment variable or "Set variable" error
 
-فایل `.env` را بررسی کنید. مقادیر ضروری باید وجود داشته باشند و مقدارهای نمونه مثل `replace-this` یا رمزهای خالی نباید برای اجرا باقی مانده باشند.
+Check your `.env` file. Required values must be present. Do not leave example placeholders such as `replace-this` or empty passwords in place.
 
-### پورت قبلاً در حال استفاده است
+### A port is already in use
 
-اگر پورت 8080 یا 27018 اشغال است، مقدار `APP_HOST_PORT` یا `MONGO_HOST_PORT` را در `.env` تغییر دهید و سرویس‌های مربوط را مجدداً ایجاد کنید.
+If port 8080 or 27018 is occupied, change `APP_HOST_PORT` or `MONGO_HOST_PORT` in `.env`, then recreate the relevant services.
 
-### ورود ادمین انجام نمی‌شود
+### Administrator sign-in fails
 
-- مطمئن شوید اسکریپت Seed پیام موفقیت داده است.
-- از همان ایمیل و رمز عبوری استفاده کنید که هنگام Seed در `.env` قرار داده‌اید.
-- لاگ Backend را بررسی کنید:
+- Make sure the seed script displayed its success message.
+- Sign in using the same email address and password configured in `.env` when the seed script was run.
+- Check the Backend logs:
 
 ```powershell
 docker compose logs --tail 100 backend
 ```
 
-### تغییرات کد در سایت دیده نمی‌شوند
+### Code changes do not appear in the website
 
-فایل‌های روی میزبان لزوماً به‌صورت زنده داخل Imageهای Production جایگزین نمی‌شوند. پس از تغییر کد، Imageها را دوباره بسازید:
+Files on the host are not automatically updated inside the Production images. After changing code, rebuild the images:
 
 ```powershell
 docker compose up -d --build
 ```
 
-## ۸. نکات امنیتی برای بررسی پروژه روی سیستم دیگر
+## 8. Security notes when sharing the project for review
 
-- فایل `.env` واقعی را در GitHub قرار ندهید و برای بررسی‌کننده ارسال نکنید.
-- فقط فایل `.env.example` را در مخزن نگه دارید؛ این فایل باید فاقد رمزها و کلیدهای واقعی باشد.
-- هر شخص باید روی سیستم خودش یک `.env` مستقل با رمزها و کلیدهای خودش بسازد.
-- دیتابیس Docker هر سیستم مستقل است و ادمین اولیه باید در همان دیتابیس ساخته شود.
-- برای بررسی کد در GitHub، دسترسی Read کافی است؛ برای اجرای محلی پروژه نیازی به دسترسی به حساب GitHub شما یا فایل `.env` شما نیست.
-- این Compose برای اجرای محلی و تست با تنظیمات Production برنامه آماده شده است؛ انتشار عمومی روی VPS به تنظیم دامنه، HTTPS، فایروال و مدیریت امن Secretها نیاز دارد.
+- Never commit your real `.env` file to GitHub or send it to the reviewer.
+- Keep only `.env.example` in the repository. It must not contain real passwords or secret keys.
+- Each person should create their own `.env` file on their own computer, with independent passwords and secrets.
+- Each computer has its own independent Docker database, so the initial administrator must be created in that computer's database.
+- Read access to the GitHub repository is sufficient for code review. Running the application locally does not require access to your GitHub account or your `.env` file.
+- This Compose setup is prepared for local execution and testing with the application configured for Production mode. Public deployment on a VPS additionally requires a domain, HTTPS, firewall rules, and secure secret management.
