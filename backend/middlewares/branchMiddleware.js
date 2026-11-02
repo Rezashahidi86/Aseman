@@ -1,5 +1,8 @@
+import { z } from 'zod';
 import AppError from '../utils/AppError.js';
 import ROLES from '../constants/roles.js';
+
+const branchIdSchema = z.string().regex(/^[a-f\d]{24}$/i);
 
 const setBranchContext = (req, res, next) => {
   const requestedBranchIds = [
@@ -11,8 +14,16 @@ const setBranchContext = (req, res, next) => {
       branchId !== undefined && branchId !== null && branchId !== '',
   );
 
+  const invalidBranchId = requestedBranchIds.some(
+    (branchId) => !branchIdSchema.safeParse(branchId).success,
+  );
+
+  if (invalidBranchId) {
+    return next(new AppError('Invalid branch ID', 400));
+  }
+
   const normalizedBranchIds = requestedBranchIds.map((branchId) =>
-    String(branchId).toLowerCase(),
+    branchId.toLowerCase(),
   );
 
   if (new Set(normalizedBranchIds).size > 1) {
@@ -20,15 +31,6 @@ const setBranchContext = (req, res, next) => {
   }
 
   const requestedBranchId = requestedBranchIds[0] ?? null;
-
-  if (
-    requestedBranchIds.some(
-      (branchId) =>
-        typeof branchId !== 'string' || !/^[a-f\d]{24}$/i.test(branchId),
-    )
-  ) {
-    return next(new AppError('Invalid branch ID', 400));
-  }
 
   if (req.user.role === ROLES.ADMIN) {
     req.branchId = requestedBranchId;
