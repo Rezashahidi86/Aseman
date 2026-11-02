@@ -8,6 +8,7 @@ import {
 import { hashPassword } from '../services/passwordService.js';
 import ROLES from '../constants/roles.js';
 import { createAuditLog } from '../services/auditLogService.js';
+import validateMongoId from '../utils/validateMongoId.js';
 
 export const createSeller = async (req, res, next) => {
   try {
@@ -81,6 +82,7 @@ export const getAllUsers = async (req, res, next) => {
 
 export const updateUser = async (req, res, next) => {
   try {
+    validateMongoId(req.params.id);
     const data = updateUserSchema.parse(req.body);
 
     const user = await User.findById(req.params.id);
@@ -152,6 +154,7 @@ export const updateUser = async (req, res, next) => {
 
 export const deactivateUser = async (req, res, next) => {
   try {
+    validateMongoId(req.params.id);
     const user = await User.findById(req.params.id).select(
       'name email role branch isActive tokenVersion',
     );
@@ -178,7 +181,14 @@ export const deactivateUser = async (req, res, next) => {
     res.status(200).json({
       status: 'success',
       data: {
-        user,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          branch: user.branch,
+          isActive: user.isActive,
+        },
       },
     });
   } catch (error) {
