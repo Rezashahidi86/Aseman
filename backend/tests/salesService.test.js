@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { registerSale } from '../services/salesService.js';
+import { getTehranJalaliMonthKey } from '../utils/dateKeys.js';
 
 const mocks = vi.hoisted(() => ({
   startSession: vi.fn(),
@@ -146,9 +147,24 @@ describe('Sales service', () => {
     expect(result.sale.totalSales).toBe(240);
     expect(result.sale.totalProfit).toBe(120);
     expect(result.sale.totalItemsSold).toBe(2);
+    expect(result.sale.items[0]).toEqual(expect.objectContaining({
+      purchasePrice: 60,
+      finalSalePrice: 120,
+      lineTotal: 240,
+      lineProfit: 120,
+    }));
     expect(stock).toBe(8);
     expect(salesCount).toBe(2);
     expect(mocks.statsUpdateOne).toHaveBeenCalledTimes(2);
+    expect(mocks.statsUpdateOne).toHaveBeenCalledWith(
+      expect.objectContaining({
+        branch: branchId,
+        periodType: 'monthly',
+        periodKey: getTehranJalaliMonthKey(),
+      }),
+      expect.objectContaining({ $inc: expect.objectContaining({ totalSales: 240, totalProfit: 120 }) }),
+      expect.objectContaining({ upsert: true, session: expect.anything() }),
+    );
     expect(mocks.auditCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         action: 'CREATE',
