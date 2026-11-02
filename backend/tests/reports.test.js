@@ -1,4 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import SalesStats from '../models/SalesStats.js';
+import Sale from '../models/Sale.js';
+import {
+  getDailyBranchReport,
+  getWeeklyBranchReport,
+  getMonthlyBranchReport,
+} from '../services/reportsService.js';
+import setBranchContext from '../middlewares/branchMiddleware.js';
 
 vi.mock('../models/SalesStats.js', () => ({
   default: {
@@ -12,15 +20,6 @@ vi.mock('../models/Sale.js', () => ({
     aggregate: vi.fn(),
   },
 }));
-
-import SalesStats from '../models/SalesStats.js';
-import Sale from '../models/Sale.js';
-import {
-  getDailyBranchReport,
-  getWeeklyBranchReport,
-  getMonthlyBranchReport,
-} from '../services/reportsService.js';
-import setBranchContext from '../middlewares/branchMiddleware.js';
 
 describe('REP-009: Report date boundaries', () => {
   beforeEach(() => {
