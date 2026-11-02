@@ -80,7 +80,7 @@ The main services should reach the `healthy` state:
 - `backend`: Application API.
 - `frontend`: Web interface served by Nginx.
 
-The `mongodb-init` service runs only once. After successful execution, the `Exited (0)` status is expected. This service initializes the Replica Set.
+The `mongodb-backup` service should remain running. It creates its first backup shortly after MongoDB becomes healthy, then repeats every 24 hours by default.\n\nThe `mongodb-init` service runs only once. After successful execution, the `Exited (0)` status is expected. This service initializes the Replica Set.
 
 When the services are healthy, open the application:
 
