@@ -11,11 +11,9 @@ const sortAllowlist = (sortValue, allowedFields) => {
       ? trimmedField.slice(1)
       : trimmedField;
 
-    if (!allowedFields.includes(fieldName)) {
-      continue;
+    if (allowedFields.includes(fieldName)) {
+      sort[fieldName] = trimmedField.startsWith('-') ? -1 : 1;
     }
-
-    sort[fieldName] = trimmedField.startsWith('-') ? -1 : 1;
   }
 
   return sort;
