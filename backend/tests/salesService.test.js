@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { registerSale } from '../services/salesService.js';
 
 const mocks = vi.hoisted(() => ({
   startSession: vi.fn(),
@@ -50,8 +51,6 @@ vi.mock('../models/SalesStats.js', () => ({
 vi.mock('../services/auditLogService.js', () => ({
   createAuditLog: mocks.auditCreate,
 }));
-
-import { registerSale } from '../services/salesService.js';
 
 describe('Sales service', () => {
   const branchId = '507f1f77bcf86cd799439011';
