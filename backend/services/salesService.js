@@ -151,7 +151,10 @@ const registerSale = async ({
         );
       }
 
-      for (const [productId, quantity] of quantitiesByProduct) {
+      const stockUpdates = [...quantitiesByProduct];
+
+      /* eslint-disable no-await-in-loop */
+      for (const [productId, quantity] of stockUpdates) {
         const result = await Product.updateOne(
           {
             _id: productId,
@@ -180,6 +183,7 @@ const registerSale = async ({
           throw new AppError('Insufficient product stock', 409);
         }
       }
+      /* eslint-enable no-await-in-loop */
 
       const dailyKey = getTehranDateKey();
       const monthlyKey = getTehranMonthKey();
