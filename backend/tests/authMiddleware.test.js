@@ -4,9 +4,7 @@ import authMiddleware from '../middlewares/authMiddleware.js';
 import requireAdmin from '../middlewares/roleMiddleware.js';
 import AppError from '../utils/AppError.js';
 import ROLES from '../constants/roles.js';
-import dotenv from 'dotenv';
 import env from '../config/env.js';
-dotenv.config();
 
 vi.mock('../models/User.js', () => ({
   default: {
