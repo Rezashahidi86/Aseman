@@ -9,6 +9,7 @@ import reportsRouter from './reportsRoutes.js';
 import customersRouter from './customersRoutes.js';
 import needsRouter from './needsRoutes.js';
 import manualDocumentsRouter from './manualDocumentsRoutes.js';
+import auditLogRouter from './auditLogRoutes.js';
 
 const router = Router();
 
@@ -22,4 +23,5 @@ router.use('/reports', reportsRouter);
 router.use('/customers', customersRouter);
 router.use('/needs', needsRouter);
 router.use('/manual-documents', manualDocumentsRouter);
+router.use('/audit-logs', auditLogRouter);
 export default router;
