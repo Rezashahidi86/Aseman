@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { createAuditLog, pickSnapshot } from '../services/auditLogService.js';
 
 const mocks = vi.hoisted(() => ({
   create: vi.fn(),
@@ -9,8 +10,6 @@ vi.mock('../models/AuditLog.js', () => ({
     create: mocks.create,
   },
 }));
-
-import { createAuditLog, pickSnapshot } from '../services/auditLogService.js';
 
 describe('Audit log service', () => {
   beforeEach(() => {
