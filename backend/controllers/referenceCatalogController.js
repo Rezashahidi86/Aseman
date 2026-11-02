@@ -107,10 +107,6 @@ const updateReferenceCatalog = async (req, res, next) => {
     Object.assign(item, req.body);
     await item.save();
 
-    if (!item) {
-      return next(new AppError('Reference item not found', 404));
-    }
-
     await createAuditLog({
       req,
       action: 'UPDATE',
