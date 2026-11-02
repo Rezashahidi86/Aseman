@@ -55,20 +55,27 @@ const migrateProductNameIndex = async () => {
     );
 
     if (correctIndex) {
-      for (const index of nameIndexes) {
-        if (index.name !== correctIndex.name) {
+      const redundantIndexes = nameIndexes.filter(
+        (index) => index.name !== correctIndex.name,
+      );
+
+      await Promise.all(
+        redundantIndexes.map(async (index) => {
           await collection.dropIndex(index.name);
           console.log(`Dropped redundant product-name index: ${index.name}`);
-        }
-      }
+        }),
+      );
+
       console.log('Product name index is already correct.');
       return;
     }
 
-    for (const index of nameIndexes) {
-      await collection.dropIndex(index.name);
-      console.log(`Dropped outdated product-name index: ${index.name}`);
-    }
+    await Promise.all(
+      nameIndexes.map(async (index) => {
+        await collection.dropIndex(index.name);
+        console.log(`Dropped outdated product-name index: ${index.name}`);
+      }),
+    );
 
     await collection.createIndex(
       { branch: 1, name: 1 },
