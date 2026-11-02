@@ -6,7 +6,7 @@ import loginRateLimiter from '../middlewares/loginRateLimiter.js';
 const router = Router();
 
 router.post('/login', loginRateLimiter, login);
-router.post('/logout', logout);
+router.post('/logout', authMiddleware, logout);
 router.get('/me', authMiddleware, getMe);
 
 export default router;
