@@ -111,6 +111,13 @@ export const updateUser = async (req, res, next) => {
       delete data.password;
     }
 
+    if (
+      data.isActive !== undefined &&
+      data.isActive !== user.isActive
+    ) {
+      data.tokenVersion = (data.tokenVersion ?? user.tokenVersion ?? 0) + 1;
+    }
+
     const before = user.toObject();
     Object.assign(user, data);
     await user.save();
@@ -146,7 +153,7 @@ export const updateUser = async (req, res, next) => {
 export const deactivateUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id).select(
-      'name email role branch isActive',
+      'name email role branch isActive tokenVersion',
     );
 
     if (!user) {
@@ -155,6 +162,7 @@ export const deactivateUser = async (req, res, next) => {
 
     const before = user.toObject();
     user.isActive = false;
+    user.tokenVersion = (user.tokenVersion ?? 0) + 1;
     await user.save();
 
     await createAuditLog({
