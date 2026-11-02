@@ -9,6 +9,7 @@ import validateMongoId from '../utils/validateMongoId.js';
 import {
   createNeedSchema,
 } from '../validators/needValidators.js';
+import { createAuditLog } from '../services/auditLogService.js';
 
 const getBranchId = (req, next) => {
   if (req.user.role === ROLES.SELLER) {
@@ -70,6 +71,15 @@ const createNeed = async (req, res, next) => {
       requestedQuantity: validation.data.requestedQuantity,
       branch: branch._id,
       createdBy: req.user._id,
+    });
+
+    await createAuditLog({
+      req,
+      action: 'CREATE',
+      resource: 'NEED',
+      resourceId: need._id,
+      branchId: need.branch,
+      after: need,
     });
 
     return res.status(201).json({
@@ -143,7 +153,7 @@ const deleteNeed = async (req, res, next) => {
       return;
     }
 
-    const need = await Need.findOneAndDelete({
+    const need = await Need.findOne({
       _id: req.params.id,
       branch: branchId,
     });
@@ -151,6 +161,17 @@ const deleteNeed = async (req, res, next) => {
     if (!need) {
       return next(new AppError('Need not found in this branch', 404));
     }
+
+    await need.deleteOne();
+
+    await createAuditLog({
+      req,
+      action: 'DELETE',
+      resource: 'NEED',
+      resourceId: need._id,
+      branchId: need.branch,
+      before: need,
+    });
 
     return res.status(200).json({
       status: 'success',
