@@ -26,7 +26,7 @@ Open `.env` and configure the values below. Never publish real passwords or secr
 | `MONGO_REPLICA_SET_KEY` | Secret key used for Replica Set member authentication |
 | `ADMIN_NAME` | Initial administrator's name |
 | `ADMIN_EMAIL` | Initial administrator's email address |
-| `ADMIN_PASSWORD` | Initial administrator's password |
+| `ADMIN_PASSWORD` | Initial administrator's password |\n| `BACKUP_ENCRYPTION_KEY` | Separate secret used to encrypt database backup archives; keep it safe because backups cannot be restored without it |
 
 Generate independent random values for the MongoDB passwords and the Replica Set key. In PowerShell, run the following command separately for each value:
 
@@ -40,7 +40,7 @@ $rng.Dispose()
 
 Run this command three times and use a different output for each of these variables: `MONGO_ROOT_PASSWORD`, `MONGO_APP_PASSWORD`, and `MONGO_REPLICA_SET_KEY`.
 
-Set `JWT_SECRET` to a separate random value of at least 32 characters. Choose a strong, unique administrator password.
+Set `JWT_SECRET` to a separate random value of at least 32 characters. Choose a strong, unique administrator password. Generate a separate random 32-byte value for `BACKUP_ENCRYPTION_KEY` using the PowerShell command above, and keep it outside the repository. Do not reuse the MongoDB or JWT secrets.
 
 ### Optional variables and ports
 
@@ -246,7 +246,7 @@ If the application contains important data, create backups of both the database 
 
 The `mongodb-backup` service creates a compressed archive of the `aseman` database immediately after it starts, then repeats the backup every 24 hours by default.
 
-Backups are written to the host directory:
+Each backup is compressed and encrypted with AES-256-CBC using PBKDF2 before it is written to disk. The encryption key is supplied through `BACKUP_ENCRYPTION_KEY`. Keep a secure copy of this key separately; losing it makes the backup archives unrecoverable.\n\nBackups are written to the host directory:
 
 ```text
 backups/mongodb/
@@ -262,7 +262,7 @@ docker compose logs --tail 100 mongodb-backup
 Get-ChildItem .\\backups\\mongodb
 ```
 
-The backup directory is excluded from Git. Keep it private and do not upload backup archives to GitHub or share them in chats. These archives contain application data and are not encrypted by this local backup worker. Protect the host account and disk, and copy important backups to a separate, access-controlled storage location. A backup stored only on the same computer does not protect against loss of that computer.
+The backup directory is excluded from Git. Keep it private and do not upload backup archives to GitHub or share them in chats. These archives contain application data. Although they are encrypted, protect the host account and disk, and copy important backups to a separate, access-controlled storage location. A backup stored only on the same computer does not protect against loss of that computer.
 
 Do not consider the backup process production-ready until a restore test has been completed successfully. The restore verification procedure will be added alongside the restore-test task.
 
