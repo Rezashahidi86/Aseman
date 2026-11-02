@@ -5,6 +5,7 @@ import validateMongoId from '../utils/validateMongoId.js';
 import {
   createBranchSchema,
   updateBranchStatusSchema,
+  selectBranchSchema,
 } from '../validators/branchValidators.js';
 import { createAuditLog } from '../services/auditLogService.js';
 
@@ -46,11 +47,13 @@ export const selectBranch = async (req, res, next) => {
       throw new AppError('Only admins can select a branch', 403);
     }
 
-    const { branchId } = req.body;
+    const validation = selectBranchSchema.safeParse(req.body);
 
-    if (!branchId || !/^[a-f\d]{24}$/i.test(branchId)) {
-      throw new AppError('A valid branch ID is required', 400);
+    if (!validation.success) {
+      return next(validation.error);
     }
+
+    const { branchId } = validation.data;
 
     const branch = await Branch.findOne({
       _id: branchId,
