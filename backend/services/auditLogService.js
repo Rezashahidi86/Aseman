@@ -87,9 +87,9 @@ const pickSnapshot = (resource, snapshot) => {
       if (resource === 'SALE' && field === 'items') {
         result.items = (plainSnapshot.items || []).map((item) =>
           Object.fromEntries(
-            SALE_ITEM_FIELDS
-              .filter((itemField) => item[itemField] !== undefined)
-              .map((itemField) => [itemField, item[itemField]]),
+            SALE_ITEM_FIELDS.filter(
+              (itemField) => item[itemField] !== undefined,
+            ).map((itemField) => [itemField, item[itemField]]),
           ),
         );
       } else {
@@ -115,8 +115,7 @@ const createAuditLog = async ({
     throw new Error('Authenticated actor is required for audit logging');
   }
 
-  const resolvedBranchId =
-    branchId || req.branchId || req.user.branch || null;
+  const resolvedBranchId = branchId || req.branchId || req.user.branch || null;
 
   const auditData = {
     actor: req.user._id,
@@ -138,7 +137,10 @@ const createAuditLog = async ({
     },
   };
 
-  const [auditLog] = await AuditLog.create([auditData], session ? { session } : {});
+  const [auditLog] = await AuditLog.create(
+    [auditData],
+    session ? { session } : {},
+  );
 
   return auditLog;
 };

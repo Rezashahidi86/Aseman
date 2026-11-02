@@ -1,20 +1,17 @@
 import { z } from 'zod';
 
-export const createUserSchema = z
-  .object({
-    name: z.string().trim().min(1, 'Name is required'),
-    email: z
-      .string()
-      .trim()
-      .regex(
-        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-        'Invalid email address',
-      ),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-    branch: z
-      .string()
-      .regex(/^[a-f\d]{24}$/i, 'Invalid branch ID'),
-  });
+export const createUserSchema = z.object({
+  name: z.string().trim().min(1, 'Name is required'),
+  email: z
+    .string()
+    .trim()
+    .regex(
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      'Invalid email address',
+    ),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  branch: z.string().regex(/^[a-f\d]{24}$/i, 'Invalid branch ID'),
+});
 
 export const updateUserSchema = z
   .object({

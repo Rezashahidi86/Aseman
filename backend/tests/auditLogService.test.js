@@ -51,10 +51,11 @@ describe('Audit log service', () => {
       method: 'PATCH',
       path: '/api/v1/products/507f1f77bcf86cd799439013',
       ip: '127.0.0.1',
-      get: (header) => ({
-        'x-request-id': 'request-123',
-        'user-agent': 'Vitest',
-      })[header],
+      get: (header) =>
+        ({
+          'x-request-id': 'request-123',
+          'user-agent': 'Vitest',
+        })[header],
     };
 
     await createAuditLog({

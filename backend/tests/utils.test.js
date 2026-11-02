@@ -65,7 +65,6 @@ describe('MongoDB ID validator', () => {
   });
 });
 
-
 describe('Tehran date helpers', () => {
   it('should derive the business date using Tehran time near midnight', () => {
     const date = new Date('2026-10-29T21:00:00.000Z');

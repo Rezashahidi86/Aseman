@@ -146,10 +146,7 @@ const getMonthlyComparisonReport = async ({ branchId }) => {
   }
 
   const currentMonth = getTehranMonthKey();
-  const previousMonth = shiftDateKey(`${currentMonth}-01`, -1).slice(
-    0,
-    7,
-  );
+  const previousMonth = shiftDateKey(`${currentMonth}-01`, -1).slice(0, 7);
 
   const reports = await SalesStats.find({
     branch: branchId,
@@ -231,7 +228,9 @@ const getAllBranchesReport = async ({ branchId = null } = {}) => {
   const month = getTehranMonthKey();
 
   const branchFilter = branchId ? { _id: branchId } : {};
-  const branches = await Branch.find(branchFilter).select('_id name code isActive').lean();
+  const branches = await Branch.find(branchFilter)
+    .select('_id name code isActive')
+    .lean();
 
   const stats = await SalesStats.find({
     branch: { $in: branches.map((branch) => branch._id) },
@@ -283,7 +282,11 @@ const getAllBranchesReport = async ({ branchId = null } = {}) => {
   };
 };
 
-const getAllBranchesDailyReport = async ({ startDate, endDate, branchId = null }) => {
+const getAllBranchesDailyReport = async ({
+  startDate,
+  endDate,
+  branchId = null,
+}) => {
   const validation = reportRangeSchema.safeParse({ startDate, endDate });
 
   if (!validation.success) {
@@ -490,9 +493,10 @@ const getFilteredReport = async ({
       monthlyStats.set(period, current);
     }
 
-    reports = Array.from(monthlyStats, ([_id, data]) => ({ _id, ...data })).sort(
-      (a, b) => (a[sortField] - b[sortField]) * sortDirection,
-    );
+    reports = Array.from(monthlyStats, ([_id, data]) => ({
+      _id,
+      ...data,
+    })).sort((a, b) => (a[sortField] - b[sortField]) * sortDirection);
   } else {
     reports = await SalesStats.aggregate([
       {

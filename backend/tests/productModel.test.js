@@ -64,11 +64,14 @@ describe('Product model', () => {
   });
 
   it('should define a partial unique compound index for barcode within each branch', () => {
-    const index = Product.schema.indexes().find(([fields, options]) => (
-      fields.branch === 1 &&
-      fields.barcode === 1 &&
-      options.unique === true
-    ));
+    const index = Product.schema
+      .indexes()
+      .find(
+        ([fields, options]) =>
+          fields.branch === 1 &&
+          fields.barcode === 1 &&
+          options.unique === true,
+      );
 
     expect(index).toBeDefined();
     expect(index[1].partialFilterExpression).toEqual({
@@ -77,11 +80,12 @@ describe('Product model', () => {
   });
 
   it('should enforce case-insensitive unique product names within each branch', () => {
-    const index = Product.schema.indexes().find(([fields, options]) => (
-      fields.branch === 1 &&
-      fields.name === 1 &&
-      options.unique === true
-    ));
+    const index = Product.schema
+      .indexes()
+      .find(
+        ([fields, options]) =>
+          fields.branch === 1 && fields.name === 1 && options.unique === true,
+      );
 
     expect(index).toBeDefined();
     expect(index[1].name).toBe('unique_product_name_per_branch');

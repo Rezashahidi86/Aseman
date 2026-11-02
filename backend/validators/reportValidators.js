@@ -76,11 +76,10 @@ const reportFilterSchema = z
     path: ['endDate'],
   });
 
-
 export {
   reportRangeSchema,
   dailyReportSchema,
   weeklyReportSchema,
   monthlyReportSchema,
-  reportFilterSchema
+  reportFilterSchema,
 };

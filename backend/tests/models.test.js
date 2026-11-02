@@ -85,7 +85,6 @@ describe('ReferenceCatalog model', () => {
   });
 });
 
-
 describe('SalesStats model', () => {
   it('should allow negative profit when a sale is made at a loss', async () => {
     const stats = new SalesStats({

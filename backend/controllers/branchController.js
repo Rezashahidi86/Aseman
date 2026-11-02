@@ -2,7 +2,10 @@ import Branch from '../models/Branch.js';
 import ROLES from '../constants/roles.js';
 import AppError from '../utils/AppError.js';
 import validateMongoId from '../utils/validateMongoId.js';
-import { createBranchSchema, updateBranchStatusSchema } from '../validators/branchValidators.js';
+import {
+  createBranchSchema,
+  updateBranchStatusSchema,
+} from '../validators/branchValidators.js';
 import { createAuditLog } from '../services/auditLogService.js';
 
 export const getBranches = async (req, res, next) => {

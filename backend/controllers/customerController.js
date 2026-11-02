@@ -18,8 +18,7 @@ import {
 } from '../validators/customerValidators.js';
 import { createAuditLog } from '../services/auditLogService.js';
 
-const escapeRegex = (value) =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const getCustomerBranchFilter = (req, next) => {
   if (req.user.role === ROLES.SELLER) {
@@ -109,7 +108,10 @@ const createCustomer = async (req, res, next) => {
   } catch (error) {
     if (error.code === 11000) {
       return next(
-        new AppError('A customer with this phone already exists in this branch', 409),
+        new AppError(
+          'A customer with this phone already exists in this branch',
+          409,
+        ),
       );
     }
 
@@ -226,17 +228,14 @@ const getCustomers = async (req, res, next) => {
   try {
     const { search, name, phone, page, limit, sort, fields } = req.query;
 
-    const { page: currentPage, limit: currentLimit, skip } =
-      pagination(page, limit);
+    const {
+      page: currentPage,
+      limit: currentLimit,
+      skip,
+    } = pagination(page, limit);
 
     const allowedSortFields = ['name', 'phone', 'createdAt'];
-    const allowedFields = [
-      'name',
-      'phone',
-      'branch',
-      'createdAt',
-      'updatedAt',
-    ];
+    const allowedFields = ['name', 'phone', 'branch', 'createdAt', 'updatedAt'];
 
     const sortOption = sort
       ? sortAllowlist(sort, allowedSortFields)
@@ -362,7 +361,10 @@ const updateCustomer = async (req, res, next) => {
   } catch (error) {
     if (error.code === 11000) {
       return next(
-        new AppError('A customer with this phone already exists in this branch', 409),
+        new AppError(
+          'A customer with this phone already exists in this branch',
+          409,
+        ),
       );
     }
 

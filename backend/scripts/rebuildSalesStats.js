@@ -92,9 +92,7 @@ const rebuildSalesStats = async () => {
     const staleIds = existingStats
       .filter(
         ({ branch, periodType, periodKey }) =>
-          !expectedKeys.has(
-            `${branch.toString()}:${periodType}:${periodKey}`,
-          ),
+          !expectedKeys.has(`${branch.toString()}:${periodType}:${periodKey}`),
       )
       .map(({ _id }) => _id);
 

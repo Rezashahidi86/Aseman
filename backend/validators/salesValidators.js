@@ -3,11 +3,9 @@ import { z } from 'zod';
 
 const saleCartItemSchema = z
   .object({
-    productId: z
-      .string()
-      .refine((id) => mongoose.isValidObjectId(id), {
-        message: 'Invalid product ID',
-      }),
+    productId: z.string().refine((id) => mongoose.isValidObjectId(id), {
+      message: 'Invalid product ID',
+    }),
     quantity: z
       .number()
       .int('Quantity must be an integer')
@@ -40,8 +38,4 @@ const saleRegistrationSchema = z
   })
   .strict();
 
-export {
-  saleCartItemSchema,
-  saleCartSchema,
-  saleRegistrationSchema,
-};
+export { saleCartItemSchema, saleCartSchema, saleRegistrationSchema };

@@ -46,7 +46,6 @@ app.use(
 app.use(cookieParser());
 app.use(express.json({ limit: '10kb' }));
 
-
 app.use(API_PREFIX, router);
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);

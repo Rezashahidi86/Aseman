@@ -51,9 +51,10 @@ const getJalaliMonthDateRange = (monthKey) => {
   const year = Number(match[1]);
   const month = Number(match[2]);
   const start = findJalaliMonthStart(year, month);
-  const nextMonth = month === 12
-    ? findJalaliMonthStart(year + 1, 1)
-    : findJalaliMonthStart(year, month + 1);
+  const nextMonth =
+    month === 12
+      ? findJalaliMonthStart(year + 1, 1)
+      : findJalaliMonthStart(year, month + 1);
   const end = new Date(nextMonth.getTime() - 86400000);
 
   return {

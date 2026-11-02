@@ -8,11 +8,7 @@ const uploadDirectory = path.resolve('uploads/manual-documents');
 
 fs.mkdirSync(uploadDirectory, { recursive: true });
 
-const allowedMimeTypes = new Set([
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-]);
+const allowedMimeTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
 const allowedExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp']);
 

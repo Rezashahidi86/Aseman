@@ -6,9 +6,7 @@ import AppError from '../utils/AppError.js';
 import ROLES from '../constants/roles.js';
 import pagination from '../utils/pagination.js';
 import validateMongoId from '../utils/validateMongoId.js';
-import {
-  createNeedSchema,
-} from '../validators/needValidators.js';
+import { createNeedSchema } from '../validators/needValidators.js';
 import { createAuditLog } from '../services/auditLogService.js';
 
 const getBranchId = (req, next) => {
@@ -93,10 +91,7 @@ const createNeed = async (req, res, next) => {
 
 const getNeeds = async (req, res, next) => {
   try {
-    const { page, limit, skip } = pagination(
-      req.query.page,
-      req.query.limit,
-    );
+    const { page, limit, skip } = pagination(req.query.page, req.query.limit);
 
     const branchId = getBranchId(req, next);
 

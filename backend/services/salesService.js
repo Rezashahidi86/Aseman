@@ -8,10 +8,7 @@ import {
   saleCartSchema,
   saleRegistrationSchema,
 } from '../validators/salesValidators.js';
-import {
-  getTehranDateKey,
-  getTehranMonthKey,
-} from '../utils/dateKeys.js';
+import { getTehranDateKey, getTehranMonthKey } from '../utils/dateKeys.js';
 
 const prepareSaleItems = async (items, branchId, session = null) => {
   const validation = saleCartSchema.safeParse({ items });
@@ -88,7 +85,13 @@ const prepareSaleItems = async (items, branchId, session = null) => {
   };
 };
 
-const registerSale = async ({ items, branchId, sellerId, idempotencyKey, req }) => {
+const registerSale = async ({
+  items,
+  branchId,
+  sellerId,
+  idempotencyKey,
+  req,
+}) => {
   const validation = saleRegistrationSchema.safeParse({
     items,
     idempotencyKey,

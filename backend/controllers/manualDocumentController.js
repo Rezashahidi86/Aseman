@@ -111,7 +111,10 @@ const createManualDocument = async (req, res, next) => {
 
 const getManualDocuments = async (req, res, next) => {
   try {
-    const { page, limit, skip } = pagination(req.body?.page ?? req.query.page, req.body?.limit ?? req.query.limit);
+    const { page, limit, skip } = pagination(
+      req.body?.page ?? req.query.page,
+      req.body?.limit ?? req.query.limit,
+    );
 
     const branchFilter = getBranchFilter(req, next);
 

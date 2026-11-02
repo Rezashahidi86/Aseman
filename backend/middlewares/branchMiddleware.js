@@ -6,7 +6,10 @@ const setBranchContext = (req, res, next) => {
     req.params?.branchId,
     req.query?.branchId,
     req.body?.branchId,
-  ].filter((branchId) => branchId !== undefined && branchId !== null && branchId !== '');
+  ].filter(
+    (branchId) =>
+      branchId !== undefined && branchId !== null && branchId !== '',
+  );
 
   const normalizedBranchIds = requestedBranchIds.map((branchId) =>
     String(branchId).toLowerCase(),
@@ -39,9 +42,7 @@ const setBranchContext = (req, res, next) => {
 
     const ownBranchId = req.user.branch.toString().toLowerCase();
 
-    if (
-      normalizedBranchIds.some((branchId) => branchId !== ownBranchId)
-    ) {
+    if (normalizedBranchIds.some((branchId) => branchId !== ownBranchId)) {
       return next(new AppError('Access denied to this branch', 403));
     }
 

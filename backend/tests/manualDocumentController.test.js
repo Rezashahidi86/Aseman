@@ -85,12 +85,8 @@ describe('Manual document controller', () => {
     await createManualDocument(req, res, next);
 
     expect(fs.unlink).toHaveBeenCalledTimes(2);
-    expect(fs.unlink).toHaveBeenCalledWith(
-      'uploads/manual-documents/one.jpg',
-    );
-    expect(fs.unlink).toHaveBeenCalledWith(
-      'uploads/manual-documents/two.png',
-    );
+    expect(fs.unlink).toHaveBeenCalledWith('uploads/manual-documents/one.jpg');
+    expect(fs.unlink).toHaveBeenCalledWith('uploads/manual-documents/two.png');
     expect(next).toHaveBeenCalledWith(
       expect.objectContaining({ issues: expect.any(Array) }),
     );

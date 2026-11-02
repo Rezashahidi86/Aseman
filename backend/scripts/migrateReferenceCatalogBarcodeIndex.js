@@ -9,8 +9,7 @@ const migrateReferenceCatalogBarcodeIndex = async () => {
     const indexes = await collection.indexes();
 
     const barcodeIndex = indexes.find(
-      (index) =>
-        index.key.barcode === 1 && Object.keys(index.key).length === 1,
+      (index) => index.key.barcode === 1 && Object.keys(index.key).length === 1,
     );
 
     const hasCorrectIndex =
@@ -24,7 +23,9 @@ const migrateReferenceCatalogBarcodeIndex = async () => {
 
     if (barcodeIndex) {
       await collection.dropIndex(barcodeIndex.name);
-      console.log(`Dropped reference catalog barcode index: ${barcodeIndex.name}`);
+      console.log(
+        `Dropped reference catalog barcode index: ${barcodeIndex.name}`,
+      );
     }
 
     await collection.createIndex(

@@ -200,7 +200,9 @@ describe('Sales service', () => {
   });
 
   it('does not commit a sale when its audit record cannot be saved', async () => {
-    mocks.auditCreate.mockRejectedValueOnce(new Error('Audit storage unavailable'));
+    mocks.auditCreate.mockRejectedValueOnce(
+      new Error('Audit storage unavailable'),
+    );
 
     await expect(
       registerSale({

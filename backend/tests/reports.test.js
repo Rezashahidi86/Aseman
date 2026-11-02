@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../models/SalesStats.js', () => ({
-    default: {
-        aggregate: vi.fn(),
-        findOne: vi.fn(),
-    },
+  default: {
+    aggregate: vi.fn(),
+    findOne: vi.fn(),
+  },
 }));
 
 vi.mock('../models/Sale.js', () => ({

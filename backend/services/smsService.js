@@ -6,8 +6,7 @@ const api = env.SMS_API_KEY?.trim()
   ? Kavenegar.KavenegarApi({ apikey: env.SMS_API_KEY.trim() })
   : null;
 
-export const isSmsConfigured = () =>
-  Boolean(api && env.SMS_SENDER?.trim());
+export const isSmsConfigured = () => Boolean(api && env.SMS_SENDER?.trim());
 
 export const sendSms = async ({ phone, message }) => {
   if (!isSmsConfigured()) {
@@ -15,7 +14,10 @@ export const sendSms = async ({ phone, message }) => {
   }
 
   if (!phone?.trim() || !message?.trim()) {
-    throw new AppError('Phone number and message are required to send SMS', 400);
+    throw new AppError(
+      'Phone number and message are required to send SMS',
+      400,
+    );
   }
 
   return new Promise((resolve, reject) => {

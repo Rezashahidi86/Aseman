@@ -32,10 +32,7 @@ const decreaseProductStock = async ({ productId, branchId, quantity }) => {
     });
 
     if (!productExists) {
-      throw new AppError(
-        'Product not found in the current branch',
-        404,
-      );
+      throw new AppError('Product not found in the current branch', 404);
     }
 
     throw new AppError('Insufficient product stock', 409);

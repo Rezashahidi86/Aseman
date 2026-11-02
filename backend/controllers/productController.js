@@ -23,11 +23,16 @@ const handleProductDuplicateKey = (error, next) => {
   }
 
   if (error.keyPattern?.name) {
-    return next(new AppError('Product name already exists in this branch', 409));
+    return next(
+      new AppError('Product name already exists in this branch', 409),
+    );
   }
 
   return next(
-    new AppError('Product conflicts with an existing record in this branch', 409),
+    new AppError(
+      'Product conflicts with an existing record in this branch',
+      409,
+    ),
   );
 };
 
@@ -64,7 +69,9 @@ const createProduct = async (req, res, next) => {
       .lean();
 
     if (duplicateName) {
-      return next(new AppError('Product name already exists in this branch', 409));
+      return next(
+        new AppError('Product name already exists in this branch', 409),
+      );
     }
 
     const product = await Product.create({
@@ -135,18 +142,13 @@ const getProducts = async (req, res, next) => {
 
     if (req.user.role === ROLES.SELLER) {
       if (!req.user.branch) {
-        return next(
-          new AppError('Seller is not assigned to a branch', 403),
-        );
+        return next(new AppError('Seller is not assigned to a branch', 403));
       }
 
       filter.branch = req.user.branch;
     } else if (req.user.role === ROLES.ADMIN) {
       if (branchId !== undefined) {
-        if (
-          typeof branchId !== 'string' ||
-          !/^[a-f\d]{24}$/i.test(branchId)
-        ) {
+        if (typeof branchId !== 'string' || !/^[a-f\d]{24}$/i.test(branchId)) {
           return next(new AppError('Invalid branchId', 400));
         }
 
@@ -163,9 +165,7 @@ const getProducts = async (req, res, next) => {
         return next(new AppError('Invalid product name filter', 400));
       }
 
-      const escapedName = name
-        .trim()
-        .replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&');
+      const escapedName = name.trim().replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&');
 
       filter.name = {
         $regex: escapedName,
@@ -194,9 +194,10 @@ const getProducts = async (req, res, next) => {
         return next(new AppError('Invalid stock filter', 400));
       }
 
-      filter.$expr = stock === 'low'
-        ? { $lte: ['$quantity', '$minimumStock'] }
-        : { $gt: ['$quantity', '$minimumStock'] };
+      filter.$expr =
+        stock === 'low'
+          ? { $lte: ['$quantity', '$minimumStock'] }
+          : { $gt: ['$quantity', '$minimumStock'] };
     }
 
     const [products, total] = await Promise.all([
@@ -306,7 +307,9 @@ const updateProduct = async (req, res, next) => {
         .lean();
 
       if (duplicateName) {
-        return next(new AppError('Product name already exists in this branch', 409));
+        return next(
+          new AppError('Product name already exists in this branch', 409),
+        );
       }
     }
 

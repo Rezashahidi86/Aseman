@@ -23,7 +23,11 @@ router.get('/all-branches', setBranchContext, getAllBranches);
 router.get('/:branchId/daily', setBranchContext, getDailyReport);
 router.get('/:branchId/weekly', setBranchContext, getWeeklyReport);
 router.get('/:branchId/monthly', setBranchContext, getMonthlyReport);
-router.get('/:branchId/monthly-comparison', setBranchContext, getMonthlyComparison);
+router.get(
+  '/:branchId/monthly-comparison',
+  setBranchContext,
+  getMonthlyComparison,
+);
 
 router.get(
   '/:branchId/sellers/:sellerId',

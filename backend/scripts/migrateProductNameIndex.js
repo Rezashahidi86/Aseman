@@ -6,8 +6,8 @@ const migrateProductNameIndex = async () => {
     await mongoose.connect(env.DATABASE_URL);
 
     const collection = mongoose.connection.collection('products');
-    const duplicates = await collection.aggregate(
-      [
+    const duplicates = await collection
+      .aggregate([
         {
           $group: {
             _id: {
@@ -20,8 +20,8 @@ const migrateProductNameIndex = async () => {
           },
         },
         { $match: { count: { $gt: 1 } } },
-      ],
-    ).toArray();
+      ])
+      .toArray();
 
     if (duplicates.length > 0) {
       console.error(
@@ -34,7 +34,9 @@ const migrateProductNameIndex = async () => {
           productIds: duplicate.productIds,
         });
       }
-      throw new Error('Duplicate product names exist within one or more branches');
+      throw new Error(
+        'Duplicate product names exist within one or more branches',
+      );
     }
 
     const indexes = await collection.indexes();

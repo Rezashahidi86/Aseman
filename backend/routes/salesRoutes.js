@@ -8,4 +8,4 @@ const router = Router();
 router.use(authMiddleware);
 router.post('/', setBranchContext, createSale);
 
-export default router;  
+export default router;

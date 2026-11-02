@@ -7,11 +7,12 @@ const migrateProductNameIndex = async () => {
 
     const collection = mongoose.connection.collection('products');
     const indexes = await collection.indexes();
-    const uniqueNameIndex = indexes.find((index) =>
-      index.unique === true &&
-      index.key.branch === 1 &&
-      index.key.name === 1 &&
-      Object.keys(index.key).length === 2,
+    const uniqueNameIndex = indexes.find(
+      (index) =>
+        index.unique === true &&
+        index.key.branch === 1 &&
+        index.key.name === 1 &&
+        Object.keys(index.key).length === 2,
     );
 
     if (uniqueNameIndex) {
@@ -19,11 +20,12 @@ const migrateProductNameIndex = async () => {
       console.log(`Dropped unique product-name index: ${uniqueNameIndex.name}`);
     }
 
-    const hasNameIndex = indexes.some((index) =>
-      index.key.branch === 1 &&
-      index.key.name === 1 &&
-      Object.keys(index.key).length === 2 &&
-      index.name !== uniqueNameIndex?.name,
+    const hasNameIndex = indexes.some(
+      (index) =>
+        index.key.branch === 1 &&
+        index.key.name === 1 &&
+        Object.keys(index.key).length === 2 &&
+        index.name !== uniqueNameIndex?.name,
     );
 
     if (!hasNameIndex) {

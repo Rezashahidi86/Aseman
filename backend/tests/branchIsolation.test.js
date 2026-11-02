@@ -1,14 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import setBranchContext from "../middlewares/branchMiddleware.js";
-import ROLES from "../constants/roles.js";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import setBranchContext from '../middlewares/branchMiddleware.js';
+import ROLES from '../constants/roles.js';
 
-describe("Branch isolation", () => {
+describe('Branch isolation', () => {
   let req;
   let res;
   let next;
 
-  const ownBranchId = "507f1f77bcf86cd799439011";
-  const anotherBranchId = "507f191e810c19729de860ea";
+  const ownBranchId = '507f1f77bcf86cd799439011';
+  const anotherBranchId = '507f191e810c19729de860ea';
 
   beforeEach(() => {
     req = {
@@ -25,7 +25,7 @@ describe("Branch isolation", () => {
     next = vi.fn();
   });
 
-  it("should reject access to another branch through body", () => {
+  it('should reject access to another branch through body', () => {
     req.body.branchId = anotherBranchId;
 
     setBranchContext(req, res, next);
@@ -36,7 +36,7 @@ describe("Branch isolation", () => {
     expect(req.branchId).toBeUndefined();
   });
 
-  it("should reject access to another branch through params", () => {
+  it('should reject access to another branch through params', () => {
     req.params.branchId = anotherBranchId;
 
     setBranchContext(req, res, next);
@@ -47,7 +47,7 @@ describe("Branch isolation", () => {
     expect(req.branchId).toBeUndefined();
   });
 
-  it("should not treat a resource id as a branch id", () => {
+  it('should not treat a resource id as a branch id', () => {
     req.params.id = anotherBranchId;
 
     setBranchContext(req, res, next);
@@ -56,7 +56,7 @@ describe("Branch isolation", () => {
     expect(next).toHaveBeenCalledWith();
   });
 
-  it("should reject conflicting branch IDs", () => {
+  it('should reject conflicting branch IDs', () => {
     req.params.branchId = ownBranchId;
     req.query.branchId = anotherBranchId;
 

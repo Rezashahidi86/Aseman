@@ -16,17 +16,17 @@ The endpoint is read-only. There are no application routes for updating or delet
 
 ## Filters
 
-| Query parameter | Description |
-|---|---|
-| `page` | Page number; defaults to 1 |
-| `limit` | Records per page; defaults to 25, maximum 100 |
-| `action` | `CREATE`, `UPDATE`, or `DELETE` |
-| `resource` | `PRODUCT`, `SALE`, `CUSTOMER`, `USER`, `BRANCH`, `REFERENCE_CATALOG`, `MANUAL_DOCUMENT`, or `NEED` |
-| `actor` | User ObjectId |
-| `branch` | Branch ObjectId |
-| `resourceId` | Affected document ObjectId |
-| `from` | Inclusive start date in an ISO-compatible format |
-| `to` | Inclusive end date in an ISO-compatible format |
+| Query parameter | Description                                                                                        |
+| --------------- | -------------------------------------------------------------------------------------------------- |
+| `page`          | Page number; defaults to 1                                                                         |
+| `limit`         | Records per page; defaults to 25, maximum 100                                                      |
+| `action`        | `CREATE`, `UPDATE`, or `DELETE`                                                                    |
+| `resource`      | `PRODUCT`, `SALE`, `CUSTOMER`, `USER`, `BRANCH`, `REFERENCE_CATALOG`, `MANUAL_DOCUMENT`, or `NEED` |
+| `actor`         | User ObjectId                                                                                      |
+| `branch`        | Branch ObjectId                                                                                    |
+| `resourceId`    | Affected document ObjectId                                                                         |
+| `from`          | Inclusive start date in an ISO-compatible format                                                   |
+| `to`            | Inclusive end date in an ISO-compatible format                                                     |
 
 Example:
 
