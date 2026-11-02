@@ -7,7 +7,14 @@ vi.mock('../models/SalesStats.js', () => ({
     },
 }));
 
+vi.mock('../models/Sale.js', () => ({
+  default: {
+    aggregate: vi.fn(),
+  },
+}));
+
 import SalesStats from '../models/SalesStats.js';
+import Sale from '../models/Sale.js';
 import {
   getDailyBranchReport,
   getWeeklyBranchReport,
@@ -18,6 +25,7 @@ import setBranchContext from '../middlewares/branchMiddleware.js';
 describe('REP-009: Report date boundaries', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    Sale.aggregate.mockResolvedValue([]);
   });
 
   it('should include the start and end dates in a weekly report', async () => {
@@ -64,20 +72,25 @@ describe('REP-009: Report date boundaries', () => {
   });
 
   it('should query the correct month when the year changes', async () => {
-    SalesStats.findOne.mockReturnValue({
-      lean: vi.fn().mockResolvedValue(null),
-    });
+    Sale.aggregate.mockResolvedValue([]);
 
     const report = await getMonthlyBranchReport({
       branchId: '507f1f77bcf86cd799439011',
       month: '2027-01',
     });
 
-    expect(SalesStats.findOne).toHaveBeenCalledWith({
-      branch: '507f1f77bcf86cd799439011',
-      periodType: 'monthly',
-      periodKey: '2027-01',
-    });
+    const pipeline = Sale.aggregate.mock.calls[0][0];
+    const matchStage = pipeline.find((stage) => stage.$match);
+
+    expect(matchStage.$match).toEqual(
+      expect.objectContaining({
+        branch: expect.anything(),
+        createdAt: expect.objectContaining({
+          $gte: expect.any(Date),
+          $lte: expect.any(Date),
+        }),
+      }),
+    );
 
     expect(report.totalSales).toBe(0);
   });
