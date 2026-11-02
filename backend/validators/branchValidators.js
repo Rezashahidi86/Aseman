@@ -18,4 +18,10 @@ const updateBranchStatusSchema = z
   })
   .strict();
 
-export { createBranchSchema, updateBranchStatusSchema };
+const selectBranchSchema = z
+  .object({
+    branchId: z.string().regex(/^[a-f\d]{24}$/i, 'Invalid branch ID'),
+  })
+  .strict();
+
+export { createBranchSchema, updateBranchStatusSchema, selectBranchSchema };
