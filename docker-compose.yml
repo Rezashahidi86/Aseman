@@ -50,7 +50,10 @@ services:
       - aseman_network
 
   mongodb-backup:
-    image: mongodb/mongodb-database-tools:100.20.0-ubuntu2204
+    build:
+      context: .
+      dockerfile: docker/mongodb-backup/Dockerfile
+    image: aseman-mongodb-backup:100.20.0
     restart: unless-stopped
     depends_on:
       mongodb:
