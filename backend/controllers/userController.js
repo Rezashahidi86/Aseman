@@ -7,6 +7,7 @@ import {
 } from '../validators/userValidators.js';
 import { hashPassword } from '../services/passwordService.js';
 import ROLES from '../constants/roles.js';
+import { createAuditLog } from '../services/auditLogService.js';
 
 export const createSeller = async (req, res, next) => {
   try {
@@ -31,6 +32,15 @@ export const createSeller = async (req, res, next) => {
       passwordHash,
       role: ROLES.SELLER,
       branch: branch._id,
+    });
+
+    await createAuditLog({
+      req,
+      action: 'CREATE',
+      resource: 'USER',
+      resourceId: user._id,
+      branchId: user.branch,
+      after: user,
     });
 
     res.status(201).json({
@@ -100,8 +110,19 @@ export const updateUser = async (req, res, next) => {
       delete data.password;
     }
 
+    const before = user.toObject();
     Object.assign(user, data);
     await user.save();
+
+    await createAuditLog({
+      req,
+      action: 'UPDATE',
+      resource: 'USER',
+      resourceId: user._id,
+      branchId: user.branch,
+      before,
+      after: user,
+    });
 
     res.status(200).json({
       status: 'success',
@@ -132,6 +153,15 @@ export const deactivateUser = async (req, res, next) => {
     if (!user) {
       throw new AppError('User not found', 404);
     }
+
+    await createAuditLog({
+      req,
+      action: 'UPDATE',
+      resource: 'USER',
+      resourceId: user._id,
+      branchId: user.branch,
+      after: user,
+    });
 
     res.status(200).json({
       status: 'success',
