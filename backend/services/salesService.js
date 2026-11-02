@@ -116,7 +116,7 @@ const registerSale = async ({
 
   const existingSale = await Sale.findOne({
     idempotencyKey: normalizedKey,
-  });
+  }).select('+requestHash');
 
   if (existingSale) {
     if (
@@ -267,7 +267,7 @@ const registerSale = async ({
     if (error?.code === 11000) {
       const duplicateSale = await Sale.findOne({
         idempotencyKey: normalizedKey,
-      });
+      }).select('+requestHash');
 
       if (duplicateSale) {
         if (
