@@ -53,6 +53,12 @@ const saleItemSchema = new mongoose.Schema(
 
 const saleSchema = new mongoose.Schema(
   {
+    requestHash: {
+      type: String,
+      required: true,
+      immutable: true,
+      select: false,
+    },
     idempotencyKey: {
       type: String,
       required: true,
