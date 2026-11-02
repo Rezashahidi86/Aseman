@@ -48,7 +48,7 @@ Set `JWT_SECRET` to a separate random value of at least 32 characters. Choose a 
 - `MONGO_HOST_PORT=27018`: Host port for local MongoDB connections.
 - `DOCKER_CORS_ORIGINS=http://localhost:8080,http://127.0.0.1:8080`: Allowed frontend origins.
 - `JWT_EXPIRES_IN=7d`: Token expiration period.
-- `SMS_API_KEY` and `SMS_SENDER`: SMS provider credentials; configure valid values if you intend to use SMS functionality.
+- `SMS_API_KEY` and `SMS_SENDER`: SMS provider credentials; configure valid values if you intend to use SMS functionality.\n- `BACKUP_INTERVAL_SECONDS=86400`: Time between automatic database backups (24 hours).\n- `BACKUP_RETENTION_DAYS=14`: Backup retention period.
 
 Keep the default ports unless another application is already using them. If you change a port, use the new port when opening the frontend.
 
@@ -242,7 +242,31 @@ docker compose down -v
 
 If the application contains important data, create backups of both the database and the uploaded-files volume before maintenance or migration. Store backups outside the Docker volumes, preferably in a separate location.
 
-## 7. Troubleshooting
+## 7. Automatic MongoDB backups
+
+The `mongodb-backup` service creates a compressed archive of the `aseman` database immediately after it starts, then repeats the backup every 24 hours by default.
+
+Backups are written to the host directory:
+
+```text
+backups/mongodb/
+```
+
+The default retention period is 14 days. Older backup archives are removed after a successful backup. The backup worker uses the MongoDB root credentials only inside its own container; these credentials are not passed to the permanent Backend container.
+
+Check the backup worker:
+
+```powershell
+docker compose ps mongodb-backup
+docker compose logs --tail 100 mongodb-backup
+Get-ChildItem .\\backups\\mongodb
+```
+
+The backup directory is excluded from Git. Keep it private and do not upload backup archives to GitHub or share them in chats. These archives contain application data and are not encrypted by this local backup worker. Protect the host account and disk, and copy important backups to a separate, access-controlled storage location. A backup stored only on the same computer does not protect against loss of that computer.
+
+Do not consider the backup process production-ready until a restore test has been completed successfully. See the next section for the restore verification procedure.
+
+## 8. Troubleshooting
 
 ### Services do not become healthy
 
@@ -282,7 +306,7 @@ Files on the host are not automatically updated inside the Production images. Af
 docker compose up -d --build
 ```
 
-## 8. Security notes when sharing the project for review
+## 9. Security notes when sharing the project for review
 
 - Never commit your real `.env` file to GitHub or send it to the reviewer.
 - Keep only `.env.example` in the repository. It must not contain real passwords or secret keys.
