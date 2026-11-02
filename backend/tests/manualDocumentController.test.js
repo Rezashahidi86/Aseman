@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import ManualDocument from '../models/ManualDocument.js';
 import Branch from '../models/Branch.js';
 import ROLES from '../constants/roles.js';
+import { createAuditLog } from '../services/auditLogService.js';
 import {
   createManualDocument,
   getManualDocumentImage,
@@ -27,6 +28,10 @@ vi.mock('../models/Branch.js', () => ({
   default: {
     findOne: vi.fn(),
   },
+}));
+
+vi.mock('../services/auditLogService.js', () => ({
+  createAuditLog: vi.fn().mockResolvedValue({}),
 }));
 
 describe('Manual document controller', () => {
@@ -117,6 +122,13 @@ describe('Manual document controller', () => {
 
     await createManualDocument(req, res, next);
 
+    expect(createAuditLog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'CREATE',
+        resource: 'MANUAL_DOCUMENT',
+        resourceId: documentId,
+      }),
+    );
     expect(ManualDocument.create).toHaveBeenCalledWith(
       expect.objectContaining({
         images: [
@@ -160,11 +172,11 @@ describe('Manual document controller', () => {
   });
 
   it('does not delete a document belonging to another branch', async () => {
-    ManualDocument.findOneAndDelete.mockResolvedValue(null);
+    ManualDocument.findOne.mockResolvedValue(null);
 
     await deleteManualDocument(req, res, next);
 
-    expect(ManualDocument.findOneAndDelete).toHaveBeenCalledWith({
+    expect(ManualDocument.findOne).toHaveBeenCalledWith({
       _id: documentId,
       branch: ownBranchId,
     });
