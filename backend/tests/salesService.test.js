@@ -199,6 +199,22 @@ describe('Sales service', () => {
     expect(mocks.saleCreate).not.toHaveBeenCalled();
   });
 
+  it('does not commit a sale when its audit record cannot be saved', async () => {
+    mocks.auditCreate.mockRejectedValueOnce(new Error('Audit storage unavailable'));
+
+    await expect(
+      registerSale({
+        items,
+        branchId,
+        sellerId,
+        idempotencyKey,
+      }),
+    ).rejects.toThrow('Audit storage unavailable');
+
+    expect(mocks.saleCreate).toHaveBeenCalledTimes(1);
+    expect(transactionCommitted).toBe(false);
+  });
+
   it('SALE-020: returns an existing sale for a repeated request', async () => {
     const existingSale = {
       _id: '507f1f77bcf86cd799439014',
