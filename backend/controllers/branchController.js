@@ -169,7 +169,15 @@ export const updateBranchStatus = async (req, res, next) => {
 
     return res.status(200).json({
       status: 'success',
-      data: { branch },
+      data: {
+        branch: {
+          _id: branch._id,
+          name: branch.name,
+          code: branch.code,
+          isActive: branch.isActive,
+          createdAt: branch.createdAt,
+        },
+      },
     });
   } catch (error) {
     return next(error);
