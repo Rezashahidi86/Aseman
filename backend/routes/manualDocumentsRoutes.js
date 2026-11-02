@@ -25,7 +25,7 @@ router
 
 router.post('/list', setBranchContext, getManualDocuments);
 
-router.get('/:id/images/:index', getManualDocumentImage);
+router.get('/:id/images/:index', setBranchContext, getManualDocumentImage);
 router.delete('/:id', requireAdmin, setBranchContext, deleteManualDocument);
 
 export default router;
