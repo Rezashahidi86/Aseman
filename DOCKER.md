@@ -26,7 +26,8 @@ Open `.env` and configure the values below. Never publish real passwords or secr
 | `MONGO_REPLICA_SET_KEY` | Secret key used for Replica Set member authentication |
 | `ADMIN_NAME` | Initial administrator's name |
 | `ADMIN_EMAIL` | Initial administrator's email address |
-| `ADMIN_PASSWORD` | Initial administrator's password |\n| `BACKUP_ENCRYPTION_KEY` | Separate secret used to encrypt database backup archives; keep it safe because backups cannot be restored without it |
+| `ADMIN_PASSWORD` | Initial administrator's password |
+| `BACKUP_ENCRYPTION_KEY` | Separate secret used to encrypt database backup archives; keep it safe because backups cannot be restored without it |
 
 Generate independent random values for the MongoDB passwords and the Replica Set key. In PowerShell, run the following command separately for each value:
 
@@ -48,7 +49,9 @@ Set `JWT_SECRET` to a separate random value of at least 32 characters. Choose a 
 - `MONGO_HOST_PORT=27018`: Host port for local MongoDB connections.
 - `DOCKER_CORS_ORIGINS=http://localhost:8080,http://127.0.0.1:8080`: Allowed frontend origins.
 - `JWT_EXPIRES_IN=7d`: Token expiration period.
-- `SMS_API_KEY` and `SMS_SENDER`: SMS provider credentials; configure valid values if you intend to use SMS functionality.\n- `BACKUP_INTERVAL_SECONDS=86400`: Time between automatic database backups (24 hours).\n- `BACKUP_RETENTION_DAYS=14`: Backup retention period.
+- `SMS_API_KEY` and `SMS_SENDER`: SMS provider credentials; configure valid values if you intend to use SMS functionality.
+- `BACKUP_INTERVAL_SECONDS=86400`: Time between automatic database backups (24 hours).
+- `BACKUP_RETENTION_DAYS=14`: Backup retention period.
 
 Keep the default ports unless another application is already using them. If you change a port, use the new port when opening the frontend.
 
@@ -80,7 +83,9 @@ The main services should reach the `healthy` state:
 - `backend`: Application API.
 - `frontend`: Web interface served by Nginx.
 
-The `mongodb-backup` service should remain running. It creates its first backup shortly after MongoDB becomes healthy, then repeats every 24 hours by default.\n\nThe `mongodb-init` service runs only once. After successful execution, the `Exited (0)` status is expected. This service initializes the Replica Set.
+The `mongodb-backup` service should remain running. It creates its first backup shortly after MongoDB becomes healthy, then repeats every 24 hours by default.
+
+The `mongodb-init` service runs only once. After successful execution, the `Exited (0)` status is expected. This service initializes the Replica Set.
 
 When the services are healthy, open the application:
 
@@ -246,7 +251,9 @@ If the application contains important data, create backups of both the database 
 
 The `mongodb-backup` service creates a compressed archive of the `aseman` database immediately after it starts, then repeats the backup every 24 hours by default.
 
-Each backup is compressed and encrypted with AES-256-CBC using PBKDF2 before it is written to disk. The encryption key is supplied through `BACKUP_ENCRYPTION_KEY`. Keep a secure copy of this key separately; losing it makes the backup archives unrecoverable.\n\nBackups are written to the host directory:
+Each backup is compressed and encrypted with AES-256-CBC using PBKDF2 before it is written to disk. The encryption key is supplied through `BACKUP_ENCRYPTION_KEY`. Keep a secure copy of this key separately; losing it makes the backup archives unrecoverable.
+
+Backups are written to the host directory:
 
 ```text
 backups/mongodb/
