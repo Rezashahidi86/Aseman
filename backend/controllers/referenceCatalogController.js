@@ -8,8 +8,7 @@ const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const createReferenceCatalog = async (req, res, next) => {
   try {
-    const { name, purchasePrice, salePrice } = req.body;
-    const barcode = req.body.barcode;
+    const { name, barcode, purchasePrice, salePrice } = req.body;
     const item = await ReferenceCatalog.create({
       name,
       barcode,
