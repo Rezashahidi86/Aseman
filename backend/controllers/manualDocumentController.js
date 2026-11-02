@@ -42,6 +42,8 @@ const removeUploadedFiles = async (files = []) => {
 };
 
 const createManualDocument = async (req, res, next) => {
+  let documentCreated = false;
+
   try {
     const validation = createManualDocumentSchema.safeParse(req.body);
 
@@ -75,6 +77,7 @@ const createManualDocument = async (req, res, next) => {
       branch: branch._id,
       createdBy: req.user._id,
     });
+    documentCreated = true;
 
     await createAuditLog({
       req,
@@ -98,7 +101,10 @@ const createManualDocument = async (req, res, next) => {
       },
     });
   } catch (error) {
-    await removeUploadedFiles(req.files);
+    if (!documentCreated) {
+      await removeUploadedFiles(req.files);
+    }
+
     return next(error);
   }
 };
