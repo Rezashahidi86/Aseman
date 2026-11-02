@@ -241,4 +241,96 @@ describe('Sales service', () => {
     expect(mocks.statsUpdateOne).not.toHaveBeenCalled();
     expect(mocks.auditCreate).not.toHaveBeenCalled();
   });
+
+  it('SALE-021: rejects a final sale price below the product sale price', async () => {
+    await expect(
+      registerSale({
+        items: [{ ...items[0], finalSalePrice: 99 }],
+        branchId,
+        sellerId,
+        idempotencyKey,
+      }),
+    ).rejects.toThrow('cannot be lower than the current product sale price');
+
+    expect(mocks.productUpdateOne).not.toHaveBeenCalled();
+    expect(mocks.saleCreate).not.toHaveBeenCalled();
+    expect(transactionCommitted).toBe(false);
+  });
+
+  it('SALE-022: rejects products that do not belong to the selected branch', async () => {
+    mocks.productFind.mockReturnValue({
+      session: vi.fn().mockReturnThis(),
+      lean: vi.fn().mockResolvedValue([]),
+    });
+
+    await expect(
+      registerSale({
+        items,
+        branchId,
+        sellerId,
+        idempotencyKey,
+      }),
+    ).rejects.toThrow('One or more products were not found in the current branch');
+
+    expect(mocks.productUpdateOne).not.toHaveBeenCalled();
+    expect(mocks.saleCreate).not.toHaveBeenCalled();
+    expect(transactionCommitted).toBe(false);
+  });
+
+  it('SALE-023: aggregates quantities when the same product appears more than once in the cart', async () => {
+    const repeatedProductItems = [
+      { productId, quantity: 2, finalSalePrice: 120 },
+      { productId, quantity: 3, finalSalePrice: 130 },
+    ];
+
+    const result = await registerSale({
+      items: repeatedProductItems,
+      branchId,
+      sellerId,
+      idempotencyKey,
+    });
+
+    expect(result.sale.totalSales).toBe(630);
+    expect(result.sale.totalProfit).toBe(330);
+    expect(result.sale.totalItemsSold).toBe(5);
+    expect(result.sale.items).toHaveLength(2);
+    expect(mocks.productUpdateOne).toHaveBeenCalledTimes(1);
+    expect(mocks.productUpdateOne).toHaveBeenCalledWith(
+      expect.objectContaining({
+        _id: productId,
+        branch: branchId,
+        quantity: { $gte: 5 },
+      }),
+      {
+        $inc: {
+          quantity: -5,
+          salesCount: 5,
+        },
+      },
+      expect.objectContaining({ session: expect.anything() }),
+    );
+    expect(stock).toBe(5);
+    expect(salesCount).toBe(5);
+  });
+
+  it('SALE-024: rejects an idempotency key already used by another branch or seller', async () => {
+    mocks.saleFindOne.mockResolvedValue({
+      _id: '507f1f77bcf86cd799439014',
+      branch: '507f1f77bcf86cd799439099',
+      createdBy: sellerId,
+    });
+
+    await expect(
+      registerSale({
+        items,
+        branchId,
+        sellerId,
+        idempotencyKey,
+      }),
+    ).rejects.toThrow('Idempotency key has already been used');
+
+    expect(mocks.startSession).not.toHaveBeenCalled();
+    expect(mocks.productUpdateOne).not.toHaveBeenCalled();
+    expect(mocks.saleCreate).not.toHaveBeenCalled();
+  });
 });
