@@ -232,6 +232,7 @@ describe('REP-009: Daily, weekly and monthly report accuracy', () => {
 });
 
   it('groups report months by the Shamsi year across Nowruz', async () => {
+    const branchId = '507f1f77bcf86cd799439011';
     const dailyStats = [
       {
         periodKey: '2026-03-20',
