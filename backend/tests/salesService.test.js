@@ -270,7 +270,9 @@ describe('Sales service', () => {
         sellerId,
         idempotencyKey,
       }),
-    ).rejects.toThrow('One or more products were not found in the current branch');
+    ).rejects.toThrow(
+      'One or more products were not found in the current branch',
+    );
 
     expect(mocks.productUpdateOne).not.toHaveBeenCalled();
     expect(mocks.saleCreate).not.toHaveBeenCalled();
