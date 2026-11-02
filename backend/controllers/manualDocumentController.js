@@ -8,6 +8,7 @@ import ROLES from '../constants/roles.js';
 import pagination from '../utils/pagination.js';
 import validateMongoId from '../utils/validateMongoId.js';
 import { createManualDocumentSchema } from '../validators/manualDocumentValidators.js';
+import { createAuditLog } from '../services/auditLogService.js';
 
 const uploadDirectory = path.resolve('uploads/manual-documents');
 
@@ -73,6 +74,15 @@ const createManualDocument = async (req, res, next) => {
       ),
       branch: branch._id,
       createdBy: req.user._id,
+    });
+
+    await createAuditLog({
+      req,
+      action: 'CREATE',
+      resource: 'MANUAL_DOCUMENT',
+      resourceId: document._id,
+      branchId: document.branch,
+      after: document,
     });
 
     return res.status(201).json({
@@ -192,7 +202,7 @@ const deleteManualDocument = async (req, res, next) => {
       return;
     }
 
-    const document = await ManualDocument.findOneAndDelete({
+    const document = await ManualDocument.findOne({
       _id: req.params.id,
       ...branchFilter,
     });
@@ -200,6 +210,17 @@ const deleteManualDocument = async (req, res, next) => {
     if (!document) {
       return next(new AppError('Manual document not found', 404));
     }
+
+    await document.deleteOne();
+
+    await createAuditLog({
+      req,
+      action: 'DELETE',
+      resource: 'MANUAL_DOCUMENT',
+      resourceId: document._id,
+      branchId: document.branch,
+      before: document,
+    });
 
     await Promise.all(
       (document.images || []).map(async (image) => {
