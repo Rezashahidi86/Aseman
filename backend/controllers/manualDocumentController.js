@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import mongoose from 'mongoose';
+import { z } from 'zod';
 import ManualDocument from '../models/ManualDocument.js';
 import Branch from '../models/Branch.js';
 import AppError from '../utils/AppError.js';
@@ -14,6 +15,7 @@ import {
 import { createAuditLog } from '../services/auditLogService.js';
 
 const uploadDirectory = path.resolve('uploads/manual-documents');
+const imageIndexSchema = z.coerce.number().int().min(0);
 
 const getBranchFilter = (req, next) => {
   if (req.user.role === ROLES.SELLER) {
@@ -178,11 +180,13 @@ const getManualDocumentImage = async (req, res, next) => {
       return;
     }
 
-    const imageIndex = Number(req.params.index);
+    const imageIndexValidation = imageIndexSchema.safeParse(req.params.index);
 
-    if (!Number.isInteger(imageIndex) || imageIndex < 0) {
-      return next(new AppError('Invalid image index', 400));
+    if (!imageIndexValidation.success) {
+      return next(imageIndexValidation.error);
     }
+
+    const imageIndex = imageIndexValidation.data;
 
     const document = await ManualDocument.findOne({
       _id: req.params.id,
