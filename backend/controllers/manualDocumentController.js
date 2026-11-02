@@ -7,7 +7,10 @@ import AppError from '../utils/AppError.js';
 import ROLES from '../constants/roles.js';
 import pagination from '../utils/pagination.js';
 import validateMongoId from '../utils/validateMongoId.js';
-import { createManualDocumentSchema } from '../validators/manualDocumentValidators.js';
+import {
+  createManualDocumentSchema,
+  manualDocumentListSchema,
+} from '../validators/manualDocumentValidators.js';
 import { createAuditLog } from '../services/auditLogService.js';
 
 const uploadDirectory = path.resolve('uploads/manual-documents');
@@ -111,10 +114,16 @@ const createManualDocument = async (req, res, next) => {
 
 const getManualDocuments = async (req, res, next) => {
   try {
-    const { page, limit, skip } = pagination(
-      req.body?.page ?? req.query.page,
-      req.body?.limit ?? req.query.limit,
-    );
+    const listInput =
+      req.method === 'POST' ? { ...req.query, ...req.body } : req.query;
+    const validation = manualDocumentListSchema.safeParse(listInput);
+
+    if (!validation.success) {
+      return next(validation.error);
+    }
+
+    const { page, limit } = validation.data;
+    const { skip } = pagination(page, limit);
 
     const branchFilter = getBranchFilter(req, next);
 
