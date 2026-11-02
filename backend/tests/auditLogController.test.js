@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { getAuditLogs } from '../controllers/auditLogController.js';
 
 const mocks = vi.hoisted(() => ({
   find: vi.fn(),
@@ -13,8 +14,6 @@ vi.mock('../models/AuditLog.js', () => ({
   AUDIT_ACTIONS: ['CREATE', 'UPDATE', 'DELETE'],
   AUDIT_RESOURCES: ['PRODUCT', 'SALE', 'CUSTOMER', 'USER', 'BRANCH'],
 }));
-
-import { getAuditLogs } from '../controllers/auditLogController.js';
 
 describe('Audit log controller', () => {
   let req;
