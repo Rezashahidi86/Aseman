@@ -144,15 +144,15 @@ export const updateUser = async (req, res, next) => {
 
 export const deactivateUser = async (req, res, next) => {
   try {
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { isActive: false },
-      { new: true, runValidators: true },
-    ).select('name email role branch isActive');
+    const user = await User.findById(req.params.id);
 
     if (!user) {
       throw new AppError('User not found', 404);
     }
+
+    const before = user.toObject();
+    user.isActive = false;
+    await user.save();
 
     await createAuditLog({
       req,
@@ -160,6 +160,7 @@ export const deactivateUser = async (req, res, next) => {
       resource: 'USER',
       resourceId: user._id,
       branchId: user.branch,
+      before,
       after: user,
     });
 
