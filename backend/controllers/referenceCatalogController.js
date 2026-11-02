@@ -3,6 +3,7 @@ import AppError from '../utils/AppError.js';
 import pagination from '../utils/pagination.js';
 import validateMongoId from '../utils/validateMongoId.js';
 import { createAuditLog } from '../services/auditLogService.js';
+import { referenceCatalogQuerySchema } from '../validators/referenceCatalogValidators.js';
 
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -50,8 +51,14 @@ const createReferenceCatalog = async (req, res, next) => {
 
 const getReferenceCatalog = async (req, res, next) => {
   try {
-    const { page, limit, skip } = pagination(req.query.page, req.query.limit);
-    const search = req.query.search?.trim();
+    const validation = referenceCatalogQuerySchema.safeParse(req.query);
+
+    if (!validation.success) {
+      return next(validation.error);
+    }
+
+    const { page, limit, search } = validation.data;
+    const { skip } = pagination(page, limit);
 
     const filter = {};
 

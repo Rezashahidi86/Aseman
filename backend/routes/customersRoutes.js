@@ -10,6 +10,7 @@ import {
 } from '../controllers/customerController.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
 import setBranchContext from '../middlewares/branchMiddleware.js';
+import smsRateLimiter from '../middlewares/smsRateLimiter.js';
 
 const router = Router();
 
@@ -20,11 +21,11 @@ router
   .get(setBranchContext, getCustomerSmsSettings)
   .put(setBranchContext, updateCustomerSmsSettings);
 
-router.post('/:id/sms', setBranchContext, sendCustomerSms);
+router.post('/:id/sms', setBranchContext, smsRateLimiter, sendCustomerSms);
 
 router
   .route('/')
-  .post(setBranchContext, createCustomer)
+  .post(setBranchContext, smsRateLimiter, createCustomer)
   .get(setBranchContext, getCustomers);
 
 router

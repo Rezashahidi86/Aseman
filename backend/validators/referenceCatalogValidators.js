@@ -26,4 +26,16 @@ const updateReferenceCatalogSchema = createReferenceCatalogSchema
     message: 'At least one field must be provided',
   });
 
-export { createReferenceCatalogSchema, updateReferenceCatalogSchema };
+const referenceCatalogQuerySchema = z
+  .object({
+    page: z.coerce.number().int().min(1).optional(),
+    limit: z.coerce.number().int().min(1).max(100).optional(),
+    search: z.string().trim().min(1).max(150).optional(),
+  })
+  .strict();
+
+export {
+  createReferenceCatalogSchema,
+  updateReferenceCatalogSchema,
+  referenceCatalogQuerySchema,
+};

@@ -24,6 +24,10 @@ const authMiddleware = async (req, res, next) => {
       throw new AppError('User not found or inactive', 401);
     }
 
+    if ((decoded.tokenVersion ?? 0) !== (user.tokenVersion ?? 0)) {
+      throw new AppError('Invalid or revoked token', 401);
+    }
+
     req.user = user;
     return next();
   } catch (error) {

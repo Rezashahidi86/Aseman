@@ -5,14 +5,15 @@ import {
   deleteNeed,
 } from '../controllers/needController.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
+import setBranchContext from '../middlewares/branchMiddleware.js';
 
 const router = Router();
 
 router.use(authMiddleware);
 
-router.route('/').post(createNeed).get(getNeeds);
+router.route('/').post(setBranchContext, createNeed).get(setBranchContext, getNeeds);
 
-router.delete('/:id/confirm', deleteNeed);
-router.delete('/:id', deleteNeed);
+router.delete('/:id/confirm', setBranchContext, deleteNeed);
+router.delete('/:id', setBranchContext, deleteNeed);
 
 export default router;

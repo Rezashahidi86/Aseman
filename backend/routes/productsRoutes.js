@@ -20,8 +20,8 @@ router
 
 router
   .route('/:id')
-  .get(getProductById)
-  .patch(updateProduct)
-  .delete(deleteProduct);
+  .get(setBranchContext, getProductById)
+  .patch(setBranchContext, updateProduct)
+  .delete(setBranchContext, deleteProduct);
 
 export default router;

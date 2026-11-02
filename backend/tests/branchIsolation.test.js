@@ -56,6 +56,17 @@ describe('Branch isolation', () => {
     expect(next).toHaveBeenCalledWith();
   });
 
+  it('should reject malformed branch IDs', () => {
+    req.query.branchId = 'not-an-object-id';
+
+    setBranchContext(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({ statusCode: 400 }),
+    );
+    expect(req.branchId).toBeUndefined();
+  });
+
   it('should reject conflicting branch IDs', () => {
     req.params.branchId = ownBranchId;
     req.query.branchId = anotherBranchId;

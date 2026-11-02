@@ -34,4 +34,17 @@ const updateProductSchema = z
     message: 'At least one field must be provided',
   });
 
-export { createProductSchema, updateProductSchema };
+const productQuerySchema = z
+  .object({
+    name: z.string().trim().min(1).max(100).optional(),
+    barcode: z.string().trim().min(1).max(100).optional(),
+    page: z.coerce.number().int().min(1).optional(),
+    limit: z.coerce.number().int().min(1).max(100).optional(),
+    sort: z.string().max(200).optional(),
+    fields: z.string().max(300).optional(),
+    branchId: z.string().regex(/^[a-f\d]{24}$/i).optional(),
+    stock: z.enum(['low', 'available']).optional(),
+  })
+  .strict();
+
+export { createProductSchema, updateProductSchema, productQuerySchema };

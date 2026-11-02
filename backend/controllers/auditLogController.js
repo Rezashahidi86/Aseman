@@ -1,77 +1,73 @@
-import mongoose from 'mongoose';
+import { z } from 'zod';
 import AuditLog, {
   AUDIT_ACTIONS,
   AUDIT_RESOURCES,
 } from '../models/AuditLog.js';
-import AppError from '../utils/AppError.js';
+
+const auditLogQuerySchema = z
+  .object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(25),
+    action: z.string().refine((value) => AUDIT_ACTIONS.includes(value)).optional(),
+    resource: z
+      .string()
+      .refine((value) => AUDIT_RESOURCES.includes(value))
+      .optional(),
+    actor: z.string().regex(/^[a-f\d]{24}$/i).optional(),
+    branch: z.string().regex(/^[a-f\d]{24}$/i).optional(),
+    resourceId: z.string().regex(/^[a-f\d]{24}$/i).optional(),
+    from: z
+      .string()
+      .refine((value) => !Number.isNaN(new Date(value).getTime()))
+      .optional(),
+    to: z
+      .string()
+      .refine((value) => !Number.isNaN(new Date(value).getTime()))
+      .optional(),
+  })
+  .strict()
+  .refine(
+    ({ from, to }) =>
+      !from || !to || new Date(from).getTime() <= new Date(to).getTime(),
+    {
+      message: 'From date must be before or equal to to date',
+      path: ['to'],
+    },
+  );
 
 const getAuditLogs = async (req, res, next) => {
   try {
-    const page = Number(req.query.page ?? 1);
-    const limit = Number(req.query.limit ?? 25);
+    const validation = auditLogQuerySchema.safeParse(req.query);
 
-    if (
-      !Number.isInteger(page) ||
-      page < 1 ||
-      !Number.isInteger(limit) ||
-      limit < 1 ||
-      limit > 100
-    ) {
-      return next(new AppError('Invalid pagination parameters', 400));
+    if (!validation.success) {
+      return next(validation.error);
     }
+
+    const {
+      page,
+      limit,
+      action,
+      resource,
+      actor,
+      branch,
+      resourceId,
+      from,
+      to,
+    } = validation.data;
 
     const filter = {};
 
-    if (req.query.action !== undefined) {
-      if (!AUDIT_ACTIONS.includes(req.query.action)) {
-        return next(new AppError('Invalid audit action', 400));
-      }
+    if (action) filter.action = action;
+    if (resource) filter.resource = resource;
+    if (actor) filter.actor = actor;
+    if (branch) filter.branch = branch;
+    if (resourceId) filter.resourceId = resourceId;
 
-      filter.action = req.query.action;
-    }
+    if (from || to) {
+      filter.createdAt = {};
 
-    if (req.query.resource !== undefined) {
-      if (!AUDIT_RESOURCES.includes(req.query.resource)) {
-        return next(new AppError('Invalid audit resource', 400));
-      }
-
-      filter.resource = req.query.resource;
-    }
-
-    for (const field of ['actor', 'branch', 'resourceId']) {
-      if (req.query[field] !== undefined) {
-        if (!mongoose.isValidObjectId(req.query[field])) {
-          return next(new AppError(`Invalid ${field}`, 400));
-        }
-
-        filter[field] = req.query[field];
-      }
-    }
-
-    if (req.query.from !== undefined || req.query.to !== undefined) {
-      const createdAt = {};
-
-      if (req.query.from !== undefined) {
-        const from = new Date(req.query.from);
-
-        if (Number.isNaN(from.getTime())) {
-          return next(new AppError('Invalid from date', 400));
-        }
-
-        createdAt.$gte = from;
-      }
-
-      if (req.query.to !== undefined) {
-        const to = new Date(req.query.to);
-
-        if (Number.isNaN(to.getTime())) {
-          return next(new AppError('Invalid to date', 400));
-        }
-
-        createdAt.$lte = to;
-      }
-
-      filter.createdAt = createdAt;
+      if (from) filter.createdAt.$gte = new Date(from);
+      if (to) filter.createdAt.$lte = new Date(to);
     }
 
     const skip = (page - 1) * limit;

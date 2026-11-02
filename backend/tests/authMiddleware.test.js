@@ -5,6 +5,7 @@ import requireAdmin from '../middlewares/roleMiddleware.js';
 import AppError from '../utils/AppError.js';
 import ROLES from '../constants/roles.js';
 import env from '../config/env.js';
+import User from '../models/User.js';
 
 vi.mock('../models/User.js', () => ({
   default: {
@@ -53,6 +54,52 @@ describe('Authentication and authorization middleware', () => {
         statusCode: 401,
       }),
     );
+  });
+
+  it('should reject a token after its user token version changes', async () => {
+    const userId = '507f1f77bcf86cd799439011';
+    const token = jwt.sign(
+      { sub: userId, tokenVersion: 0 },
+      env.JWT_SECRET,
+      { expiresIn: '1h' },
+    );
+
+    req.headers.authorization = `Bearer ${token}`;
+    User.findById.mockResolvedValue({
+      _id: userId,
+      isActive: true,
+      tokenVersion: 1,
+    });
+
+    await authMiddleware(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({ statusCode: 401 }),
+    );
+    expect(req.user).toBeUndefined();
+  });
+
+  it('should accept a token with the current user token version', async () => {
+    const userId = '507f1f77bcf86cd799439011';
+    const user = {
+      _id: userId,
+      isActive: true,
+      tokenVersion: 3,
+      role: ROLES.SELLER,
+    };
+    const token = jwt.sign(
+      { sub: userId, tokenVersion: 3 },
+      env.JWT_SECRET,
+      { expiresIn: '1h' },
+    );
+
+    req.headers.authorization = `Bearer ${token}`;
+    User.findById.mockResolvedValue(user);
+
+    await authMiddleware(req, res, next);
+
+    expect(req.user).toBe(user);
+    expect(next).toHaveBeenCalledWith();
   });
 
   it('should reject a user with an unauthorized role', () => {

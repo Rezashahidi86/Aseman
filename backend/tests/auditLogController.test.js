@@ -84,7 +84,7 @@ describe('Audit log controller', () => {
     await getAuditLogs(req, res, next);
 
     expect(next).toHaveBeenCalledWith(
-      expect.objectContaining({ statusCode: 400 }),
+      expect.objectContaining({ issues: expect.any(Array) }),
     );
     expect(mocks.find).not.toHaveBeenCalled();
   });
@@ -95,7 +95,7 @@ describe('Audit log controller', () => {
     await getAuditLogs(req, res, next);
 
     expect(next).toHaveBeenCalledWith(
-      expect.objectContaining({ statusCode: 400 }),
+      expect.objectContaining({ issues: expect.any(Array) }),
     );
     expect(mocks.find).not.toHaveBeenCalled();
   });

@@ -23,7 +23,11 @@ export const login = async (req, res, next) => {
     }
 
     const token = jwt.sign(
-      { sub: user._id.toString(), role: user.role },
+      {
+        sub: user._id.toString(),
+        role: user.role,
+        tokenVersion: user.tokenVersion ?? 0,
+      },
       env.JWT_SECRET,
       { expiresIn: env.JWT_EXPIRES_IN },
     );
@@ -41,7 +45,7 @@ export const login = async (req, res, next) => {
 
 export const getMe = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id).select('-passwordHash -__v');
+    const user = await User.findById(req.user.id).select('-passwordHash -tokenVersion -__v');
 
     if (!user || !user.isActive) {
       throw new AppError('User not found', 404);
@@ -58,16 +62,25 @@ export const getMe = async (req, res, next) => {
   }
 };
 
-export const logout = (req, res) => {
-  res.clearCookie(AUTH_COOKIE_NAME, {
-    httpOnly: authCookieOptions.httpOnly,
-    secure: authCookieOptions.secure,
-    sameSite: authCookieOptions.sameSite,
-    path: authCookieOptions.path,
-  });
+export const logout = async (req, res, next) => {
+  try {
+    await User.updateOne(
+      { _id: req.user._id },
+      { $inc: { tokenVersion: 1 } },
+    );
 
-  return res.status(200).json({
-    status: 'success',
-    message: 'Logged out successfully',
-  });
+    res.clearCookie(AUTH_COOKIE_NAME, {
+      httpOnly: authCookieOptions.httpOnly,
+      secure: authCookieOptions.secure,
+      sameSite: authCookieOptions.sameSite,
+      path: authCookieOptions.path,
+    });
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Logged out successfully',
+    });
+  } catch (error) {
+    return next(error);
+  }
 };

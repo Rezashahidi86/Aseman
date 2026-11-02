@@ -5,6 +5,7 @@ import AppError from '../utils/AppError.js';
 import {
   createProductSchema,
   updateProductSchema,
+  productQuerySchema,
 } from '../validators/productValidators.js';
 import ROLES from '../constants/roles.js';
 import pagination from '../utils/pagination.js';
@@ -99,8 +100,14 @@ const createProduct = async (req, res, next) => {
 
 const getProducts = async (req, res, next) => {
   try {
+    const queryValidation = productQuerySchema.safeParse(req.query);
+
+    if (!queryValidation.success) {
+      return next(queryValidation.error);
+    }
+
     const { name, barcode, page, limit, sort, fields, branchId, stock } =
-      req.query;
+      queryValidation.data;
 
     const {
       page: currentPage,

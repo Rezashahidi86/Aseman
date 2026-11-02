@@ -1,16 +1,21 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import mongoose from 'mongoose';
+import { z } from 'zod';
 import ManualDocument from '../models/ManualDocument.js';
 import Branch from '../models/Branch.js';
 import AppError from '../utils/AppError.js';
 import ROLES from '../constants/roles.js';
 import pagination from '../utils/pagination.js';
 import validateMongoId from '../utils/validateMongoId.js';
-import { createManualDocumentSchema } from '../validators/manualDocumentValidators.js';
+import {
+  createManualDocumentSchema,
+  manualDocumentListSchema,
+} from '../validators/manualDocumentValidators.js';
 import { createAuditLog } from '../services/auditLogService.js';
 
 const uploadDirectory = path.resolve('uploads/manual-documents');
+const imageIndexSchema = z.coerce.number().int().min(0);
 
 const getBranchFilter = (req, next) => {
   if (req.user.role === ROLES.SELLER) {
@@ -111,10 +116,16 @@ const createManualDocument = async (req, res, next) => {
 
 const getManualDocuments = async (req, res, next) => {
   try {
-    const { page, limit, skip } = pagination(
-      req.body?.page ?? req.query.page,
-      req.body?.limit ?? req.query.limit,
-    );
+    const listInput =
+      req.method === 'POST' ? { ...req.query, ...req.body } : req.query;
+    const validation = manualDocumentListSchema.safeParse(listInput);
+
+    if (!validation.success) {
+      return next(validation.error);
+    }
+
+    const { page, limit } = validation.data;
+    const { skip } = pagination(page, limit);
 
     const branchFilter = getBranchFilter(req, next);
 
@@ -169,11 +180,13 @@ const getManualDocumentImage = async (req, res, next) => {
       return;
     }
 
-    const imageIndex = Number(req.params.index);
+    const imageIndexValidation = imageIndexSchema.safeParse(req.params.index);
 
-    if (!Number.isInteger(imageIndex) || imageIndex < 0) {
-      return next(new AppError('Invalid image index', 400));
+    if (!imageIndexValidation.success) {
+      return next(imageIndexValidation.error);
     }
+
+    const imageIndex = imageIndexValidation.data;
 
     const document = await ManualDocument.findOne({
       _id: req.params.id,

@@ -20,6 +20,11 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Password hash is required'],
       select: false,
     },
+    tokenVersion: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     role: {
       type: String,
       enum: Object.values(ROLES),
