@@ -3,6 +3,7 @@ import ROLES from '../constants/roles.js';
 import AppError from '../utils/AppError.js';
 import validateMongoId from '../utils/validateMongoId.js';
 import { createBranchSchema, updateBranchStatusSchema } from '../validators/branchValidators.js';
+import { createAuditLog } from '../services/auditLogService.js';
 
 export const getBranches = async (req, res, next) => {
   try {
@@ -113,6 +114,14 @@ export const createBranch = async (req, res, next) => {
 
     const branch = await Branch.create({ name, code });
 
+    await createAuditLog({
+      req,
+      action: 'CREATE',
+      resource: 'BRANCH',
+      resourceId: branch._id,
+      after: branch,
+    });
+
     return res.status(201).json({
       status: 'success',
       data: { branch },
@@ -135,15 +144,28 @@ export const updateBranchStatus = async (req, res, next) => {
       return next(new AppError('A valid isActive boolean is required', 400));
     }
 
-    const branch = await Branch.findByIdAndUpdate(
-      req.params.id,
-      { isActive: validation.data.isActive },
-      { new: true, runValidators: true },
-    ).select('name code isActive createdAt');
+    const existingBranch = await Branch.findById(req.params.id);
+
+    if (!existingBranch) {
+      return next(new AppError('Branch not found', 404));
+    }
+
+    const before = existingBranch.toObject();
+    existingBranch.isActive = validation.data.isActive;
+    const branch = await existingBranch.save();
 
     if (!branch) {
       return next(new AppError('Branch not found', 404));
     }
+
+    await createAuditLog({
+      req,
+      action: 'UPDATE',
+      resource: 'BRANCH',
+      resourceId: branch._id,
+      before,
+      after: branch,
+    });
 
     return res.status(200).json({
       status: 'success',
