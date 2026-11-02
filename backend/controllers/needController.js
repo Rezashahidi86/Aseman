@@ -6,7 +6,7 @@ import AppError from '../utils/AppError.js';
 import ROLES from '../constants/roles.js';
 import pagination from '../utils/pagination.js';
 import validateMongoId from '../utils/validateMongoId.js';
-import { createNeedSchema } from '../validators/needValidators.js';
+import { createNeedSchema, needQuerySchema } from '../validators/needValidators.js';
 import { createAuditLog } from '../services/auditLogService.js';
 
 const getBranchId = (req, next) => {
@@ -91,7 +91,14 @@ const createNeed = async (req, res, next) => {
 
 const getNeeds = async (req, res, next) => {
   try {
-    const { page, limit, skip } = pagination(req.query.page, req.query.limit);
+    const queryValidation = needQuerySchema.safeParse(req.query);
+
+    if (!queryValidation.success) {
+      return next(queryValidation.error);
+    }
+
+    const { page, limit, status } = queryValidation.data;
+    const { skip } = pagination(page, limit);
 
     const branchId = getBranchId(req, next);
 
@@ -101,14 +108,8 @@ const getNeeds = async (req, res, next) => {
 
     const filter = { branch: branchId };
 
-    if (req.query.status !== undefined) {
-      const validStatuses = ['PENDING', 'FULFILLED', 'REJECTED'];
-
-      if (!validStatuses.includes(req.query.status)) {
-        return next(new AppError('Invalid need status', 400));
-      }
-
-      filter.status = req.query.status;
+    if (status !== undefined) {
+      filter.status = status;
     }
 
     const [needs, total] = await Promise.all([
