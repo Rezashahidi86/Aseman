@@ -107,6 +107,7 @@ export const updateUser = async (req, res, next) => {
 
     if (data.password) {
       data.passwordHash = await hashPassword(data.password);
+      data.tokenVersion = (user.tokenVersion ?? 0) + 1;
       delete data.password;
     }
 
