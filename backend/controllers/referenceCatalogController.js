@@ -2,6 +2,7 @@ import ReferenceCatalog from '../models/ReferenceCatalog.js';
 import AppError from '../utils/AppError.js';
 import pagination from '../utils/pagination.js';
 import validateMongoId from '../utils/validateMongoId.js';
+import { createAuditLog } from '../services/auditLogService.js';
 
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -14,6 +15,14 @@ const createReferenceCatalog = async (req, res, next) => {
       barcode,
       purchasePrice,
       salePrice,
+    });
+
+    await createAuditLog({
+      req,
+      action: 'CREATE',
+      resource: 'REFERENCE_CATALOG',
+      resourceId: item._id,
+      after: item,
     });
 
     res.status(201).json({
@@ -88,14 +97,28 @@ const updateReferenceCatalog = async (req, res, next) => {
     validateMongoId(req.params.id);
     const { id } = req.params;
 
-    const item = await ReferenceCatalog.findByIdAndUpdate(id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const item = await ReferenceCatalog.findById(id);
 
     if (!item) {
       return next(new AppError('Reference item not found', 404));
     }
+
+    const before = item.toObject();
+    Object.assign(item, req.body);
+    await item.save();
+
+    if (!item) {
+      return next(new AppError('Reference item not found', 404));
+    }
+
+    await createAuditLog({
+      req,
+      action: 'UPDATE',
+      resource: 'REFERENCE_CATALOG',
+      resourceId: item._id,
+      before,
+      after: item,
+    });
 
     return res.status(200).json({
       status: 'success',
@@ -124,11 +147,21 @@ const updateReferenceCatalog = async (req, res, next) => {
 const deleteReferenceCatalog = async (req, res, next) => {
   try {
     validateMongoId(req.params.id);
-    const item = await ReferenceCatalog.findByIdAndDelete(req.params.id);
+    const item = await ReferenceCatalog.findById(req.params.id);
 
     if (!item) {
       return next(new AppError('Reference item not found', 404));
     }
+
+    await item.deleteOne();
+
+    await createAuditLog({
+      req,
+      action: 'DELETE',
+      resource: 'REFERENCE_CATALOG',
+      resourceId: item._id,
+      before: item,
+    });
 
     return res.status(204).send();
   } catch (error) {
