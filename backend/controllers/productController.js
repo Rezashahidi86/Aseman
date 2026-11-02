@@ -11,6 +11,7 @@ import pagination from '../utils/pagination.js';
 import sortAllowlist from '../utils/sortAllowlist.js';
 import fieldSelection from '../utils/fieldSelection.js';
 import validateMongoId from '../utils/validateMongoId.js';
+import { createAuditLog } from '../services/auditLogService.js';
 
 const handleProductDuplicateKey = (error, next) => {
   if (error.code !== 11000) {
@@ -69,6 +70,15 @@ const createProduct = async (req, res, next) => {
     const product = await Product.create({
       ...productData,
       branch: branch._id,
+    });
+
+    await createAuditLog({
+      req,
+      action: 'CREATE',
+      resource: 'PRODUCT',
+      resourceId: product._id,
+      branchId: product.branch,
+      after: product,
     });
 
     return res.status(201).json({
@@ -300,8 +310,19 @@ const updateProduct = async (req, res, next) => {
       }
     }
 
+    const before = product.toObject();
     Object.assign(product, validation.data);
     await product.save();
+
+    await createAuditLog({
+      req,
+      action: 'UPDATE',
+      resource: 'PRODUCT',
+      resourceId: product._id,
+      branchId: product.branch,
+      before,
+      after: product,
+    });
 
     return res.status(200).json({
       status: 'success',
@@ -347,6 +368,15 @@ const deleteProduct = async (req, res, next) => {
     }
 
     await product.deleteOne();
+
+    await createAuditLog({
+      req,
+      action: 'DELETE',
+      resource: 'PRODUCT',
+      resourceId: product._id,
+      branchId: product.branch,
+      before: product,
+    });
 
     return res.status(200).json({
       status: 'success',
