@@ -45,13 +45,20 @@ Set `JWT_SECRET` to a separate random value of at least 32 characters. Choose a 
 
 ### Optional variables and ports
 
-- `APP_HOST_PORT=8080`: Port used to access the frontend on the host.
-- `MONGO_HOST_PORT=27018`: Host port for local MongoDB connections.
-- `DOCKER_CORS_ORIGINS=http://localhost:8080,http://127.0.0.1:8080`: Allowed frontend origins.
-- `JWT_EXPIRES_IN=7d`: Token expiration period.
-- `SMS_API_KEY` and `SMS_SENDER`: SMS provider credentials; configure valid values if you intend to use SMS functionality.
-- `BACKUP_INTERVAL_SECONDS=86400`: Time between automatic database backups (24 hours).
-- `BACKUP_RETENTION_DAYS=14`: Backup retention period.
+| Variable | Purpose |
+|---|---|
+| `FRONTEND_URL` | Public-facing frontend URL used to create password-reset links. For local Docker, use `http://localhost:8080`; for public deployment, use your HTTPS domain. |
+| `RESEND_API_KEY` | Resend API key required to send password-recovery emails. Leave empty only if email recovery is not being tested. |
+| `EMAIL_FROM` | Verified sender address configured in Resend, for example `Aseman <no-reply@your-domain.com>`. |
+| `SMS_API_KEY` and `SMS_SENDER` | SMS provider credentials; configure valid values if you intend to use SMS functionality. |
+| `APP_HOST_PORT` | Port used to access the frontend on the host; defaults to `8080`. |
+| `MONGO_HOST_PORT` | Host port for local MongoDB connections; defaults to `27018`. |
+| `DOCKER_CORS_ORIGINS` | Allowed frontend origins; defaults to the localhost Docker frontend addresses. |
+| `JWT_EXPIRES_IN` | Token expiration period; defaults to `7d`. |
+| `BACKUP_INTERVAL_SECONDS` | Time between automatic database backups; defaults to `86400` (24 hours). |
+| `BACKUP_RETENTION_DAYS` | Backup retention period; defaults to `14` days. |
+
+For local Docker testing, set `FRONTEND_URL=http://localhost:8080`. The password-recovery email links to this address. For a public deployment, replace it with the actual HTTPS frontend URL. Password-recovery email delivery requires a valid `RESEND_API_KEY` and a sender address verified with Resend; the API key and sender must be kept private in `.env`.
 
 Keep the default ports unless another application is already using them. If you change a port, use the new port when opening the frontend.
 
@@ -149,7 +156,7 @@ You can now sign in to the application using the email address and password conf
 - Use an email address that is not already assigned to another user in the database.
 - If the email already exists, the script changes that existing user's role to ADMIN. Do not run it with the email address of an existing seller or other user.
 - Running the script again does not change the password of an existing user; the password is stored only when a new record is created.
-- After creating the administrator, sign in with the same email address and password configured in `.env`. Do not share your `.env` file.
+- After creating the administrator, sign in with the same email address and password configured in `.env` when the seed script was run. Do not share your `.env` file.
 
 ## 4. Service access and communication
 
@@ -221,10 +228,11 @@ Apply code changes and rebuild the images:
 docker compose up -d --build
 ```
 
-To apply changes to `.env`, recreate the relevant containers:
+To apply changes to `.env` or Compose service configuration without rebuilding unrelated images, validate and recreate the affected services:
 
 ```powershell
-docker compose up -d --force-recreate backend frontend
+docker compose config --quiet
+docker compose up -d --build backend
 ```
 
 If you change MongoDB credentials or the Replica Set key, first review the impact on the existing database. Changing values in `.env` alone does not necessarily update credentials already stored inside MongoDB.
@@ -266,7 +274,7 @@ Check the backup worker:
 ```powershell
 docker compose ps mongodb-backup
 docker compose logs --tail 100 mongodb-backup
-Get-ChildItem .\\backups\\mongodb
+Get-ChildItem .\backups\mongodb
 ```
 
 The backup directory is excluded from Git. Keep it private and do not upload backup archives to GitHub or share them in chats. These archives contain application data. Although they are encrypted, protect the host account and disk, and copy important backups to a separate, access-controlled storage location. A backup stored only on the same computer does not protect against loss of that computer.
