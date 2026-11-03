@@ -127,10 +127,18 @@ export const changeCredentials = async (req, res, next) => {
     if (newPassword) updates.passwordHash = await hashPassword(newPassword);
     if (!Object.keys(updates).length) throw new AppError('No account changes were provided', 400);
 
-    const updatedUser = await User.findOneAndUpdate({
-      _id: user._id,
-      tokenVersion: user.tokenVersion,
-    }, {
+    const tokenVersion = user.tokenVersion ?? 0;
+    const updateFilter = { _id: user._id };
+    if (tokenVersion === 0) {
+      updateFilter.$or = [
+        { tokenVersion: 0 },
+        { tokenVersion: { $exists: false } },
+      ];
+    } else {
+      updateFilter.tokenVersion = tokenVersion;
+    }
+
+    const updatedUser = await User.findOneAndUpdate(updateFilter, {
       $set: updates,
       $inc: { tokenVersion: 1 },
       $unset: { passwordResetTokenHash: 1, passwordResetExpiresAt: 1 },

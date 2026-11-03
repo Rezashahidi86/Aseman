@@ -91,6 +91,28 @@ describe('Password recovery and account credentials', () => {
     expect(next).not.toHaveBeenCalled();
   });
 
+  it('updates legacy accounts where tokenVersion is missing', async () => {
+    const user = { _id: req.user._id, email: 'old@example.com', passwordHash: 'old-password-hash', tokenVersion: 0, isActive: true };
+    User.findById.mockReturnValue({ select: vi.fn().mockResolvedValue(user) });
+    comparePassword.mockResolvedValue(true);
+    User.findOneAndUpdate.mockResolvedValue({ email: 'new@example.com' });
+    req.body = { currentPassword: 'currentPassword', email: 'new@example.com' };
+    await changeCredentials(req, res, next);
+
+    const [filter, update] = User.findOneAndUpdate.mock.calls[0];
+    expect(filter).toEqual({
+      _id: user._id,
+      $or: [
+        { tokenVersion: 0 },
+        { tokenVersion: { $exists: false } },
+      ],
+    });
+    expect(update.$inc.tokenVersion).toBe(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.clearCookie).toHaveBeenCalled();
+    expect(next).not.toHaveBeenCalled();
+  });
+
   it('rejects credential changes when the current password is incorrect', async () => {
     const user = { _id: req.user._id, email: 'old@example.com', passwordHash: 'old-password-hash', tokenVersion: 0, isActive: true };
     User.findById.mockReturnValue({ select: vi.fn().mockResolvedValue(user) });
