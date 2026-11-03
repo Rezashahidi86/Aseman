@@ -11,6 +11,7 @@ export function ProfilePage() {
   const { user, clearSession } = useAuth();
   const navigate = useNavigate();
   const [currentPassword, setCurrentPassword] = useState('');
+  const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -21,7 +22,8 @@ export function ProfilePage() {
     event.preventDefault();
     setError('');
     if (!currentPassword) return setError('برای تأیید هویت، رمز عبور فعلی را وارد کنید.');
-    if (email.trim().toLowerCase() === user?.email && !newPassword) return setError('اطلاعات جدیدی برای ذخیره وارد نشده است.');
+    if (!name.trim()) return setError('نام کاربر نمی‌تواند خالی باشد.');
+    if (name.trim() === user?.name && email.trim().toLowerCase() === user?.email && !newPassword) return setError('اطلاعات جدیدی برای ذخیره وارد نشده است.');
     if (newPassword && newPassword.length < 8) return setError('رمز جدید باید حداقل ۸ کاراکتر باشد.');
     if (newPassword && newPassword !== confirmPassword) return setError('تکرار رمز جدید با آن مطابقت ندارد.');
 
@@ -29,6 +31,7 @@ export function ProfilePage() {
     try {
       await updateCredentials({
         currentPassword,
+        ...(name.trim() !== user?.name ? { name: name.trim() } : {}),
         ...(email.trim().toLowerCase() !== user?.email ? { email: email.trim().toLowerCase() } : {}),
         ...(newPassword ? { newPassword, confirmPassword } : {}),
       });
@@ -54,12 +57,12 @@ export function ProfilePage() {
               <div className="border-b border-slate-100 bg-gradient-to-l from-indigo-50 to-white px-6 py-6 dark:border-slate-800 dark:from-indigo-950/40 dark:to-slate-900 sm:px-8">
                 <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white text-indigo-600 shadow-sm dark:bg-slate-800 dark:text-indigo-300"><FiUser size={22} /></span>
                 <h1 className="mt-4 text-xl font-extrabold">اطلاعات حساب کاربری</h1>
-                <p className="mt-2 text-sm leading-7 text-slate-500 dark:text-slate-400">ایمیل و رمز عبور خود را مدیریت کنید. برای هر تغییر، رمز فعلی لازم است.</p>
+                <p className="mt-2 text-sm leading-7 text-slate-500 dark:text-slate-400">نام، ایمیل و رمز عبور خود را مدیریت کنید. برای هر تغییر، رمز فعلی لازم است.</p>
               </div>
               <form className="grid gap-5 p-6 sm:p-8" onSubmit={handleSubmit}>
                 <div className="grid gap-2">
                   <label className="flex items-center gap-2 text-sm font-bold" htmlFor="profile-name"><FiUser size={16} /> نام کاربر</label>
-                  <input id="profile-name" value={user?.name || ''} readOnly className="min-h-12 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-500 outline-none dark:border-slate-700 dark:bg-slate-950" />
+                  <input id="profile-name" type="text" autoComplete="name" required minLength={2} maxLength={100} value={name} onChange={(event) => setName(event.target.value)} disabled={isSubmitting} className="min-h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-slate-700 dark:bg-slate-950" />
                 </div>
                 <div className="grid gap-2">
                   <label className="flex items-center gap-2 text-sm font-bold" htmlFor="profile-email"><FiMail size={16} /> ایمیل حساب</label>
