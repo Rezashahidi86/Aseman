@@ -23,7 +23,7 @@ const envSchema = z.object({
   JWT_EXPIRES_IN: jwtExpiresInSchema.default('7d'),
   FRONTEND_URL: z.string().url().default('http://localhost:5173'),
   RESEND_API_KEY: z.string().optional(),
-  EMAIL_FROM: z.string().email().optional(),
+  EMAIL_FROM: z.string().min(1).optional(),
   SMS_API_KEY: z.string().optional(),
   SMS_SENDER: z.string().optional(),
 });

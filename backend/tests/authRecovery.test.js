@@ -76,6 +76,7 @@ describe('Password recovery and account credentials', () => {
     const user = { _id: req.user._id, email: 'old@example.com', passwordHash: 'old-password-hash', tokenVersion: 4, isActive: true };
     User.findById.mockReturnValue({ select: vi.fn().mockResolvedValue(user) });
     comparePassword.mockResolvedValue(true);
+    hashPassword.mockResolvedValue('updated-password-hash');
     User.findOneAndUpdate.mockResolvedValue({ email: 'new@example.com' });
     req.body = { currentPassword: 'currentPassword', email: 'new@example.com', newPassword: 'newPassword123', confirmPassword: 'newPassword123' };
     await changeCredentials(req, res, next);

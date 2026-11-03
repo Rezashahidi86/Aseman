@@ -5,6 +5,8 @@ const baseURL = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:3000/api
 const localizedMessages = [
   [/only jpeg,\s*png and webp images are allowed/i, 'فرمت تصویر انتخاب‌شده پشتیبانی نمی‌شود. فقط تصاویر با فرمت JPG، JPEG، PNG یا WebP مجاز هستند.'],
   [/invalid credentials|Invalid email or password|wrong password/i, 'ایمیل یا رمز عبور نادرست است.'],
+  [/current password is incorrect/i, 'رمز عبور فعلی نادرست است.'],
+  [/password reset link is invalid or expired/i, 'لینک بازیابی نامعتبر است یا اعتبار آن به پایان رسیده است.'],
   [/user not found|no user found/i, 'کاربری با این مشخصات پیدا نشد.'],
   [/email already exists|duplicate key.*email|email.*already/i, 'این ایمیل قبلاً ثبت شده است.'],
   [/invalid token|jwt malformed|jwt expired|token expired/i, 'اعتبار نشست شما به پایان رسیده است؛ دوباره وارد شوید.'],
