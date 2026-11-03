@@ -115,7 +115,7 @@ export const resetPassword = async (req, res, next) => {
 
 export const changeCredentials = async (req, res, next) => {
   try {
-    const { currentPassword, email, newPassword } = changeCredentialsSchema.parse(req.body);
+    const { currentPassword, name, email, newPassword } = changeCredentialsSchema.parse(req.body);
     const user = await User.findById(req.user._id).select('+passwordHash');
     if (!user || !user.isActive) throw new AppError('User not found', 404);
 
@@ -123,6 +123,7 @@ export const changeCredentials = async (req, res, next) => {
     if (!isPasswordValid) throw new AppError('Current password is incorrect', 401);
 
     const updates = {};
+    if (name && name !== user.name) updates.name = name;
     if (email && email !== user.email) updates.email = email;
     if (newPassword) updates.passwordHash = await hashPassword(newPassword);
     if (!Object.keys(updates).length) throw new AppError('No account changes were provided', 400);
@@ -142,14 +143,14 @@ export const changeCredentials = async (req, res, next) => {
       $set: updates,
       $inc: { tokenVersion: 1 },
       $unset: { passwordResetTokenHash: 1, passwordResetExpiresAt: 1 },
-    }, { new: true, projection: { email: 1 } });
+    }, { new: true, projection: { name: 1, email: 1 } });
 
     if (!updatedUser) throw new AppError('Account changed during this request. Please try again.', 409);
     clearAuthCookie(res);
     return res.status(200).json({
       status: 'success',
       message: 'Account information updated. Please sign in again.',
-      data: { email: updatedUser.email },
+      data: { name: updatedUser.name, email: updatedUser.email },
     });
   } catch (error) {
     return next(error);
