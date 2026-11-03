@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiLogOut } from 'react-icons/fi';
+import { FiLogOut, FiUser } from 'react-icons/fi';
 import { formatPersianDate } from '../../../shared/utils/date.js';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../../auth/AuthContext.jsx';
@@ -31,10 +31,11 @@ export function DashboardHeader() {
         <BranchSelector />
         <div className="flex items-center gap-1.5 sm:gap-2">
           <ThemeToggle />
-          <div className="flex items-center gap-2 sm:pl-3">
+          <button className="flex items-center gap-2 rounded-xl px-2 py-1.5 text-right transition hover:bg-slate-100 dark:hover:bg-slate-800" type="button" onClick={() => navigate('/profile')} aria-label="اطلاعات حساب کاربری" title="اطلاعات حساب کاربری">
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-indigo-100 bg-indigo-50 font-extrabold text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950 dark:text-indigo-300">{(user?.name || 'ک').slice(0, 1)}</span>
             <span className="hidden sm:block"><strong className="block text-xs">{user?.name || 'کاربر'}</strong><small className="mt-1 block text-[10px] text-slate-500 dark:text-slate-400">{user?.role === 'ADMIN' ? 'مدیر سامانه' : 'فروشنده'}</small></span>
-          </div>
+            <FiUser className="text-slate-400" size={15} aria-hidden="true" />
+          </button>
           <button className="flex min-h-9 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold transition hover:border-rose-300 hover:text-rose-600 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:text-rose-400" type="button" onClick={handleLogout} disabled={isLoggingOut}>
             <FiLogOut size={15} aria-hidden="true" />
             {isLoggingOut ? 'در حال خروج...' : 'خروج'}

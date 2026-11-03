@@ -7,38 +7,26 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isInitializing, setIsInitializing] = useState(true);
 
-  const clearSession = useCallback(() => {
-    setUser(null);
-  }, []);
+  const clearSession = useCallback(() => setUser(null), []);
 
   const refreshUser = useCallback(async () => {
     const response = await getCurrentUser();
     const currentUser = response?.data?.user;
-
-    if (!currentUser) {
-      throw new Error('اطلاعات کاربر از سرور دریافت نشد.');
-    }
-
+    if (!currentUser) throw new Error('اطلاعات کاربر از سرور دریافت نشد.');
     setUser(currentUser);
     return currentUser;
   }, []);
 
   useEffect(() => {
     let active = true;
-
     const initialize = async () => {
       try {
         window.sessionStorage.removeItem('aseman_access_token');
       } catch {
       }
-
       try {
         const response = await getCurrentUser();
-
-        if (!response?.data?.user) {
-          throw new Error('اطلاعات کاربر دریافت نشد.');
-        }
-
+        if (!response?.data?.user) throw new Error('اطلاعات کاربر دریافت نشد.');
         if (active) setUser(response.data.user);
       } catch {
         if (active) setUser(null);
@@ -46,17 +34,12 @@ export function AuthProvider({ children }) {
         if (active) setIsInitializing(false);
       }
     };
-
     initialize();
-
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, []);
 
   const login = useCallback(async ({ email, password }) => {
     await loginRequest({ email, password });
-
     try {
       return await refreshUser();
     } catch (error) {
@@ -85,17 +68,14 @@ export function AuthProvider({ children }) {
     login,
     logout,
     refreshUser,
-  }), [user, isInitializing, login, logout, refreshUser]);
+    clearSession,
+  }), [user, isInitializing, login, logout, refreshUser, clearSession]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
   const context = useContext(AuthContext);
-
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
-
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
 }
