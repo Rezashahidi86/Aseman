@@ -73,6 +73,10 @@ productSchema.index(
 );
 productSchema.index({ branch: 1 });
 productSchema.index(
+  { branch: 1, createdAt: -1 },
+  { name: 'branch_createdAt_desc' },
+);
+productSchema.index(
   { branch: 1, name: 1 },
   {
     unique: true,
