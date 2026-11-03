@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FiBox, FiPlus, FiRefreshCw } from 'react-icons/fi';
+import { FiBox, FiDownload, FiPlus, FiRefreshCw } from 'react-icons/fi';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../../auth/AuthContext.jsx';
 import { useActiveBranch } from '../../../branches/ActiveBranchContext.jsx';
@@ -11,7 +11,8 @@ import { ProductFormModal } from '../components/ProductFormModal.jsx';
 import { ProductPagination } from '../components/ProductPagination.jsx';
 import { ProductTable } from '../components/ProductTable.jsx';
 import { confirmWithToast, showError, showSuccess } from '../../../shared/utils/notifications.js';
-import { formatNumber } from '../../../shared/utils/format.js';
+import { formatMoney, formatNumber } from '../../../shared/utils/format.js';
+import { fetchAllPages, openPdfWindow, printPdfTable } from '../../../shared/utils/pdfExport.js';
 
 const DEFAULT_FILTERS = { name: '', barcode: '', stock: 'all', sort: '-createdAt' };
 
@@ -151,6 +152,44 @@ export function ProductsPage() {
     setEditingProduct(null);
   };
 
+
+  const handleExportPdf = async () => {
+    const targetWindow = openPdfWindow();
+    if (!targetWindow) {
+      setError('برای دریافت PDF، اجازه باز شدن پنجره جدید را فعال کنید.');
+      return;
+    }
+
+    try {
+      const params = { sort: appliedFilters.sort };
+      if (appliedFilters.name.trim()) params.name = appliedFilters.name.trim();
+      if (appliedFilters.barcode.trim()) params.barcode = appliedFilters.barcode.trim();
+      if (appliedFilters.stock !== 'all') params.stock = appliedFilters.stock;
+      if (isAdmin) params.branchId = activeBranchId;
+
+      const allProducts = await fetchAllPages(
+        (requestedPage, requestedLimit) => getProducts({ ...params, page: requestedPage, limit: requestedLimit }),
+        (response) => response?.data?.products,
+      );
+
+      printPdfTable(targetWindow, {
+        title: `فهرست محصولات - ${activeBranch?.name || 'شعبه من'}`,
+        headers: ['محصول', 'قیمت خرید', 'قیمت فروش', 'موجودی', 'حداقل موجودی', 'وضعیت'],
+        rows: allProducts.map((product) => [
+          product.name,
+          formatMoney(product.purchasePrice),
+          formatMoney(product.salePrice),
+          formatNumber(product.quantity),
+          formatNumber(product.minimumStock ?? 0),
+          Number(product.quantity) <= Number(product.minimumStock ?? 0) ? 'موجودی کم' : 'موجود',
+        ]),
+      });
+    } catch (exportError) {
+      targetWindow.close();
+      setError(exportError.message || 'ساخت فایل PDF ناموفق بود.');
+    }
+  };
+
   const branchRequired = isAdmin && !activeBranchId;
 
   return (
@@ -168,6 +207,7 @@ export function ProductsPage() {
               </div>
               <div className="flex flex-wrap gap-2">
                 <button className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-xs font-bold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800" type="button" onClick={loadProducts} disabled={isLoading || branchRequired}><FiRefreshCw size={15} className={isLoading ? 'animate-spin' : ''} /> تازه‌سازی</button>
+                <button className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-xs font-bold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800" type="button" onClick={handleExportPdf} disabled={isLoading || branchRequired}><FiDownload size={15} /> خروجی PDF</button>
                 <button className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-xs font-bold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50" type="button" onClick={() => { setEditingProduct(null); setIsCreating(true); }} disabled={branchRequired || isLoadingBranches}><FiPlus size={16} /> افزودن محصول</button>
               </div>
             </div>
