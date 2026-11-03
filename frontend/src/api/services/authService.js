@@ -14,3 +14,18 @@ export async function logoutRequest() {
   const response = await apiClient.post('/auth/logout');
   return response.data;
 }
+
+export async function requestPasswordReset(email) {
+  const response = await apiClient.post('/auth/password/forgot', { email });
+  return response.data;
+}
+
+export async function resetPassword(payload) {
+  const response = await apiClient.post('/auth/password/reset', payload);
+  return response.data;
+}
+
+export async function updateCredentials(payload) {
+  const response = await apiClient.patch('/auth/credentials', payload);
+  return response.data;
+}
