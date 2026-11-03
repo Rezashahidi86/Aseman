@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   FiAlertTriangle,
   FiClipboard,
+  FiDownload,
   FiPlus,
   FiRefreshCw,
   FiX,
@@ -19,6 +20,7 @@ import { DashboardSidebar } from '../../dashboard/components/DashboardSidebar.js
 import { showError, showSuccess } from '../../../shared/utils/notifications.js';
 import { formatNumber } from '../../../shared/utils/format.js';
 import { formatPersianDate } from '../../../shared/utils/date.js';
+import { fetchAllPages, openPdfWindow, printPdfTable } from '../../../shared/utils/pdfExport.js';
 
 const statusLabels = {
   PENDING: 'در انتظار',
@@ -269,6 +271,42 @@ export function NeedsPage() {
     }
   };
 
+
+  const handleExportPdf = async () => {
+    const targetWindow = openPdfWindow();
+    if (!targetWindow) {
+      showError('برای دریافت PDF، اجازه باز شدن پنجره جدید را فعال کنید.');
+      return;
+    }
+
+    try {
+      const allNeeds = await fetchAllPages(
+        (requestedPage, requestedLimit) => getNeeds({
+          ...(activeBranchId ? { branchId: activeBranchId } : {}),
+          page: requestedPage,
+          limit: requestedLimit,
+          ...(status ? { status } : {}),
+        }),
+        (response) => response?.data?.needs,
+      );
+
+      printPdfTable(targetWindow, {
+        title: `فهرست نیازهای دستی - ${activeBranch?.name || 'شعبه من'}`,
+        headers: ['کالا', 'تعداد موردنیاز', 'ثبت‌کننده', 'تاریخ ثبت', 'وضعیت'],
+        rows: allNeeds.map((need) => [
+          need.productName || need.product?.name || '—',
+          formatNumber(need.requestedQuantity),
+          need.createdBy?.name || '—',
+          formatPersianDate(need.createdAt),
+          statusLabels[need.status] || need.status,
+        ]),
+      });
+    } catch (exportError) {
+      targetWindow.close();
+      showError(exportError.message || 'ساخت فایل PDF ناموفق بود.');
+    }
+  };
+
   const confirm = async (id) => {
     try {
       await deleteNeed(id, activeBranchId ? { branchId: activeBranchId } : {});
@@ -455,16 +493,26 @@ export function NeedsPage() {
                         تأیید کنید. درخواست تأییدشده از دیتابیس حذف می‌شود.
                       </p>
                     </div>
-                    <span className="rounded-xl border border-indigo-100 bg-white px-4 py-2 text-sm font-bold text-indigo-700 dark:border-indigo-900 dark:bg-slate-900 dark:text-indigo-300">
-                      {formatNumber(needsPagination.total)} درخواست باز
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setIsNeedModalOpen(true)}
-                      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-xs font-bold text-white transition hover:bg-indigo-700"
-                    >
-                      <FiPlus size={15} /> ثبت نیاز دستی
-                    </button>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-xl border border-indigo-100 bg-white px-4 py-2 text-sm font-bold text-indigo-700 dark:border-indigo-900 dark:bg-slate-900 dark:text-indigo-300">
+                        {formatNumber(needsPagination.total)} درخواست باز
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleExportPdf}
+                        disabled={loadingNeeds}
+                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-xs font-bold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                      >
+                        <FiDownload size={15} /> خروجی PDF
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsNeedModalOpen(true)}
+                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-xs font-bold text-white transition hover:bg-indigo-700"
+                      >
+                        <FiPlus size={15} /> ثبت نیاز دستی
+                      </button>
+                    </div>
                   </div>
 
                   <div className="overflow-x-auto">
