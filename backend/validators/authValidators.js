@@ -21,10 +21,11 @@ export const resetPasswordSchema = z.object({
 
 export const changeCredentialsSchema = z.object({
   currentPassword: z.string().min(1),
+  name: z.string().trim().min(2).max(100).optional(),
   email: emailSchema.optional(),
   newPassword: newPasswordSchema.optional(),
   confirmPassword: z.string().optional(),
-}).refine((value) => Boolean(value.email || value.newPassword), {
+}).refine((value) => Boolean(value.name || value.email || value.newPassword), {
   message: 'At least one account change is required',
 }).refine((value) => !value.newPassword || value.newPassword === value.confirmPassword, {
   path: ['confirmPassword'],
