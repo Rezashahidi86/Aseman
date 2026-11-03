@@ -31,6 +31,10 @@ customerSchema.index(
 );
 
 customerSchema.index({ branch: 1, name: 1 });
+customerSchema.index(
+  { branch: 1, createdAt: -1, _id: -1 },
+  { name: 'branch_createdAt_id_desc' },
+);
 
 const Customer = mongoose.model('Customer', customerSchema);
 

@@ -115,6 +115,10 @@ saleSchema.index(
 );
 
 saleSchema.index({ branch: 1, createdAt: -1 });
+saleSchema.index(
+  { branch: 1, createdBy: 1, createdAt: -1 },
+  { name: 'branch_createdBy_createdAt_desc' },
+);
 
 const Sale = mongoose.model('Sale', saleSchema);
 

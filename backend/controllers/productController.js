@@ -193,7 +193,7 @@ const getProducts = async (req, res, next) => {
         return next(new AppError('A branch must be selected', 400));
       }
 
-      filter.barcode = barcode.trim();
+      filter.barcode = { $eq: barcode.trim(), $type: 'string' };
     }
 
     if (stock !== undefined) {
