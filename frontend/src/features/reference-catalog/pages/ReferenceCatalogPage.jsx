@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FiBookOpen, FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi';
+import { FiBookOpen, FiDownload, FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi';
 import { ProductPagination } from '../../products/components/ProductPagination.jsx';
 import { createReferenceItem, deleteReferenceItem, getReferenceCatalog, updateReferenceItem } from '../../../api/services/referenceCatalogService.js';
 import { confirmWithToast, showError, showSuccess } from '../../../shared/utils/notifications.js';
 import { DashboardHeader } from '../../dashboard/components/DashboardHeader.jsx';
 import { DashboardSidebar } from '../../dashboard/components/DashboardSidebar.jsx';
 import { formatMoney, formatNumber } from '../../../shared/utils/format.js';
+import { fetchAllPages, openPdfWindow, printPdfTable } from '../../../shared/utils/pdfExport.js';
 
 const EMPTY = { name: '', barcode: '', purchasePrice: '', salePrice: '' };
 
@@ -86,6 +87,39 @@ export function ReferenceCatalogPage() {
     }
   };
 
+
+  const handleExportPdf = async () => {
+    const targetWindow = openPdfWindow();
+    if (!targetWindow) {
+      showError('برای دریافت PDF، اجازه باز شدن پنجره جدید را فعال کنید.');
+      return;
+    }
+
+    try {
+      const allItems = await fetchAllPages(
+        (requestedPage, requestedLimit) => getReferenceCatalog({
+          page: requestedPage,
+          limit: requestedLimit,
+          search: appliedSearch || undefined,
+        }),
+        (response) => response?.data?.items,
+      );
+
+      printPdfTable(targetWindow, {
+        title: 'فهرست کاتالوگ مرجع',
+        headers: ['نام کالا', 'قیمت خرید مرجع', 'قیمت فروش مرجع'],
+        rows: allItems.map((item) => [
+          item.name,
+          formatMoney(item.purchasePrice),
+          formatMoney(item.salePrice),
+        ]),
+      });
+    } catch (exportError) {
+      targetWindow.close();
+      showError(exportError.message || 'ساخت فایل PDF ناموفق بود.');
+    }
+  };
+
   const handleDelete = (item) => confirmWithToast({
     message: `کالای مرجع «${item.name}» حذف شود؟`,
     confirmLabel: 'حذف',
@@ -102,7 +136,7 @@ export function ReferenceCatalogPage() {
   });
 
   return <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100" dir="rtl"><div className="grid min-h-screen grid-cols-1 md:grid-cols-[230px_minmax(0,1fr)]"><DashboardSidebar /><div className="min-w-0"><DashboardHeader /><main className="mx-auto w-full max-w-screen-2xl px-4 py-6 sm:px-8 sm:py-8">
-    <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><div><p className="mb-2 text-xs text-slate-500 dark:text-slate-400">قیمت‌نامه مشترک</p><h1 className="text-2xl font-extrabold">کاتالوگ مرجع</h1><p className="mt-2 text-xs text-slate-500 dark:text-slate-400">قیمت‌های مرجع مستقل از کالاهای موجودی هر شعبه هستند و تغییر آن‌ها قیمت شعبه را تغییر نمی‌دهد.</p></div><button className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-xs font-bold text-white" type="button" onClick={openCreate}><FiPlus size={16} /> کالای مرجع جدید</button></div>
+    <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><div><p className="mb-2 text-xs text-slate-500 dark:text-slate-400">قیمت‌نامه مشترک</p><h1 className="text-2xl font-extrabold">کاتالوگ مرجع</h1><p className="mt-2 text-xs text-slate-500 dark:text-slate-400">قیمت‌های مرجع مستقل از کالاهای موجودی هر شعبه هستند و تغییر آن‌ها قیمت شعبه را تغییر نمی‌دهد.</p></div><button className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-xs font-bold text-white" type="button" onClick={openCreate}><FiPlus size={16} /> کالای مرجع جدید</button><button className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-bold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200" type="button" onClick={handleExportPdf}><FiDownload size={15} /> خروجی PDF</button></div>
     <form className="mb-4 flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row dark:border-slate-800 dark:bg-slate-900" onSubmit={(event) => { event.preventDefault(); setPage(1); setAppliedSearch(search.trim()); }}><label className="relative min-w-0 flex-1"><FiSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" /><input className="min-h-11 w-full rounded-xl border border-slate-200 bg-white pr-9 pl-3 text-sm dark:border-slate-700 dark:bg-slate-950" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="جست‌وجو بر اساس نام یا بارکد" /></label><button className="rounded-xl bg-slate-900 px-5 py-3 text-xs font-bold text-white dark:bg-indigo-600" type="submit">جست‌وجو</button></form>
     {error && <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-300" role="alert">{error}<button className="mr-3 underline" type="button" onClick={() => loadItems()}>تلاش دوباره</button></div>}
     {isFormOpen && <form className="mb-5 grid grid-cols-1 gap-3 rounded-2xl border border-indigo-200 bg-white p-5 sm:grid-cols-2 xl:grid-cols-5 dark:border-indigo-900 dark:bg-slate-900" onSubmit={handleSubmit}><label className="text-xs font-bold">نام کالا<input className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950" value={form.name} onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))} required maxLength={150} /></label><label className="text-xs font-bold">بارکد (اختیاری)<input className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950" value={form.barcode} onChange={(e) => setForm((s) => ({ ...s, barcode: e.target.value }))} maxLength={100} /></label><label className="text-xs font-bold">قیمت خرید<input className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950" type="number" min="0" step="any" value={form.purchasePrice} onChange={(e) => setForm((s) => ({ ...s, purchasePrice: e.target.value }))} required /></label><label className="text-xs font-bold">قیمت فروش<input className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950" type="number" min="0" step="any" value={form.salePrice} onChange={(e) => setForm((s) => ({ ...s, salePrice: e.target.value }))} required /></label><div className="flex items-end gap-2"><button className="min-h-11 flex-1 rounded-xl bg-indigo-600 px-3 text-xs font-bold text-white disabled:opacity-50" type="submit" disabled={isSaving}>{isSaving ? 'در حال ذخیره...' : editingId ? 'ذخیره تغییرات' : 'ثبت کالا'}</button><button className="min-h-11 rounded-xl border border-slate-200 px-3 text-xs font-bold dark:border-slate-700" type="button" onClick={() => setIsFormOpen(false)} disabled={isSaving}>انصراف</button></div></form>}
