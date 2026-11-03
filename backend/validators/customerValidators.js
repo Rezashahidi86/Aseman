@@ -29,12 +29,19 @@ const customerQuerySchema = z
   .object({
     search: z.string().trim().min(1).max(100).optional(),
     name: z.string().trim().min(1).max(100).optional(),
-    phone: z.string().trim().regex(/^09\d{9}$/).optional(),
+    phone: z
+      .string()
+      .trim()
+      .regex(/^09\d{9}$/)
+      .optional(),
     page: z.coerce.number().int().min(1).optional(),
     limit: z.coerce.number().int().min(1).max(100).optional(),
     sort: z.string().max(200).optional(),
     fields: z.string().max(300).optional(),
-    branchId: z.string().regex(/^[a-f\d]{24}$/i).optional(),
+    branchId: z
+      .string()
+      .regex(/^[a-f\d]{24}$/i)
+      .optional(),
   })
   .strict();
 

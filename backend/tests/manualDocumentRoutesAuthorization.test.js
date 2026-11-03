@@ -6,8 +6,7 @@ import setBranchContext from '../middlewares/branchMiddleware.js';
 describe('Manual document route authorization', () => {
   it('allows authenticated admins and branch-authorized sellers to delete documents', () => {
     const deleteRoute = manualDocumentsRouter.stack.find(
-      (layer) =>
-        layer.route?.path === '/:id' && layer.route.methods.delete,
+      (layer) => layer.route?.path === '/:id' && layer.route.methods.delete,
     );
 
     expect(deleteRoute).toBeDefined();

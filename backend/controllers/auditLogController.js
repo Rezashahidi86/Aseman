@@ -8,14 +8,26 @@ const auditLogQuerySchema = z
   .object({
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(25),
-    action: z.string().refine((value) => AUDIT_ACTIONS.includes(value)).optional(),
+    action: z
+      .string()
+      .refine((value) => AUDIT_ACTIONS.includes(value))
+      .optional(),
     resource: z
       .string()
       .refine((value) => AUDIT_RESOURCES.includes(value))
       .optional(),
-    actor: z.string().regex(/^[a-f\d]{24}$/i).optional(),
-    branch: z.string().regex(/^[a-f\d]{24}$/i).optional(),
-    resourceId: z.string().regex(/^[a-f\d]{24}$/i).optional(),
+    actor: z
+      .string()
+      .regex(/^[a-f\d]{24}$/i)
+      .optional(),
+    branch: z
+      .string()
+      .regex(/^[a-f\d]{24}$/i)
+      .optional(),
+    resourceId: z
+      .string()
+      .regex(/^[a-f\d]{24}$/i)
+      .optional(),
     from: z
       .string()
       .refine((value) => !Number.isNaN(new Date(value).getTime()))

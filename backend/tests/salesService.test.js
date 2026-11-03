@@ -149,12 +149,14 @@ describe('Sales service', () => {
     expect(result.sale.totalSales).toBe(240);
     expect(result.sale.totalProfit).toBe(120);
     expect(result.sale.totalItemsSold).toBe(2);
-    expect(result.sale.items[0]).toEqual(expect.objectContaining({
-      purchasePrice: 60,
-      finalSalePrice: 120,
-      lineTotal: 240,
-      lineProfit: 120,
-    }));
+    expect(result.sale.items[0]).toEqual(
+      expect.objectContaining({
+        purchasePrice: 60,
+        finalSalePrice: 120,
+        lineTotal: 240,
+        lineProfit: 120,
+      }),
+    );
     expect(stock).toBe(8);
     expect(salesCount).toBe(2);
     expect(mocks.statsUpdateOne).toHaveBeenCalledTimes(2);
@@ -164,7 +166,9 @@ describe('Sales service', () => {
         periodType: 'monthly',
         periodKey: getTehranJalaliMonthKey(),
       }),
-      expect.objectContaining({ $inc: expect.objectContaining({ totalSales: 240, totalProfit: 120 }) }),
+      expect.objectContaining({
+        $inc: expect.objectContaining({ totalSales: 240, totalProfit: 120 }),
+      }),
       expect.objectContaining({ upsert: true, session: expect.anything() }),
     );
     expect(mocks.auditCreate).toHaveBeenCalledWith(
@@ -391,12 +395,14 @@ describe('Sales service', () => {
       idempotencyKey,
     });
 
-    expect(result.sale.items[0]).toEqual(expect.objectContaining({
-      purchasePrice: 60,
-      finalSalePrice: 150,
-      lineTotal: 450,
-      lineProfit: 270,
-    }));
+    expect(result.sale.items[0]).toEqual(
+      expect.objectContaining({
+        purchasePrice: 60,
+        finalSalePrice: 150,
+        lineTotal: 450,
+        lineProfit: 270,
+      }),
+    );
     expect(result.sale.totalSales).toBe(450);
     expect(result.sale.totalProfit).toBe(270);
   });
@@ -444,7 +450,6 @@ describe('Sales service', () => {
     expect(mocks.saleCreate).not.toHaveBeenCalled();
   });
 
-
   it('SALE-029: rejects reuse of an idempotency key with different cart contents', async () => {
     mocks.saleFindOne.mockReturnValue({
       select: vi.fn().mockResolvedValue({
@@ -462,11 +467,12 @@ describe('Sales service', () => {
         sellerId,
         idempotencyKey,
       }),
-    ).rejects.toThrow('Idempotency key has already been used for a different sale');
+    ).rejects.toThrow(
+      'Idempotency key has already been used for a different sale',
+    );
 
     expect(mocks.startSession).not.toHaveBeenCalled();
     expect(mocks.productUpdateOne).not.toHaveBeenCalled();
     expect(mocks.saleCreate).not.toHaveBeenCalled();
   });
-
 });

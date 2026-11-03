@@ -1,5 +1,12 @@
 import { Router } from 'express';
-import { login, logout, getMe, requestPasswordReset, resetPassword, changeCredentials } from '../controllers/authController.js';
+import {
+  login,
+  logout,
+  getMe,
+  requestPasswordReset,
+  resetPassword,
+  changeCredentials,
+} from '../controllers/authController.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
 import loginRateLimiter from '../middlewares/loginRateLimiter.js';
 import passwordResetRateLimiter from '../middlewares/passwordResetRateLimiter.js';

@@ -3,15 +3,20 @@ import env from '../config/env.js';
 import Sale from '../models/Sale.js';
 import SalesStats from '../models/SalesStats.js';
 
-const jalaliMonthFormatter = new Intl.DateTimeFormat('en-US-u-ca-persian-nu-latn', {
-  timeZone: 'Asia/Tehran',
-  year: 'numeric',
-  month: '2-digit',
-});
+const jalaliMonthFormatter = new Intl.DateTimeFormat(
+  'en-US-u-ca-persian-nu-latn',
+  {
+    timeZone: 'Asia/Tehran',
+    year: 'numeric',
+    month: '2-digit',
+  },
+);
 
 const getJalaliMonthKey = (date) => {
   const parts = Object.fromEntries(
-    jalaliMonthFormatter.formatToParts(date).map(({ type, value }) => [type, value]),
+    jalaliMonthFormatter
+      .formatToParts(date)
+      .map(({ type, value }) => [type, value]),
   );
   return `${parts.year}-${parts.month.padStart(2, '0')}`;
 };
@@ -64,7 +69,9 @@ const rebuildSalesStats = async () => {
 
     const [dailyStats, sales] = await Promise.all([
       aggregateStats('%Y-%m-%d', 'daily'),
-      Sale.find().select('branch createdAt totalSales totalProfit totalItemsSold').lean(),
+      Sale.find()
+        .select('branch createdAt totalSales totalProfit totalItemsSold')
+        .lean(),
     ]);
 
     const monthlyMap = new Map();

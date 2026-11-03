@@ -11,7 +11,10 @@ const router = Router();
 
 router.use(authMiddleware);
 
-router.route('/').post(setBranchContext, createNeed).get(setBranchContext, getNeeds);
+router
+  .route('/')
+  .post(setBranchContext, createNeed)
+  .get(setBranchContext, getNeeds);
 
 router.delete('/:id/confirm', setBranchContext, deleteNeed);
 router.delete('/:id', setBranchContext, deleteNeed);

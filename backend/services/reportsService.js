@@ -20,7 +20,8 @@ import {
 
 const getPreviousJalaliMonthKey = (monthKey) => {
   const [year, month] = monthKey.split('-').map(Number);
-  const previous = month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 };
+  const previous =
+    month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 };
   return `${previous.year}-${String(previous.month).padStart(2, '0')}`;
 };
 
@@ -207,10 +208,22 @@ const getMonthlyComparisonReport = async ({ branchId }) => {
       ...previousStats,
     },
     comparison: {
-      totalSales: calculateChange(currentStats.totalSales, previousStats.totalSales),
-      totalProfit: calculateChange(currentStats.totalProfit, previousStats.totalProfit),
-      totalItemsSold: calculateChange(currentStats.totalItemsSold, previousStats.totalItemsSold),
-      salesCount: calculateChange(currentStats.salesCount, previousStats.salesCount),
+      totalSales: calculateChange(
+        currentStats.totalSales,
+        previousStats.totalSales,
+      ),
+      totalProfit: calculateChange(
+        currentStats.totalProfit,
+        previousStats.totalProfit,
+      ),
+      totalItemsSold: calculateChange(
+        currentStats.totalItemsSold,
+        previousStats.totalItemsSold,
+      ),
+      salesCount: calculateChange(
+        currentStats.salesCount,
+        previousStats.salesCount,
+      ),
     },
   };
 };

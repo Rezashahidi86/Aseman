@@ -4,9 +4,13 @@ import Sale from '../models/Sale.js';
 import Customer from '../models/Customer.js';
 
 const findIndex = (model, expectedKeys, name) =>
-  model.schema.indexes().find(([keys, options]) =>
-    name ? options.name === name : JSON.stringify(keys) === JSON.stringify(expectedKeys),
-  );
+  model.schema
+    .indexes()
+    .find(([keys, options]) =>
+      name
+        ? options.name === name
+        : JSON.stringify(keys) === JSON.stringify(expectedKeys),
+    );
 
 describe('Query optimization indexes', () => {
   it('preserves the unique partial barcode index and adds branch product sorting', () => {

@@ -9,7 +9,10 @@ import {
   saleCartSchema,
   saleRegistrationSchema,
 } from '../validators/salesValidators.js';
-import { getTehranDateKey, getTehranJalaliMonthKey } from '../utils/dateKeys.js';
+import {
+  getTehranDateKey,
+  getTehranJalaliMonthKey,
+} from '../utils/dateKeys.js';
 
 const prepareSaleItems = async (items, branchId, session = null) => {
   const validation = saleCartSchema.safeParse({ items });
@@ -127,7 +130,10 @@ const registerSale = async ({
     }
 
     if (existingSale.requestHash && existingSale.requestHash !== requestHash) {
-      throw new AppError('Idempotency key has already been used for a different sale', 409);
+      throw new AppError(
+        'Idempotency key has already been used for a different sale',
+        409,
+      );
     }
 
     return {
@@ -277,8 +283,14 @@ const registerSale = async ({
           throw new AppError('Idempotency key has already been used', 409);
         }
 
-        if (duplicateSale.requestHash && duplicateSale.requestHash !== requestHash) {
-          throw new AppError('Idempotency key has already been used for a different sale', 409);
+        if (
+          duplicateSale.requestHash &&
+          duplicateSale.requestHash !== requestHash
+        ) {
+          throw new AppError(
+            'Idempotency key has already been used for a different sale',
+            409,
+          );
         }
 
         return {

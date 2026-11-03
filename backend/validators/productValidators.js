@@ -42,7 +42,10 @@ const productQuerySchema = z
     limit: z.coerce.number().int().min(1).max(100).optional(),
     sort: z.string().max(200).optional(),
     fields: z.string().max(300).optional(),
-    branchId: z.string().regex(/^[a-f\d]{24}$/i).optional(),
+    branchId: z
+      .string()
+      .regex(/^[a-f\d]{24}$/i)
+      .optional(),
     stock: z.enum(['low', 'available']).optional(),
   })
   .strict();

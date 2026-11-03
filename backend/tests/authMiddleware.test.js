@@ -58,11 +58,9 @@ describe('Authentication and authorization middleware', () => {
 
   it('should reject a token after its user token version changes', async () => {
     const userId = '507f1f77bcf86cd799439011';
-    const token = jwt.sign(
-      { sub: userId, tokenVersion: 0 },
-      env.JWT_SECRET,
-      { expiresIn: '1h' },
-    );
+    const token = jwt.sign({ sub: userId, tokenVersion: 0 }, env.JWT_SECRET, {
+      expiresIn: '1h',
+    });
 
     req.headers.authorization = `Bearer ${token}`;
     User.findById.mockResolvedValue({
@@ -87,11 +85,9 @@ describe('Authentication and authorization middleware', () => {
       tokenVersion: 3,
       role: ROLES.SELLER,
     };
-    const token = jwt.sign(
-      { sub: userId, tokenVersion: 3 },
-      env.JWT_SECRET,
-      { expiresIn: '1h' },
-    );
+    const token = jwt.sign({ sub: userId, tokenVersion: 3 }, env.JWT_SECRET, {
+      expiresIn: '1h',
+    });
 
     req.headers.authorization = `Bearer ${token}`;
     User.findById.mockResolvedValue(user);

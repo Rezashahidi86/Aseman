@@ -70,33 +70,39 @@ describe('REP-009: Daily, weekly and monthly report accuracy', () => {
       periodType: 'daily',
       periodKey: '2026-02-01',
     });
-    expect(report).toEqual(expect.objectContaining({
-      date: '2026-02-01',
-      totalSales: 1500,
-      totalProfit: 300,
-      totalItemsSold: 5,
-      salesCount: 2,
-    }));
+    expect(report).toEqual(
+      expect.objectContaining({
+        date: '2026-02-01',
+        totalSales: 1500,
+        totalProfit: 300,
+        totalItemsSold: 5,
+        salesCount: 2,
+      }),
+    );
   });
 
   it('returns zero totals when a daily report does not exist', async () => {
     const report = await getDailyBranchReport({ branchId, date: '2026-02-01' });
 
-    expect(report).toEqual(expect.objectContaining({
-      totalSales: 0,
-      totalProfit: 0,
-      totalItemsSold: 0,
-      salesCount: 0,
-    }));
+    expect(report).toEqual(
+      expect.objectContaining({
+        totalSales: 0,
+        totalProfit: 0,
+        totalItemsSold: 0,
+        salesCount: 0,
+      }),
+    );
   });
 
   it('includes both endpoints in a seven-day weekly report', async () => {
-    SalesStats.aggregate.mockResolvedValue([{
-      totalSales: 5000,
-      totalProfit: 1200,
-      totalItemsSold: 15,
-      salesCount: 6,
-    }]);
+    SalesStats.aggregate.mockResolvedValue([
+      {
+        totalSales: 5000,
+        totalProfit: 1200,
+        totalItemsSold: 15,
+        salesCount: 6,
+      },
+    ]);
 
     const report = await getWeeklyBranchReport({
       branchId,
@@ -104,79 +110,96 @@ describe('REP-009: Daily, weekly and monthly report accuracy', () => {
       endDate: '2026-02-01',
     });
 
-    const matchStage = SalesStats.aggregate.mock.calls[0][0].find((stage) => stage.$match);
+    const matchStage = SalesStats.aggregate.mock.calls[0][0].find(
+      (stage) => stage.$match,
+    );
 
     expect(matchStage.$match.periodKey).toEqual({
       $gte: '2026-01-26',
       $lte: '2026-02-01',
     });
-    expect(report).toEqual(expect.objectContaining({
-      totalSales: 5000,
-      totalProfit: 1200,
-      totalItemsSold: 15,
-      salesCount: 6,
-    }));
+    expect(report).toEqual(
+      expect.objectContaining({
+        totalSales: 5000,
+        totalProfit: 1200,
+        totalItemsSold: 15,
+        salesCount: 6,
+      }),
+    );
   });
 
   it('rejects a weekly range that is not exactly seven days', async () => {
-    await expect(getWeeklyBranchReport({
-      branchId,
-      startDate: '2026-01-26',
-      endDate: '2026-02-02',
-    })).rejects.toThrow();
+    await expect(
+      getWeeklyBranchReport({
+        branchId,
+        startDate: '2026-01-26',
+        endDate: '2026-02-02',
+      }),
+    ).rejects.toThrow();
 
     expect(SalesStats.aggregate).not.toHaveBeenCalled();
   });
 
   it('uses the Jalali month boundaries for monthly branch reports', async () => {
-    Sale.aggregate.mockResolvedValue([{
-      totalSales: 12000,
-      totalProfit: 3200,
-      totalItemsSold: 40,
-      salesCount: 12,
-    }]);
+    Sale.aggregate.mockResolvedValue([
+      {
+        totalSales: 12000,
+        totalProfit: 3200,
+        totalItemsSold: 40,
+        salesCount: 12,
+      },
+    ]);
 
     const report = await getMonthlyBranchReport({ branchId, month: '1405-08' });
     const { startDate, endDate } = getJalaliMonthDateRange('1405-08');
     const { start, end } = getTehranDateRange(startDate, endDate);
-    const matchStage = Sale.aggregate.mock.calls[0][0].find((stage) => stage.$match);
+    const matchStage = Sale.aggregate.mock.calls[0][0].find(
+      (stage) => stage.$match,
+    );
 
     expect(matchStage.$match).toEqual({
       branch: new mongoose.Types.ObjectId(branchId),
       createdAt: { $gte: start, $lte: end },
     });
-    expect(report).toEqual(expect.objectContaining({
-      month: '1405-08',
-      startDate,
-      endDate,
-      totalSales: 12000,
-      totalProfit: 3200,
-      totalItemsSold: 40,
-      salesCount: 12,
-    }));
+    expect(report).toEqual(
+      expect.objectContaining({
+        month: '1405-08',
+        startDate,
+        endDate,
+        totalSales: 12000,
+        totalProfit: 3200,
+        totalItemsSold: 40,
+        salesCount: 12,
+      }),
+    );
   });
 
   it('uses the current and previous Jalali months for monthly comparison', async () => {
     Sale.aggregate
-      .mockResolvedValueOnce([{
-        totalSales: 2000,
-        totalProfit: 500,
-        totalItemsSold: 8,
-        salesCount: 3,
-      }])
-      .mockResolvedValueOnce([{
-        totalSales: 1000,
-        totalProfit: 200,
-        totalItemsSold: 4,
-        salesCount: 2,
-      }]);
+      .mockResolvedValueOnce([
+        {
+          totalSales: 2000,
+          totalProfit: 500,
+          totalItemsSold: 8,
+          salesCount: 3,
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          totalSales: 1000,
+          totalProfit: 200,
+          totalItemsSold: 4,
+          salesCount: 2,
+        },
+      ]);
 
     const report = await getMonthlyComparisonReport({ branchId });
     const currentMonth = getTehranJalaliMonthKey();
     const [year, month] = currentMonth.split('-').map(Number);
-    const previousMonth = month === 1
-      ? `${year - 1}-12`
-      : `${year}-${String(month - 1).padStart(2, '0')}`;
+    const previousMonth =
+      month === 1
+        ? `${year - 1}-12`
+        : `${year}-${String(month - 1).padStart(2, '0')}`;
 
     expect(report.currentMonth.month).toBe(currentMonth);
     expect(report.previousMonth.month).toBe(previousMonth);
@@ -218,7 +241,9 @@ describe('REP-009: Daily, weekly and monthly report accuracy', () => {
     const currentMonth = getTehranJalaliMonthKey();
     const { startDate, endDate } = getJalaliMonthDateRange(currentMonth);
     const { start, end } = getTehranDateRange(startDate, endDate);
-    const matchStage = Sale.aggregate.mock.calls[0][0].find((stage) => stage.$match);
+    const matchStage = Sale.aggregate.mock.calls[0][0].find(
+      (stage) => stage.$match,
+    );
 
     expect(matchStage.$match.createdAt).toEqual({ $gte: start, $lte: end });
     expect(report.month).toBe(currentMonth);
@@ -231,57 +256,57 @@ describe('REP-009: Daily, weekly and monthly report accuracy', () => {
   });
 });
 
-  it('groups report months by the Shamsi year across Nowruz', async () => {
-    const branchId = '507f1f77bcf86cd799439011';
-    const dailyStats = [
-      {
-        periodKey: '2026-03-20',
-        totalSales: 100,
-        totalProfit: 20,
-        totalItemsSold: 1,
-        salesCount: 1,
-      },
-      {
-        periodKey: '2026-03-21',
-        totalSales: 200,
-        totalProfit: 50,
-        totalItemsSold: 2,
-        salesCount: 1,
-      },
-    ];
-    SalesStats.find.mockReturnValue({
-      select: vi.fn().mockReturnThis(),
-      lean: vi.fn().mockResolvedValue(dailyStats),
-    });
-
-    const report = await getFilteredReport({
-      branchId,
-      startDate: '2026-03-20',
-      endDate: '2026-03-21',
-      groupBy: 'month',
-      sortBy: 'totalSales',
-      sortOrder: 'asc',
-    });
-
-    expect(report.reports).toEqual([
-      expect.objectContaining({
-        period: '1404-12',
-        totalSales: 100,
-        totalProfit: 20,
-      }),
-      expect.objectContaining({
-        period: '1405-01',
-        totalSales: 200,
-        totalProfit: 50,
-      }),
-    ]);
-    expect(report.totals).toEqual({
-      totalSales: 300,
-      totalProfit: 70,
-      totalItemsSold: 3,
-      salesCount: 2,
-    });
+it('groups report months by the Shamsi year across Nowruz', async () => {
+  const branchId = '507f1f77bcf86cd799439011';
+  const dailyStats = [
+    {
+      periodKey: '2026-03-20',
+      totalSales: 100,
+      totalProfit: 20,
+      totalItemsSold: 1,
+      salesCount: 1,
+    },
+    {
+      periodKey: '2026-03-21',
+      totalSales: 200,
+      totalProfit: 50,
+      totalItemsSold: 2,
+      salesCount: 1,
+    },
+  ];
+  SalesStats.find.mockReturnValue({
+    select: vi.fn().mockReturnThis(),
+    lean: vi.fn().mockResolvedValue(dailyStats),
   });
+
+  const report = await getFilteredReport({
+    branchId,
+    startDate: '2026-03-20',
+    endDate: '2026-03-21',
+    groupBy: 'month',
+    sortBy: 'totalSales',
+    sortOrder: 'asc',
+  });
+
+  expect(report.reports).toEqual([
+    expect.objectContaining({
+      period: '1404-12',
+      totalSales: 100,
+      totalProfit: 20,
+    }),
+    expect.objectContaining({
+      period: '1405-01',
+      totalSales: 200,
+      totalProfit: 50,
+    }),
+  ]);
+  expect(report.totals).toEqual({
+    totalSales: 300,
+    totalProfit: 70,
+    totalItemsSold: 3,
+    salesCount: 2,
+  });
+});
 
 describe('REP-010: Report branch access', () => {
   it('denies a seller access to another branch report', () => {

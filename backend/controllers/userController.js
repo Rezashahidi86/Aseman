@@ -113,10 +113,7 @@ export const updateUser = async (req, res, next) => {
       delete data.password;
     }
 
-    if (
-      data.isActive !== undefined &&
-      data.isActive !== user.isActive
-    ) {
+    if (data.isActive !== undefined && data.isActive !== user.isActive) {
       data.tokenVersion = (data.tokenVersion ?? user.tokenVersion ?? 0) + 1;
     }
 

@@ -16,9 +16,9 @@ describe('Request query validators', () => {
   });
 
   it('rejects malformed branch selection data', () => {
-    expect(
-      selectBranchSchema.safeParse({ branchId: 'invalid' }).success,
-    ).toBe(false);
+    expect(selectBranchSchema.safeParse({ branchId: 'invalid' }).success).toBe(
+      false,
+    );
   });
 
   it('accepts product filters and coerces pagination values', () => {
@@ -34,9 +34,9 @@ describe('Request query validators', () => {
   });
 
   it('rejects unsupported product query parameters', () => {
-    expect(
-      productQuerySchema.safeParse({ unexpected: 'value' }).success,
-    ).toBe(false);
+    expect(productQuerySchema.safeParse({ unexpected: 'value' }).success).toBe(
+      false,
+    );
   });
 
   it('rejects malformed customer phone filters', () => {
@@ -48,9 +48,9 @@ describe('Request query validators', () => {
   });
 
   it('rejects manual document pagination above the maximum page size', () => {
-    expect(
-      manualDocumentListSchema.safeParse({ limit: '500' }).success,
-    ).toBe(false);
+    expect(manualDocumentListSchema.safeParse({ limit: '500' }).success).toBe(
+      false,
+    );
   });
 
   it('rejects oversized reference catalog search values', () => {
