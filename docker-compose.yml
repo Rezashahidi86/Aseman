@@ -67,6 +67,7 @@ services:
     volumes:
       - ./backups/mongodb:/backups
       - ./docker/mongodb-backup/backup.sh:/scripts/backup.sh:ro
+      - uploads_data:/uploads:ro
     entrypoint: ['/bin/bash', '/scripts/backup.sh']
     networks:
       - aseman_network
