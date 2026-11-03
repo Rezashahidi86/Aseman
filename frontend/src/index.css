@@ -232,3 +232,46 @@ canvas {
   0% { transform: translateX(300%); }
   100% { transform: translateX(-300%); }
 }
+
+
+:root {
+  scrollbar-width: thin;
+  scrollbar-color: #a5b4fc #eef2ff;
+}
+
+:root[data-theme="dark"] {
+  scrollbar-color: #475569 #0f172a;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: #eef2ff;
+}
+
+*::-webkit-scrollbar-thumb {
+  border: 2px solid #eef2ff;
+  border-radius: 999px;
+  background: #a5b4fc;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #818cf8;
+}
+
+:root[data-theme="dark"] *::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+:root[data-theme="dark"] *::-webkit-scrollbar-thumb {
+  border-color: #0f172a;
+  background: #475569;
+}
+
+:root[data-theme="dark"] *::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
