@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FiArrowLeft, FiEye, FiEyeOff, FiShield, FiStar } from 'react-icons/fi';
-import { Navigate, useLocation, useNavigate } from 'react-router';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../../../auth/AuthContext.jsx';
 import { ThemeToggle } from '../../../shared/components/ThemeToggle.jsx';
 
@@ -129,6 +129,8 @@ export function LoginPage() {
               </div>
               {errors.password && <span className="text-xs text-rose-600 dark:text-rose-400" id="password-error">{errors.password}</span>}
             </div>
+
+            <div className="flex justify-end -mt-2"><Link className="text-xs font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-300" to="/forgot-password">رمز عبور را فراموش کرده‌اید؟</Link></div>
 
             {serverError && <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-7 text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300" role="alert">{serverError}</div>}
 

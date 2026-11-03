@@ -1,50 +1,17 @@
 import mongoose from 'mongoose';
 import ROLES from '../constants/roles.js';
 
-const userSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: [true, 'User name is required'],
-      trim: true,
-    },
-    email: {
-      type: String,
-      required: [true, 'Email is required'],
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    passwordHash: {
-      type: String,
-      required: [true, 'Password hash is required'],
-      select: false,
-    },
-    tokenVersion: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-    role: {
-      type: String,
-      enum: Object.values(ROLES),
-      default: ROLES.SELLER,
-    },
-    branch: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Branch',
-      default: null,
-    },
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
-  },
-  {
-    timestamps: true,
-  },
-);
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: [true, 'User name is required'], trim: true },
+  email: { type: String, required: [true, 'Email is required'], unique: true, lowercase: true, trim: true },
+  passwordHash: { type: String, required: [true, 'Password hash is required'], select: false },
+  passwordResetTokenHash: { type: String, select: false },
+  passwordResetExpiresAt: { type: Date, select: false },
+  tokenVersion: { type: Number, default: 0, min: 0 },
+  role: { type: String, enum: Object.values(ROLES), default: ROLES.SELLER },
+  branch: { type: mongoose.Schema.Types.ObjectId, ref: 'Branch', default: null },
+  isActive: { type: Boolean, default: true },
+}, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);
-
 export default User;
