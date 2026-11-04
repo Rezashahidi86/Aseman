@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { FiCheck, FiChevronDown, FiMapPin } from 'react-icons/fi';
 import { showError } from '../../../shared/utils/notifications.js';
 import { useAuth } from '../../../auth/AuthContext.jsx';
@@ -10,7 +11,10 @@ export function BranchSelector() {
   const [isChanging, setIsChanging] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState('');
+  const [menuPosition, setMenuPosition] = useState(null);
   const dropdownRef = useRef(null);
+  const triggerRef = useRef(null);
+  const menuRef = useRef(null);
 
   useEffect(() => {
     showError(error || branchError);
@@ -20,18 +24,25 @@ export function BranchSelector() {
     if (!isOpen) return undefined;
 
     const handlePointerDown = (event) => {
-      if (!dropdownRef.current?.contains(event.target)) setIsOpen(false);
+      if (!dropdownRef.current?.contains(event.target) && !menuRef.current?.contains(event.target)) {
+        setIsOpen(false);
+      }
     };
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') setIsOpen(false);
     };
+    const handleViewportChange = () => setIsOpen(false);
 
     document.addEventListener('pointerdown', handlePointerDown);
     document.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('resize', handleViewportChange);
+    window.addEventListener('scroll', handleViewportChange, true);
 
     return () => {
       document.removeEventListener('pointerdown', handlePointerDown);
       document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('resize', handleViewportChange);
+      window.removeEventListener('scroll', handleViewportChange, true);
     };
   }, [isOpen]);
 
@@ -39,6 +50,25 @@ export function BranchSelector() {
 
   const activeBranch = branches.find((branch) => String(branch._id || branch.id) === String(activeBranchId));
   const isDisabled = isLoadingBranches || isChanging || branches.length === 0;
+
+  const toggleMenu = () => {
+    if (isOpen) {
+      setIsOpen(false);
+      return;
+    }
+
+    const rect = triggerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const width = Math.min(256, window.innerWidth - 24);
+    const estimatedHeight = Math.min(300, 58 + branches.length * 56);
+    const openAbove = window.innerHeight - rect.bottom < estimatedHeight + 16 && rect.top > estimatedHeight;
+    const top = openAbove ? Math.max(12, rect.top - estimatedHeight - 8) : rect.bottom + 8;
+    const right = Math.max(12, window.innerWidth - rect.right);
+
+    setMenuPosition({ top, right, width, maxHeight: Math.max(140, openAbove ? rect.top - 24 : window.innerHeight - rect.bottom - 24) });
+    setIsOpen(true);
+  };
 
   const handleChange = async (branchId) => {
     if (!branchId || String(branchId) === String(activeBranchId)) {
@@ -62,13 +92,14 @@ export function BranchSelector() {
   return (
     <div ref={dropdownRef} className="relative z-40 flex min-w-0 flex-col gap-1">
       <button
+        ref={triggerRef}
         id="active-branch"
         type="button"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-controls="active-branch-options"
         disabled={isDisabled}
-        onClick={() => setIsOpen((current) => !current)}
+        onClick={toggleMenu}
         className="group flex min-h-11 w-full min-w-0 max-w-60 items-center gap-2.5 rounded-xl border px-3 py-2 text-right text-xs font-semibold shadow-sm outline-none transition hover:-translate-y-px hover:shadow-md focus-visible:ring-4 disabled:cursor-not-allowed disabled:opacity-60"
         style={{
           backgroundColor: 'var(--color-surface)',
@@ -89,23 +120,30 @@ export function BranchSelector() {
         <FiChevronDown className={`shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} size={16} style={{ color: 'var(--color-muted)' }} />
       </button>
 
-      {isOpen && (
+      {isOpen && menuPosition && createPortal(
         <div
+          ref={menuRef}
           id="active-branch-options"
           role="listbox"
           aria-label="انتخاب شعبه"
-          className="absolute right-0 top-[calc(100%+8px)] z-[100] w-64 max-w-[min(18rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border p-1.5 shadow-2xl"
+          className="overflow-hidden rounded-2xl border p-1.5"
           style={{
+            position: 'fixed',
+            top: menuPosition.top,
+            right: menuPosition.right,
+            width: menuPosition.width,
+            maxHeight: menuPosition.maxHeight,
+            zIndex: 2147483000,
             backgroundColor: 'var(--color-surface)',
             borderColor: 'var(--color-border)',
-            boxShadow: '0 18px 45px rgb(15 23 42 / 18%)',
+            boxShadow: '0 18px 45px rgb(15 23 42 / 22%)',
           }}
         >
           <div className="flex items-center justify-between px-3 pb-2 pt-2">
             <span className="text-[11px] font-bold" style={{ color: 'var(--color-text)' }}>شعبه موردنظر</span>
             <span className="text-[10px]" style={{ color: 'var(--color-muted)' }}>{branches.length} شعبه</span>
           </div>
-          <div className="max-h-64 space-y-1 overflow-y-auto">
+          <div className="space-y-1 overflow-y-auto" style={{ maxHeight: Math.max(90, menuPosition.maxHeight - 48) }}>
             {branches.map((branch) => {
               const branchId = branch._id || branch.id;
               const isActive = String(branchId) === String(activeBranchId);
@@ -142,7 +180,8 @@ export function BranchSelector() {
             })}
             {branches.length === 0 && <p className="px-3 py-4 text-center text-xs" style={{ color: 'var(--color-muted)' }}>شعبه‌ای یافت نشد.</p>}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {(error || branchError) && (
