@@ -33,11 +33,11 @@ function ChartTooltip({ active, payload, label, isMoney = false }) {
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs shadow-xl dark:border-slate-700 dark:bg-slate-950">
+    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2.5 text-xs text-[var(--color-text)] shadow-xl">
       <p className="mb-2 font-bold">{label}</p>
       {payload.map((item) => (
-        <p className="mt-1 text-slate-600 dark:text-slate-300" key={item.dataKey}>
-          {item.name}: <strong className="text-slate-900 dark:text-white">
+        <p className="mt-1 text-[var(--color-muted)]" key={item.dataKey}>
+          {item.name}: <strong className="text-[var(--color-text)]">
             {isMoney ? `${money.format(Number(item.value) || 0)} تومان` : count.format(Number(item.value) || 0)}
           </strong>
         </p>
@@ -46,7 +46,7 @@ function ChartTooltip({ active, payload, label, isMoney = false }) {
   );
 }
 
-const axisTick = { fill: '#94a3b8', fontSize: 10, fontFamily: 'IRANSansX, sans-serif' };
+const axisTick = { fill: 'var(--chart-muted)', fontSize: 10, fontFamily: 'IRANSansX, sans-serif' };
 
 export function WeeklySalesCharts({ reports = [] }) {
   const data = useMemo(() => {
@@ -88,15 +88,15 @@ export function WeeklySalesCharts({ reports = [] }) {
             <AreaChart data={data} margin={{ top: 8, right: 4, left: 0, bottom: 4 }}>
               <defs>
                 <linearGradient id="salesFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#6366f1" stopOpacity={0.28} />
+                  <stop offset="0%" stopColor="var(--chart-sales)" stopOpacity={0.28} />
                   <stop offset="95%" stopColor="#6366f1" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#94a3b8" strokeOpacity={0.2} />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid)" strokeOpacity={0.7} />
               <XAxis dataKey="day" tick={axisTick} tickLine={false} axisLine={false} minTickGap={8} />
               <YAxis tick={axisTick} tickLine={false} axisLine={false} width={48} tickFormatter={(value) => count.format(value)} />
               <Tooltip content={<ChartTooltip isMoney />} />
-              <Area type="monotone" dataKey="totalSales" name="فروش" stroke="#6366f1" strokeWidth={3} fill="url(#salesFill)" activeDot={{ r: 5 }} />
+              <Area type="monotone" dataKey="totalSales" name="فروش" stroke="var(--chart-sales)" strokeWidth={3} fill="url(#salesFill)" activeDot={{ r: 5 }} />
             </AreaChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -106,7 +106,7 @@ export function WeeklySalesCharts({ reports = [] }) {
             <AreaChart data={data} margin={{ top: 8, right: 4, left: 0, bottom: 4 }}>
               <defs>
                 <linearGradient id="profitFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.28} />
+                  <stop offset="0%" stopColor="var(--chart-profit)" stopOpacity={0.28} />
                   <stop offset="95%" stopColor="#10b981" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
@@ -114,7 +114,7 @@ export function WeeklySalesCharts({ reports = [] }) {
               <XAxis dataKey="day" tick={axisTick} tickLine={false} axisLine={false} minTickGap={8} />
               <YAxis tick={axisTick} tickLine={false} axisLine={false} width={48} tickFormatter={(value) => count.format(value)} />
               <Tooltip content={<ChartTooltip isMoney />} />
-              <Area type="monotone" dataKey="totalProfit" name="سود" stroke="#10b981" strokeWidth={3} fill="url(#profitFill)" activeDot={{ r: 5 }} />
+              <Area type="monotone" dataKey="totalProfit" name="سود" stroke="var(--chart-profit)" strokeWidth={3} fill="url(#profitFill)" activeDot={{ r: 5 }} />
             </AreaChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -127,7 +127,7 @@ export function WeeklySalesCharts({ reports = [] }) {
                 <XAxis dataKey="day" tick={axisTick} tickLine={false} axisLine={false} minTickGap={8} />
                 <YAxis allowDecimals={false} tick={axisTick} tickLine={false} axisLine={false} width={40} />
                 <Tooltip content={<ChartTooltip />} />
-                <Bar dataKey="salesCount" name="تعداد فاکتور" fill="#0ea5e9" radius={[6, 6, 0, 0]} maxBarSize={44} />
+                <Bar dataKey="salesCount" name="تعداد فاکتور" fill="var(--chart-count)" radius={[6, 6, 0, 0]} maxBarSize={44} />
               </BarChart>
             </ResponsiveContainer>
           </ChartCard>
