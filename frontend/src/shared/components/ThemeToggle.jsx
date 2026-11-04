@@ -53,12 +53,11 @@ export function ThemeToggle({ className = '' }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="انتخاب پوسته"
-        title="انتخاب پوسته"
-        className={`flex h-10 items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-3 text-[var(--color-text)] shadow-sm transition hover:border-[var(--color-primary)] ${className}`}
+        aria-label="انتخاب تم"
+        title="انتخاب تم"
+        className={`fixed bottom-5 left-5 z-[1000] grid h-11 w-11 place-items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] p-0 text-[var(--color-text)] shadow-lg transition hover:-translate-y-0.5 hover:border-[var(--color-primary)] hover:shadow-xl ${className}`}
       >
-        {mode === 'dark' ? <FiMoon size={17} /> : <FiSun size={17} />}
-        <span className="text-xs font-semibold">پوسته</span>
+        {mode === 'dark' ? <FiMoon size={19} /> : <FiSun size={19} />}
       </button>
       {open && createPortal(
         <div
