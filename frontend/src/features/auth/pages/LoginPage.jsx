@@ -59,7 +59,7 @@ export function LoginPage() {
 
   return (
     <main className="grid min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 lg:grid-cols-[1.1fr_0.9fr]" dir="rtl">
-      <section className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-indigo-950 via-indigo-700 to-violet-500 p-10 text-white sm:p-14 lg:flex">
+      <section className="login-brand-panel relative hidden flex-col justify-between overflow-hidden p-10 text-white sm:p-14 lg:flex">
         <div className="absolute -bottom-32 -right-20 h-96 w-96 rounded-full border border-white/15" />
         <div className="absolute -bottom-20 -right-8 h-80 w-80 rounded-full border border-white/15" />
         <div className="relative flex items-center gap-3">
