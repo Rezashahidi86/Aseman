@@ -9,13 +9,13 @@ import { GlobalLoadingIndicator } from './shared/components/GlobalLoadingIndicat
 import './index.css';
 
 function AppToaster() {
-  const { theme } = useTheme();
+  const { mode } = useTheme();
 
   return (
     <Toaster
       position="top-center"
       dir="rtl"
-      theme={theme}
+      theme={mode}
       richColors
       closeButton
       toastOptions={{ className: 'font-sans' }}
