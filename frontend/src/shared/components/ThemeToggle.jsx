@@ -33,14 +33,17 @@ export function ThemeToggle({ className = '' }) {
           selectTheme(item.id);
           setOpen(false);
         }}
+        aria-label={item.name}
         aria-pressed={active}
-        className={`flex min-w-0 items-center gap-2.5 rounded-xl border px-3 py-2.5 text-right transition ${active ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)]' : 'border-[var(--color-border)] hover:bg-[var(--color-surface-muted)]'}`}
+        className={`relative min-w-0 rounded-xl border p-1.5 text-right transition hover:-translate-y-0.5 ${active ? 'ring-2 ring-[var(--color-primary)] ring-offset-2' : 'hover:shadow-md'}`}
       >
-        <span className="flex shrink-0 overflow-hidden rounded-lg border border-black/10">
-          {item.colors.map((color) => <span key={color} className="h-6 w-3" style={{ backgroundColor: color }} />)}
+        <span
+          className="relative flex h-14 w-full items-end overflow-hidden rounded-lg border p-1.5"
+          style={{ backgroundColor: item.colors[0], borderColor: item.colors[1] }}
+        >
+          <span className="h-2.5 w-full rounded-full" style={{ background: `linear-gradient(90deg, ${item.colors[1]}, ${item.colors[2]})` }} />
         </span>
-        <span className="min-w-0 flex-1 text-xs font-semibold text-[var(--color-text)]">{item.name}</span>
-        {active && <FiCheck className="shrink-0 text-[var(--color-primary)]" size={15} />}
+        {active && <span className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-white text-slate-900 shadow"><FiCheck size={14} /></span>}
       </button>
     );
   };
@@ -59,7 +62,7 @@ export function ThemeToggle({ className = '' }) {
       </button>
       {open && createPortal(
         <div
-          className="fixed inset-0 z-[99999] flex items-center justify-center overflow-y-auto bg-slate-950/55 p-3 backdrop-blur-sm sm:p-6"
+          className="fixed inset-0 z-[2147483000] grid place-items-center overflow-y-auto bg-slate-950/65 p-3 backdrop-blur-md sm:p-5"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) setOpen(false);
           }}
@@ -68,7 +71,7 @@ export function ThemeToggle({ className = '' }) {
             role="dialog"
             aria-modal="true"
             aria-labelledby="theme-modal-title"
-            className="my-auto flex max-h-[min(88dvh,720px)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-2xl"
+            className="my-auto flex max-h-[min(82dvh,620px)] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-2xl"
           >
             <header className="flex shrink-0 items-center justify-between border-b border-[var(--color-border)] px-4 py-3.5 sm:px-5">
               <div>
@@ -79,14 +82,14 @@ export function ThemeToggle({ className = '' }) {
                 <FiX size={18} />
               </button>
             </header>
-            <div className="grid min-h-0 grid-cols-1 gap-4 overflow-y-auto p-4 sm:grid-cols-2 sm:gap-5 sm:p-5">
+            <div className="grid min-h-0 grid-cols-1 gap-4 overflow-y-auto p-4 sm:grid-cols-2 sm:gap-4 sm:p-5">
               <div>
                 <h3 className="mb-2.5 flex items-center gap-2 text-xs font-bold text-[var(--color-text)]"><FiSun size={15} /> تم‌های روشن</h3>
-                <div className="grid gap-2">{lightThemes.map(renderTheme)}</div>
+                <div className="grid grid-cols-3 gap-2">{lightThemes.map(renderTheme)}</div>
               </div>
               <div>
                 <h3 className="mb-2.5 flex items-center gap-2 text-xs font-bold text-[var(--color-text)]"><FiMoon size={15} /> تم‌های تیره</h3>
-                <div className="grid gap-2">{darkThemes.map(renderTheme)}</div>
+                <div className="grid grid-cols-3 gap-2">{darkThemes.map(renderTheme)}</div>
               </div>
             </div>
             <footer className="flex shrink-0 justify-end border-t border-[var(--color-border)] px-4 py-3 sm:px-5">
