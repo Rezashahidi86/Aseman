@@ -292,11 +292,17 @@ canvas {
 }
 
 
-:root [class~="bg-white"],
-:root [class~="bg-slate-50"],
+:root [class~="bg-white"] {
+  background-color: var(--color-surface) !important;
+}
+
+:root [class~="bg-slate-50"] {
+  background-color: var(--color-page) !important;
+}
+
 :root [class~="bg-slate-100"],
 :root [class~="bg-slate-200"] {
-  background-color: var(--color-surface) !important;
+  background-color: var(--color-surface-muted) !important;
 }
 
 :root [class~="bg-indigo-50"],
@@ -334,10 +340,13 @@ canvas {
 }
 
 :root[data-mode="dark"] [class~="bg-slate-900"],
-:root[data-mode="dark"] [class~="bg-slate-950"],
-:root[data-mode="dark"] [class~="dark:bg-slate-900"],
-:root[data-mode="dark"] [class~="dark:bg-slate-950"] {
+:root[data-mode="dark"] [class~="dark:bg-slate-900"] {
   background-color: var(--color-surface) !important;
+}
+
+:root[data-mode="dark"] [class~="bg-slate-950"],
+:root[data-mode="dark"] [class~="dark:bg-slate-950"] {
+  background-color: var(--color-page) !important;
 }
 
 :root[data-mode="dark"] [class~="dark:bg-slate-800"],
