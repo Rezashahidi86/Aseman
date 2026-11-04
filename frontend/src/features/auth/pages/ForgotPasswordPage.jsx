@@ -53,7 +53,7 @@ export function ForgotPasswordPage() {
               {error && <p className="rounded-xl bg-rose-50 p-3 text-sm text-rose-700 dark:bg-rose-950/40 dark:text-rose-300" role="alert">{error}</p>}
               <button className="mt-2 min-h-12 rounded-xl bg-indigo-600 px-4 text-sm font-bold text-white hover:bg-indigo-700 disabled:opacity-60" type="submit" disabled={isSubmitting}>{isSubmitting ? 'در حال ارسال...' : 'ارسال لینک بازیابی'}</button>
             </form>
-            <div className="mt-6 flex items-start gap-3 rounded-xl bg-slate-50 p-3 text-xs leading-6 text-slate-500 dark:bg-slate-950 dark:text-slate-400"><FiShield className="mt-1 shrink-0 text-indigo-500" size={17} /><span>برای حفظ امنیت، وجود یا عدم وجود حساب با این ایمیل نمایش داده نمی‌شود.</span></div>
+            <div className="mt-6 flex items-start gap-3 rounded-xl bg-slate-50 p-3 text-xs leading-6 text-slate-500 dark:bg-slate-950 dark:text-slate-400"><FiShield className="mt-1 shrink-0" style={{ color: 'var(--color-primary)' }} size={17} /><span>برای حفظ امنیت، وجود یا عدم وجود حساب با این ایمیل نمایش داده نمی‌شود.</span></div>
           </>
         )}
         <Link className="mt-7 flex items-center justify-center gap-2 text-sm font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-300" to="/login"><FiArrowRight size={16} /> بازگشت به صفحه ورود</Link>
