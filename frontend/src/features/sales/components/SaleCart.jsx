@@ -17,7 +17,15 @@ export function SaleCart({ items, onQuantityChange, onPriceChange, onRemove, onC
     <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
       <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-4 dark:border-slate-800">
         <div><h2 className="text-sm font-extrabold">سبد فروش</h2><p className="mt-1 text-[10px] text-slate-500">{quantity.format(items.length)} قلم · {quantity.format(count)} عدد</p></div>
-        <button className="text-[10px] font-bold text-rose-600 hover:underline disabled:opacity-40 dark:text-rose-400" type="button" onClick={onClear} disabled={!items.length}>خالی‌کردن سبد</button>
+        <button
+          className="inline-flex min-h-9 shrink-0 items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 text-[11px] font-extrabold text-rose-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-rose-300 hover:bg-rose-100 hover:shadow-md active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-400 disabled:shadow-none disabled:hover:translate-y-0 dark:border-rose-900/70 dark:bg-rose-950/40 dark:text-rose-300 dark:hover:border-rose-800 dark:hover:bg-rose-950/70 dark:disabled:border-slate-800 dark:disabled:bg-slate-900 dark:disabled:text-slate-600"
+          type="button"
+          onClick={onClear}
+          disabled={!items.length}
+        >
+          <FiTrash2 size={14} />
+          <span>خالی‌کردن سبد</span>
+        </button>
       </div>
       {!items.length ? <div className="grid min-h-40 place-items-center px-5 text-center text-xs text-slate-500">هنوز محصولی به سبد اضافه نشده است.</div> : (
         <div className="divide-y divide-slate-100 dark:divide-slate-800">
