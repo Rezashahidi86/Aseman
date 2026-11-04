@@ -290,3 +290,73 @@ canvas {
 *::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary);
 }
+
+
+:root [class~="bg-white"],
+:root [class~="bg-slate-50"],
+:root [class~="bg-slate-100"],
+:root [class~="bg-slate-200"] {
+  background-color: var(--color-surface) !important;
+}
+
+:root [class~="bg-indigo-50"],
+:root [class~="bg-indigo-100"],
+:root [class~="dark:bg-indigo-950"] {
+  background-color: var(--color-primary-soft) !important;
+}
+
+:root [class~="bg-indigo-600"] {
+  background-color: var(--color-primary) !important;
+}
+
+:root [class~="hover:bg-indigo-700"]:hover {
+  background-color: var(--color-primary-hover) !important;
+}
+
+:root [class~="text-indigo-600"],
+:root [class~="text-indigo-700"],
+:root [class~="dark:text-indigo-300"] {
+  color: var(--color-primary) !important;
+}
+
+:root [class~="border-indigo-100"],
+:root [class~="border-indigo-200"],
+:root [class~="dark:border-indigo-900"] {
+  border-color: var(--color-border) !important;
+}
+
+:root [class~="from-indigo-500"] {
+  --tw-gradient-from: var(--color-primary) var(--tw-gradient-from-position) !important;
+}
+
+:root [class~="to-indigo-800"] {
+  --tw-gradient-to: var(--color-primary-hover) var(--tw-gradient-to-position) !important;
+}
+
+:root[data-mode="dark"] [class~="bg-slate-900"],
+:root[data-mode="dark"] [class~="bg-slate-950"],
+:root[data-mode="dark"] [class~="dark:bg-slate-900"],
+:root[data-mode="dark"] [class~="dark:bg-slate-950"] {
+  background-color: var(--color-surface) !important;
+}
+
+:root[data-mode="dark"] [class~="dark:bg-slate-800"],
+:root[data-mode="dark"] [class~="dark:bg-slate-800/90"] {
+  background-color: var(--color-surface-muted) !important;
+}
+
+:root[data-mode="dark"] [class~="dark:text-slate-100"],
+:root[data-mode="dark"] [class~="dark:text-slate-200"],
+:root[data-mode="dark"] [class~="dark:text-white"] {
+  color: var(--color-text) !important;
+}
+
+:root[data-mode="dark"] [class~="dark:text-slate-300"],
+:root[data-mode="dark"] [class~="dark:text-slate-400"] {
+  color: var(--color-muted) !important;
+}
+
+:root[data-mode="dark"] [class~="dark:border-slate-700"],
+:root[data-mode="dark"] [class~="dark:border-slate-800"] {
+  border-color: var(--color-border) !important;
+}
