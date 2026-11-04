@@ -8,10 +8,12 @@ export const themes = [
   { id: 'violet-light', name: 'بنفش مدرن', mode: 'light', colors: ['#f5f3ff', '#7c3aed', '#5b21b6'] },
   { id: 'emerald-light', name: 'سبز زمردی', mode: 'light', colors: ['#ecfdf5', '#059669', '#047857'] },
   { id: 'teal-light', name: 'فیروزه‌ای', mode: 'light', colors: ['#f0fdfa', '#0d9488', '#0f766e'] },
+  { id: 'sunset-light', name: 'غروب آفتاب', mode: 'light', colors: ['#fff7ed', '#ea580c', '#b91c1c'] },
   { id: 'navy-dark', name: 'سرمه‌ای', mode: 'dark', colors: ['#111827', '#60a5fa', '#1e3a8a'] },
   { id: 'violet-dark', name: 'بنفش عمیق', mode: 'dark', colors: ['#1e1b2e', '#a78bfa', '#6d28d9'] },
   { id: 'graphite-dark', name: 'گرافیتی', mode: 'dark', colors: ['#202124', '#a1a1aa', '#52525b'] },
   { id: 'forest-dark', name: 'جنگلی', mode: 'dark', colors: ['#10251f', '#34d399', '#047857'] },
+  { id: 'sunset-dark', name: 'غروب آتشین', mode: 'dark', colors: ['#2a1717', '#fb923c', '#dc2626'] },
 ];
 
 function getInitialTheme() {
