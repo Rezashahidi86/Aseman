@@ -684,3 +684,21 @@ select option:disabled {
     transform: none;
   }
 }
+
+
+:root {
+  --table-row-hover: color-mix(in srgb, var(--color-primary) 9%, var(--color-surface));
+  --table-row-hover-border: color-mix(in srgb, var(--color-primary) 20%, var(--color-border));
+}
+
+table tbody tr {
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+table tbody tr:hover {
+  background-color: var(--table-row-hover) !important;
+}
+
+table tbody tr:hover > td {
+  border-color: var(--table-row-hover-border);
+}
