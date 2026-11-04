@@ -518,3 +518,7 @@ canvas {
 .dashboard-welcome-banner {
   background: linear-gradient(110deg, var(--dashboard-banner-from), var(--dashboard-banner-via), var(--dashboard-banner-to));
 }
+
+.login-brand-panel {
+  background: linear-gradient(120deg, var(--dashboard-banner-from), var(--dashboard-banner-via), var(--dashboard-banner-to));
+}
