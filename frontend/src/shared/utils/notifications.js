@@ -4,6 +4,19 @@ let activeToastId;
 let activeConfirmation;
 let shortcutsRegistered = false;
 
+function confirmActiveToast() {
+  if (!activeConfirmation) return;
+
+  const confirm = activeConfirmation;
+  const toastId = activeToastId;
+
+  activeConfirmation = undefined;
+  activeToastId = undefined;
+
+  if (toastId !== undefined) toast.dismiss(toastId);
+  confirm();
+}
+
 function registerToastShortcuts() {
   if (shortcutsRegistered || typeof document === 'undefined') return;
 
@@ -18,19 +31,25 @@ function registerToastShortcuts() {
     }
 
     const target = event.target;
-    const isInteractiveTarget =
+    const isTextEntryTarget =
       target instanceof HTMLElement &&
       (target.isContentEditable ||
         target.closest(
-          'input, textarea, select, button, [role="button"], [contenteditable="true"]',
+          'input, textarea, select, [contenteditable="true"], [role="textbox"]',
         ));
 
-    if (event.key === 'Enter' && activeConfirmation && !isInteractiveTarget) {
+    if (
+      event.key === 'Enter' &&
+      !event.repeat &&
+      !event.altKey &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      activeConfirmation &&
+      !isTextEntryTarget
+    ) {
       event.preventDefault();
       event.stopPropagation();
-      const confirm = activeConfirmation;
-      activeConfirmation = undefined;
-      confirm();
+      confirmActiveToast();
     }
   });
 
@@ -72,6 +91,7 @@ export function confirmWithToast({
       label: confirmLabel,
       onClick: () => {
         activeConfirmation = undefined;
+        activeToastId = undefined;
         onConfirm?.();
       },
     },
