@@ -33,7 +33,7 @@ export function BranchSelector() {
     <div className="flex min-w-0 flex-col gap-1">
       <select
         id="active-branch"
-        className="min-h-10 max-w-56 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:ring-indigo-950"
+        className="theme-select min-h-11 max-w-56 rounded-xl border px-4 text-xs font-bold outline-none transition disabled:cursor-not-allowed disabled:opacity-60"
         value={activeBranchId}
         onChange={handleChange}
         disabled={isLoadingBranches || isChanging || branches.length === 0}
