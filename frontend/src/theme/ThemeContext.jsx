@@ -3,61 +3,58 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 const ThemeContext = createContext(null);
 const THEME_KEY = 'aseman_theme';
 
-export const THEME_OPTIONS = [
-  { id: 'light-ocean', name: 'اقیانوسی', mode: 'light', color: '#0f766e' },
-  { id: 'light-violet', name: 'بنفش مدرن', mode: 'light', color: '#7c3aed' },
-  { id: 'light-emerald', name: 'زمردی', mode: 'light', color: '#047857' },
-  { id: 'light-amber', name: 'کهربایی', mode: 'light', color: '#b45309' },
-  { id: 'dark-midnight', name: 'نیمه‌شب', mode: 'dark', color: '#60a5fa' },
-  { id: 'dark-amethyst', name: 'آمتیست', mode: 'dark', color: '#a78bfa' },
-  { id: 'dark-forest', name: 'جنگلی', mode: 'dark', color: '#34d399' },
-  { id: 'dark-graphite', name: 'گرافیتی', mode: 'dark', color: '#22d3ee' },
+export const themes = [
+  { id: 'ocean-light', name: 'آبی اقیانوسی', mode: 'light', colors: ['#eff6ff', '#2563eb', '#1e40af'] },
+  { id: 'violet-light', name: 'بنفش مدرن', mode: 'light', colors: ['#f5f3ff', '#7c3aed', '#5b21b6'] },
+  { id: 'emerald-light', name: 'سبز زمردی', mode: 'light', colors: ['#ecfdf5', '#059669', '#047857'] },
+  { id: 'teal-light', name: 'فیروزه‌ای', mode: 'light', colors: ['#f0fdfa', '#0d9488', '#0f766e'] },
+  { id: 'navy-dark', name: 'سرمه‌ای', mode: 'dark', colors: ['#111827', '#60a5fa', '#1e3a8a'] },
+  { id: 'violet-dark', name: 'بنفش عمیق', mode: 'dark', colors: ['#1e1b2e', '#a78bfa', '#6d28d9'] },
+  { id: 'graphite-dark', name: 'گرافیتی', mode: 'dark', colors: ['#202124', '#a1a1aa', '#52525b'] },
+  { id: 'forest-dark', name: 'جنگلی', mode: 'dark', colors: ['#10251f', '#34d399', '#047857'] },
 ];
 
-function getInitialPalette() {
-  const savedPalette = localStorage.getItem(THEME_KEY);
-
-  if (THEME_OPTIONS.some((option) => option.id === savedPalette)) {
-    return savedPalette;
-  }
-
-  if (savedPalette === 'dark') return 'dark-midnight';
-  if (savedPalette === 'light') return 'light-ocean';
-
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches
-    ? 'dark-midnight'
-    : 'light-ocean';
+function getInitialTheme() {
+  const savedTheme = localStorage.getItem(THEME_KEY);
+  if (themes.some((item) => item.id === savedTheme)) return savedTheme;
+  if (savedTheme === 'dark') return 'navy-dark';
+  if (savedTheme === 'light') return 'ocean-light';
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'navy-dark' : 'ocean-light';
 }
 
 export function ThemeProvider({ children }) {
-  const [palette, setPalette] = useState(getInitialPalette);
-  const theme = palette.startsWith('dark-') ? 'dark' : 'light';
+  const [theme, setTheme] = useState(getInitialTheme);
+  const selectedTheme = themes.find((item) => item.id === theme) || themes[0];
+  const mode = selectedTheme.mode;
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    document.documentElement.dataset.palette = palette;
-    document.documentElement.style.colorScheme = theme;
-    localStorage.setItem(THEME_KEY, palette);
-  }, [palette, theme]);
+    const root = document.documentElement;
+    root.dataset.theme = theme;
+    root.dataset.mode = mode;
+    root.style.colorScheme = mode;
+    localStorage.setItem(THEME_KEY, theme);
+  }, [theme, mode]);
 
-  const toggleTheme = useCallback(() => {
-    setPalette((current) => current.startsWith('dark-') ? 'light-ocean' : 'dark-midnight');
+  const selectTheme = useCallback((nextTheme) => {
+    if (themes.some((item) => item.id === nextTheme)) setTheme(nextTheme);
   }, []);
 
-  const value = useMemo(
-    () => ({ theme, palette, setPalette, toggleTheme }),
-    [theme, palette, toggleTheme],
-  );
+  const toggleTheme = useCallback(() => {
+    setTheme((current) => {
+      const currentTheme = themes.find((item) => item.id === current) || themes[0];
+      const nextMode = currentTheme.mode === 'dark' ? 'light' : 'dark';
+      const matching = themes.find((item) => item.mode === nextMode);
+      return matching.id;
+    });
+  }, []);
+
+  const value = useMemo(() => ({ theme, mode, themes, selectTheme, toggleTheme }), [theme, mode, selectTheme, toggleTheme]);
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme() {
   const context = useContext(ThemeContext);
-
-  if (!context) {
-    throw new Error('useTheme must be used within ThemeProvider');
-  }
-
+  if (!context) throw new Error('useTheme must be used within ThemeProvider');
   return context;
 }
