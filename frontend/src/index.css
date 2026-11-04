@@ -453,3 +453,68 @@ canvas {
   --chart-profit: #34d399;
   --chart-count: #22d3ee;
 }
+
+
+:root {
+  --dashboard-banner-from: #2563eb;
+  --dashboard-banner-via: #1d4ed8;
+  --dashboard-banner-to: #172554;
+}
+
+:root[data-theme="violet-light"] {
+  --dashboard-banner-from: #8b5cf6;
+  --dashboard-banner-via: #6d28d9;
+  --dashboard-banner-to: #3b0764;
+}
+
+:root[data-theme="emerald-light"] {
+  --dashboard-banner-from: #10b981;
+  --dashboard-banner-via: #047857;
+  --dashboard-banner-to: #064e3b;
+}
+
+:root[data-theme="teal-light"] {
+  --dashboard-banner-from: #14b8a6;
+  --dashboard-banner-via: #0f766e;
+  --dashboard-banner-to: #134e4a;
+}
+
+:root[data-theme="sunset-light"] {
+  --dashboard-banner-from: #f97316;
+  --dashboard-banner-via: #ea580c;
+  --dashboard-banner-to: #991b1b;
+}
+
+:root[data-theme="navy-dark"] {
+  --dashboard-banner-from: #1e40af;
+  --dashboard-banner-via: #1e3a8a;
+  --dashboard-banner-to: #0f172a;
+}
+
+:root[data-theme="violet-dark"] {
+  --dashboard-banner-from: #7c3aed;
+  --dashboard-banner-via: #5b21b6;
+  --dashboard-banner-to: #2e1065;
+}
+
+:root[data-theme="graphite-dark"] {
+  --dashboard-banner-from: #52525b;
+  --dashboard-banner-via: #3f3f46;
+  --dashboard-banner-to: #18181b;
+}
+
+:root[data-theme="forest-dark"] {
+  --dashboard-banner-from: #047857;
+  --dashboard-banner-via: #065f46;
+  --dashboard-banner-to: #022c22;
+}
+
+:root[data-theme="sunset-dark"] {
+  --dashboard-banner-from: #ea580c;
+  --dashboard-banner-via: #b91c1c;
+  --dashboard-banner-to: #431407;
+}
+
+.dashboard-welcome-banner {
+  background: linear-gradient(110deg, var(--dashboard-banner-from), var(--dashboard-banner-via), var(--dashboard-banner-to));
+}
