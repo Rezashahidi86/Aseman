@@ -21,7 +21,7 @@ export function DashboardSidebar() {
     : links;
 
   return (
-    <aside className="sticky top-0 z-20 flex h-auto min-w-0 flex-col border-b border-slate-200 bg-white/90 p-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/90 md:h-screen md:min-h-0 md:overflow-hidden md:border-b-0 md:border-l md:p-5">
+    <aside className="sticky top-0 z-20 flex h-auto min-w-0 flex-col border-b p-4 backdrop-blur-xl md:h-screen md:min-h-0 md:overflow-hidden md:border-b-0 md:border-l md:p-5" style={{ backgroundColor: 'color-mix(in srgb, var(--color-surface) 92%, transparent)', borderColor: 'var(--color-border)' }}>
       <Link className="mb-4 flex items-center gap-3 px-1 pb-2 no-underline md:mb-8 md:pb-0" to="/" aria-label="آسمان، داشبورد">
         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-800 text-2xl font-extrabold text-white shadow-lg shadow-indigo-600/20">آ</span>
         <span><strong className="block text-base font-extrabold text-slate-900 dark:text-white">آسمان</strong><small className="mt-1 block text-[11px] text-slate-500 dark:text-slate-400">مدیریت فروشگاه</small></span>
