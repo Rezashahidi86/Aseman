@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import { FiMinus, FiPlus, FiTrash2 } from 'react-icons/fi';
 import { confirmWithToast } from '../../../shared/utils/notifications.js';
 
@@ -8,10 +9,12 @@ function formatMoney(value) {
   return `${money.format(Number(value) || 0)} تومان`;
 }
 
-export function SaleCart({ items, onQuantityChange, onPriceChange, onRemove, onClear, onReview }) {
-  const total = items.reduce((sum, item) => sum + item.quantity * item.finalSalePrice, 0);
-  const profit = items.reduce((sum, item) => sum + item.quantity * (item.finalSalePrice - item.purchasePrice), 0);
-  const count = items.reduce((sum, item) => sum + item.quantity, 0);
+export const SaleCart = memo(function SaleCart({ items, onQuantityChange, onPriceChange, onRemove, onClear, onReview }) {
+  const { total, profit, count } = useMemo(() => items.reduce((totals, item) => ({
+    total: totals.total + item.quantity * item.finalSalePrice,
+    profit: totals.profit + item.quantity * (item.finalSalePrice - item.purchasePrice),
+    count: totals.count + item.quantity,
+  }), { total: 0, profit: 0, count: 0 }), [items]);
 
   return (
     <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
@@ -49,4 +52,4 @@ export function SaleCart({ items, onQuantityChange, onPriceChange, onRemove, onC
       </div>
     </section>
   );
-}
+});
