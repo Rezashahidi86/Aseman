@@ -10,6 +10,7 @@ import { showError } from '../../../shared/utils/notifications.js';
 import { getDateKeyInTimeZone, formatJalaliMonth } from '../../../shared/utils/date.js';
 import { formatJalaliDate, parseJalaliDate } from '../utils/jalaliDate.js';
 import { formatMoney, formatNumber } from '../../../shared/utils/format.js';
+import { ThemedSelect } from '../../../shared/components/ThemedSelect.jsx';
 
 function shiftDateKey(value, dayOffset) {
   const [year, month, day] = value.split('-').map(Number);
@@ -19,6 +20,11 @@ function shiftDateKey(value, dayOffset) {
 
 const today = getDateKeyInTimeZone(new Date());
 const weekStart = shiftDateKey(today, -6);
+
+const reportGroupingOptions = [
+  { value: 'day', label: 'روزانه', description: 'نمایش آمار به تفکیک هر روز' },
+  { value: 'month', label: 'ماهانه', description: 'تجمیع آمار بر اساس ماه شمسی' },
+];
 
 function StatCard({ icon: Icon, label, value, hint }) {
   return <article className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900"><div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300"><Icon size={19} /></span><span className="text-xs text-slate-500 dark:text-slate-400">{label}</span></div><p className="mt-4 break-words text-xl font-extrabold">{value}</p><p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">{hint}</p></article>;
@@ -95,7 +101,7 @@ export function ReportsPage() {
       <form className="mb-5 grid grid-cols-1 gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_180px_auto] dark:border-slate-800 dark:bg-slate-900" onSubmit={(event) => { event.preventDefault(); loadReport(); }}>
         <label className="text-xs font-bold text-slate-600 dark:text-slate-300">از تاریخ شمسی<input className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm tabular-nums disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950" type="text" inputMode="numeric" dir="ltr" placeholder="۱۴۰۵/۰۸/۰۲" value={startDateText} onChange={(event) => setStartDateText(event.target.value)} aria-label="تاریخ شروع شمسی با قالب سال/ماه/روز" autoComplete="off" required disabled={groupBy === 'month'} /></label>
         <label className="text-xs font-bold text-slate-600 dark:text-slate-300">تا تاریخ شمسی<input className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm tabular-nums disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950" type="text" inputMode="numeric" dir="ltr" placeholder="۱۴۰۵/۰۸/۰۹" value={endDateText} onChange={(event) => setEndDateText(event.target.value)} aria-label="تاریخ پایان شمسی با قالب سال/ماه/روز" autoComplete="off" required disabled={groupBy === 'month'} /></label>
-        <label className="text-xs font-bold text-slate-600 dark:text-slate-300">تجمیع آمار<select className="mt-2 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-950" value={groupBy} onChange={(event) => setGroupBy(event.target.value)}><option value="day">روزانه</option><option value="month">ماهانه</option></select></label>
+        <div className="min-w-0 text-xs font-bold text-slate-600 dark:text-slate-300">تجمیع آمار<ThemedSelect label="تجمیع آمار" value={groupBy} options={reportGroupingOptions} onChange={setGroupBy} /></div>
         <button className="self-end rounded-xl bg-indigo-600 px-5 py-3 text-xs font-bold text-white hover:bg-indigo-700 disabled:opacity-60" type="submit" disabled={isLoading || !activeBranchId}>{isLoading ? 'در حال دریافت...' : 'اعمال بازه'}</button>
       </form>
       {error && <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-300" role="alert"><span>{error}</span><button className="rounded-lg border border-rose-300 px-3 py-2 text-xs font-bold" onClick={loadReport} type="button">تلاش دوباره</button></div>}
