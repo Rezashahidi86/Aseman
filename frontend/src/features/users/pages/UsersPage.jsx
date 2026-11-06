@@ -47,7 +47,7 @@ export function UsersPage() {
       await createUser({ ...form, branch: form.role === 'ADMIN' ? null : form.branch });
       setForm({ name: '', email: '', password: '', role: 'SELLER', branch: '' });
       setIsFormOpen(false);
-      showSuccess('حساب فروشنده ساخته شد.');
+      showSuccess(form.role === 'ADMIN' ? 'حساب مدیر ساخته شد.' : 'حساب فروشنده ساخته شد.');
       await loadData();
     } catch (requestError) {
       showError(requestError.message || 'ساخت کاربر ناموفق بود.');
