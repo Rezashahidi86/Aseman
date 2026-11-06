@@ -6,7 +6,7 @@ import { formatJalaliDate, parseJalaliDate } from '../utils/jalaliDate.js';
 
 const monthNames = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
 const weekdays = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه'];
-const toPersianDigits = (value) => String(value).replace(/\\d/g, (digit) => '۰۱۲۳۴۵۶۷۸۹'[Number(digit)]);
+const toPersianDigits = (value) => String(value).replace(/\d/g, (digit) => '۰۱۲۳۴۵۶۷۸۹'[Number(digit)]);
 const persianNumber = new Intl.NumberFormat('fa-IR');
 
 function getMonthParts(value) {
