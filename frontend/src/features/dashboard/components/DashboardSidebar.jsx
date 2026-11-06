@@ -36,7 +36,7 @@ export function DashboardSidebar() {
   return (
     <>
       <div className={`fixed inset-0 z-40 bg-slate-950/50 transition-opacity duration-300 md:hidden ${isMobileOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`} onClick={() => setIsMobileOpen(false)} aria-hidden="true" />
-      <aside className={`fixed inset-y-0 right-0 z-50 flex h-dvh w-[min(86vw,300px)] min-w-0 flex-col overflow-hidden border-l p-4 backdrop-blur-xl transition-transform duration-300 ease-out md:sticky md:top-0 md:z-20 md:h-screen md:w-auto md:translate-x-0 md:border-l md:p-5 ${isMobileOpen ? "translate-x-0" : "translate-x-full md:translate-x-0"}` style={{ backgroundColor: 'color-mix(in srgb, var(--color-surface) 92%, transparent)', borderColor: 'var(--color-border)' }}>
+      <aside className={`fixed inset-y-0 right-0 z-50 flex h-dvh w-[min(86vw,300px)] min-w-0 flex-col overflow-hidden border-l p-4 backdrop-blur-xl transition-transform duration-300 ease-out md:sticky md:top-0 md:z-20 md:h-screen md:w-auto md:translate-x-0 md:border-l md:p-5 ${isMobileOpen ? "translate-x-0" : "translate-x-full md:translate-x-0"}`} style={{ backgroundColor: 'color-mix(in srgb, var(--color-surface) 92%, transparent)', borderColor: 'var(--color-border)' }}>
       <div className="mb-4 flex items-center justify-between gap-2 md:mb-8">
       <Link className="flex min-w-0 items-center gap-3 px-1 pb-2 no-underline md:pb-0" to="/" aria-label="آسمان، داشبورد">
         <span className="relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-2xl border shadow-lg" style={{ background: 'linear-gradient(145deg, #102d50, #071525)', borderColor: '#d6a84f' }} aria-hidden="true">
@@ -54,6 +54,8 @@ export function DashboardSidebar() {
         </span>
         <span><strong className="block text-base font-extrabold text-slate-900 dark:text-white">آسمان</strong><small className="mt-1 block text-[11px] text-slate-500 dark:text-slate-400">مدیریت فروشگاه</small></span>
       </Link>
+      <button className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border md:hidden" style={{ borderColor: "var(--color-border)", color: "var(--color-text)" }} type="button" onClick={() => setIsMobileOpen(false)} aria-label="بستن منو"><FiX size={20} /></button>
+      </div>
       <div className="mb-2 hidden px-3 text-xs text-slate-500 md:block dark:text-slate-400">فضای کاری</div>
       <nav className="flex min-w-0 gap-1.5 overflow-x-auto pb-1 md:min-h-0 md:flex-1 md:grid md:content-start md:overflow-x-hidden md:overflow-y-auto md:overscroll-contain md:pb-1 md:pl-1 md:pr-1" aria-label="ناوبری اصلی">
         {visibleLinks.map((link) => {
@@ -63,5 +65,6 @@ export function DashboardSidebar() {
       </nav>
       <div className="mt-auto hidden items-center gap-2 border-t border-slate-200 pt-4 text-[11px] text-slate-500 md:flex dark:border-slate-800 dark:text-slate-400"><span className="h-2 w-2 rounded-full bg-emerald-500" /><span>نشست کاربری فعال است</span></div>
     </aside>
+    </>
   );
 }
