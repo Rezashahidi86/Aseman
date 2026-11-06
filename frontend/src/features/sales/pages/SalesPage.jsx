@@ -152,13 +152,13 @@ export function SalesPage() {
     searchProducts({ name: value, page: 1, limit });
   };
 
-  const updateQuantity = (productId, nextQuantity) => {
+  const updateQuantity = useCallback((productId, nextQuantity) => {
     setCart((current) => current.map((item) => item._id === productId
       ? { ...item, quantity: Math.max(1, Math.min(Number(nextQuantity) || 1, item.stockAtAdd)) }
       : item));
-  };
+  }, []);
 
-  const updatePrice = (productId, value) => {
+  const updatePrice = useCallback((productId, value) => {
     if (value === '') {
       setCart((current) => current.map((item) => item._id === productId ? { ...item, finalSalePrice: '' } : item));
       return;
@@ -170,11 +170,11 @@ export function SalesPage() {
     setCart((current) => current.map((item) => item._id === productId
       ? { ...item, finalSalePrice: parsed }
       : item));
-  };
+  }, []);
 
-  const removeItem = (productId) => setCart((current) => current.filter((item) => item._id !== productId));
+  const removeItem = useCallback((productId) => setCart((current) => current.filter((item) => item._id !== productId)), []);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     if (!cart.length) return;
 
     confirmWithToast({
@@ -187,9 +187,9 @@ export function SalesPage() {
         setSubmitError('');
       },
     });
-  };
+  }, [cart.length]);
 
-  const openReview = () => {
+  const openReview = useCallback(() => {
     const invalidItem = cart.find((item) => !Number.isFinite(Number(item.finalSalePrice)) || Number(item.finalSalePrice) < item.salePrice || !Number.isInteger(item.quantity) || item.quantity < 1);
     if (invalidItem) {
       setPageError(`قیمت یا تعداد «${invalidItem.name}» معتبر نیست.`);
@@ -199,7 +199,7 @@ export function SalesPage() {
     if (!idempotencyKeyRef.current) idempotencyKeyRef.current = newIdempotencyKey();
     setSubmitError('');
     setIsReviewOpen(true);
-  };
+  }, [cart]);
 
   const confirmSale = async () => {
     if (isSubmitting || !cart.length) return;
