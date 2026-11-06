@@ -138,8 +138,8 @@ describe('Manual document controller', () => {
     expect(ManualDocument.create).toHaveBeenCalledWith(
       expect.objectContaining({
         images: [
-          '/uploads/manual-documents/one.jpg',
-          '/uploads/manual-documents/two.png',
+          '/uploads/manual-documents/one.webp',
+          '/uploads/manual-documents/two.webp',
         ],
         branch: ownBranchId,
         createdBy: req.user._id,
