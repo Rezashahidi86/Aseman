@@ -4,24 +4,34 @@ const ThemeContext = createContext(null);
 const THEME_KEY = 'aseman_theme';
 
 export const themes = [
-  { id: 'ocean-light', name: 'آبی اقیانوسی', mode: 'light', colors: ['#eff6ff', '#2563eb', '#1e40af'] },
-  { id: 'violet-light', name: 'بنفش مدرن', mode: 'light', colors: ['#f5f3ff', '#7c3aed', '#5b21b6'] },
-  { id: 'emerald-light', name: 'سبز زمردی', mode: 'light', colors: ['#ecfdf5', '#059669', '#047857'] },
-  { id: 'teal-light', name: 'فیروزه‌ای', mode: 'light', colors: ['#f0fdfa', '#0d9488', '#0f766e'] },
+  { id: 'sapphire-light', name: 'آبی یاقوتی', mode: 'light', colors: ['#f4f7ff', '#3157d5', '#172f83'] },
+  { id: 'lagoon-light', name: 'فیروزه‌ای عمیق', mode: 'light', colors: ['#f0fbfa', '#0f8b8d', '#07565f'] },
+  { id: 'orchid-light', name: 'یاسی مدرن', mode: 'light', colors: ['#f8f5ff', '#7656c9', '#432477'] },
   { id: 'sunset-light', name: 'غروب آفتاب', mode: 'light', colors: ['#fff7ed', '#ea580c', '#b91c1c'] },
-  { id: 'navy-dark', name: 'سرمه‌ای', mode: 'dark', colors: ['#111827', '#60a5fa', '#1e3a8a'] },
-  { id: 'violet-dark', name: 'بنفش عمیق', mode: 'dark', colors: ['#1e1b2e', '#a78bfa', '#6d28d9'] },
-  { id: 'graphite-dark', name: 'گرافیتی', mode: 'dark', colors: ['#202124', '#a1a1aa', '#52525b'] },
-  { id: 'forest-dark', name: 'جنگلی', mode: 'dark', colors: ['#10251f', '#34d399', '#047857'] },
-  { id: 'sunset-dark', name: 'غروب آتشین', mode: 'dark', colors: ['#2a1717', '#fb923c', '#dc2626'] },
+  { id: 'midnight-dark', name: 'نیمه‌شب آبی', mode: 'dark', colors: ['#0d1424', '#7aa2ff', '#294b9b'] },
+  { id: 'plum-dark', name: 'آلویی', mode: 'dark', colors: ['#191323', '#c4a1ff', '#7045a5'] },
+  { id: 'jade-dark', name: 'یشمی', mode: 'dark', colors: ['#0d201d', '#55d6b0', '#187b68'] },
+  { id: 'sunset-dark', name: 'غروب آتشین', mode: 'dark', colors: ['#241614', '#ffad70', '#c94732'] },
 ];
+
+const legacyThemes = {
+  'ocean-light': 'sapphire-light',
+  'violet-light': 'orchid-light',
+  'emerald-light': 'lagoon-light',
+  'teal-light': 'lagoon-light',
+  'navy-dark': 'midnight-dark',
+  'violet-dark': 'plum-dark',
+  'graphite-dark': 'midnight-dark',
+  'forest-dark': 'jade-dark',
+};
 
 function getInitialTheme() {
   const savedTheme = localStorage.getItem(THEME_KEY);
   if (themes.some((item) => item.id === savedTheme)) return savedTheme;
-  if (savedTheme === 'dark') return 'navy-dark';
-  if (savedTheme === 'light') return 'ocean-light';
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'navy-dark' : 'ocean-light';
+  if (legacyThemes[savedTheme]) return legacyThemes[savedTheme];
+  if (savedTheme === 'dark') return 'midnight-dark';
+  if (savedTheme === 'light') return 'sapphire-light';
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'midnight-dark' : 'sapphire-light';
 }
 
 export function ThemeProvider({ children }) {
@@ -45,8 +55,7 @@ export function ThemeProvider({ children }) {
     setTheme((current) => {
       const currentTheme = themes.find((item) => item.id === current) || themes[0];
       const nextMode = currentTheme.mode === 'dark' ? 'light' : 'dark';
-      const matching = themes.find((item) => item.mode === nextMode);
-      return matching.id;
+      return themes.find((item) => item.mode === nextMode).id;
     });
   }, []);
 
