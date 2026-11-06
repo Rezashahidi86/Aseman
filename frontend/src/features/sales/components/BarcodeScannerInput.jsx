@@ -24,10 +24,21 @@ export function BarcodeScannerInput({ value, onChange, onScan, disabled }) {
   return (
     <form className="flex min-w-0 flex-col gap-2 sm:flex-row" onSubmit={(event) => { event.preventDefault(); onScan(value.trim()); }}>
       <label className="relative block min-w-0 flex-1">
-        <FiCamera className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-indigo-500" size={18} aria-hidden="true" />
+        <FiCamera
+          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2"
+          style={{ color: 'var(--color-primary)' }}
+          size={18}
+          aria-hidden="true"
+        />
         <input
           ref={inputRef}
-          className="min-h-12 w-full rounded-xl border border-indigo-200 bg-indigo-50/60 px-10 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 disabled:opacity-60 dark:border-indigo-900 dark:bg-indigo-950/30 dark:text-white dark:focus:ring-indigo-950"
+          className="barcode-scanner-input min-h-12 w-full rounded-xl border px-10 text-sm outline-none transition focus:ring-2 disabled:opacity-60"
+          style={{
+            backgroundColor: 'var(--color-surface)',
+            borderColor: 'var(--color-border)',
+            color: 'var(--color-text)',
+            '--tw-ring-color': 'var(--color-ring)',
+          }}
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder="بارکد را اسکن کنید یا وارد کنید..."
