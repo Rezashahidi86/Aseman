@@ -57,10 +57,10 @@ export function DashboardSidebar() {
       <button className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border md:hidden" style={{ borderColor: "var(--color-border)", color: "var(--color-text)" }} type="button" onClick={() => setIsMobileOpen(false)} aria-label="بستن منو"><FiX size={20} /></button>
       </div>
       <div className="mb-2 hidden px-3 text-xs text-slate-500 md:block dark:text-slate-400">فضای کاری</div>
-      <nav className="flex min-w-0 gap-1.5 overflow-x-auto pb-1 md:min-h-0 md:flex-1 md:grid md:content-start md:overflow-x-hidden md:overflow-y-auto md:overscroll-contain md:pb-1 md:pl-1 md:pr-1" aria-label="ناوبری اصلی">
+      <nav className="flex min-h-0 min-w-0 flex-1 flex-col gap-1.5 overflow-x-hidden overflow-y-auto overscroll-contain pb-1 md:grid md:content-start md:pl-1 md:pr-1" aria-label="ناوبری اصلی">
         {visibleLinks.map((link) => {
           const Icon = link.icon;
-          return <NavLink key={link.to} to={link.to} end={link.end} onClick={() => setIsMobileOpen(false)} className={({ isActive }) => `flex min-h-10 min-w-max items-center gap-3 rounded-xl border px-3 text-xs transition md:min-h-12 ${isActive ? 'border-indigo-100 bg-indigo-50 font-bold text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950 dark:text-indigo-300' : 'border-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'}`}><span className="grid w-6 place-items-center" aria-hidden="true"><Icon size={18} /></span><span>{link.label}</span></NavLink>;
+          return <NavLink key={link.to} to={link.to} end={link.end} onClick={() => setIsMobileOpen(false)} className={({ isActive }) => `flex min-h-11 w-full min-w-0 items-center justify-start gap-3 rounded-xl border px-3 text-xs transition md:min-h-12 ${isActive ? 'border-indigo-100 bg-indigo-50 font-bold text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950 dark:text-indigo-300' : 'border-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'}`}><span className="grid w-6 place-items-center" aria-hidden="true"><Icon size={18} /></span><span>{link.label}</span></NavLink>;
         })}
       </nav>
       <div className="mt-auto hidden items-center gap-2 border-t border-slate-200 pt-4 text-[11px] text-slate-500 md:flex dark:border-slate-800 dark:text-slate-400"><span className="h-2 w-2 rounded-full bg-emerald-500" /><span>نشست کاربری فعال است</span></div>
