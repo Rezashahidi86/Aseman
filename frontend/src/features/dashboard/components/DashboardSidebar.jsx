@@ -1,4 +1,5 @@
-import { FiBarChart2, FiBookOpen, FiBox, FiHome, FiMapPin, FiTrendingUp, FiUsers, FiUser, FiClipboard, FiFileText } from 'react-icons/fi';
+import { useEffect, useState } from 'react';
+import { FiX, FiBarChart2, FiBookOpen, FiBox, FiHome, FiMapPin, FiTrendingUp, FiUsers, FiUser, FiClipboard, FiFileText } from 'react-icons/fi';
 import { Link, NavLink } from 'react-router';
 import { useAuth } from '../../../auth/AuthContext.jsx';
 
@@ -16,13 +17,26 @@ const links = [
 
 export function DashboardSidebar() {
   const { user } = useAuth();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  useEffect(() => {
+    const openMenu = () => setIsMobileOpen(true);
+    window.addEventListener('ase-man-mobile-menu-open', openMenu);
+    return () => window.removeEventListener('ase-man-mobile-menu-open', openMenu);
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = isMobileOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [isMobileOpen]);
   const visibleLinks = user?.role === 'ADMIN'
     ? [...links, { to: '/users', label: 'مدیریت کاربران', icon: FiUsers }]
     : links;
 
   return (
     <aside className="sticky top-0 z-20 flex h-auto min-w-0 flex-col border-b p-4 backdrop-blur-xl md:h-screen md:min-h-0 md:overflow-hidden md:border-b-0 md:border-l md:p-5" style={{ backgroundColor: 'color-mix(in srgb, var(--color-surface) 92%, transparent)', borderColor: 'var(--color-border)' }}>
-      <Link className="mb-4 flex items-center gap-3 px-1 pb-2 no-underline md:mb-8 md:pb-0" to="/" aria-label="آسمان، داشبورد">
+      <div className="mb-4 flex items-center justify-between gap-2 md:mb-8">
+      <Link className="flex min-w-0 items-center gap-3 px-1 pb-2 no-underline md:pb-0" to="/" aria-label="آسمان، داشبورد">
         <span className="relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-2xl border shadow-lg" style={{ background: 'linear-gradient(145deg, #102d50, #071525)', borderColor: '#d6a84f' }} aria-hidden="true">
           <svg viewBox="0 0 64 64" className="h-11 w-11" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M8 27 31.5 8 56 27" stroke="#F5C66B" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -42,7 +56,7 @@ export function DashboardSidebar() {
       <nav className="flex min-w-0 gap-1.5 overflow-x-auto pb-1 md:min-h-0 md:flex-1 md:grid md:content-start md:overflow-x-hidden md:overflow-y-auto md:overscroll-contain md:pb-1 md:pl-1 md:pr-1" aria-label="ناوبری اصلی">
         {visibleLinks.map((link) => {
           const Icon = link.icon;
-          return <NavLink key={link.to} to={link.to} end={link.end} className={({ isActive }) => `flex min-h-10 min-w-max items-center gap-3 rounded-xl border px-3 text-xs transition md:min-h-12 ${isActive ? 'border-indigo-100 bg-indigo-50 font-bold text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950 dark:text-indigo-300' : 'border-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'}`}><span className="grid w-6 place-items-center" aria-hidden="true"><Icon size={18} /></span><span>{link.label}</span></NavLink>;
+          return <NavLink key={link.to} to={link.to} end={link.end} onClick={() => setIsMobileOpen(false)} className={({ isActive }) => `flex min-h-10 min-w-max items-center gap-3 rounded-xl border px-3 text-xs transition md:min-h-12 ${isActive ? 'border-indigo-100 bg-indigo-50 font-bold text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950 dark:text-indigo-300' : 'border-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'}`}><span className="grid w-6 place-items-center" aria-hidden="true"><Icon size={18} /></span><span>{link.label}</span></NavLink>;
         })}
       </nav>
       <div className="mt-auto hidden items-center gap-2 border-t border-slate-200 pt-4 text-[11px] text-slate-500 md:flex dark:border-slate-800 dark:text-slate-400"><span className="h-2 w-2 rounded-full bg-emerald-500" /><span>نشست کاربری فعال است</span></div>
