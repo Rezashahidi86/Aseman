@@ -34,7 +34,9 @@ export function DashboardSidebar() {
     : links;
 
   return (
-    <>\n      <div className={\`fixed inset-0 z-40 bg-slate-950/50 transition-opacity duration-300 md:hidden ${isMobileOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}\`} onClick={() => setIsMobileOpen(false)} aria-hidden="true" />\n      <aside className={\`fixed inset-y-0 right-0 z-50 flex h-dvh w-[min(86vw,300px)] min-w-0 flex-col overflow-hidden border-l p-4 backdrop-blur-xl transition-transform duration-300 ease-out md:sticky md:top-0 md:z-20 md:h-screen md:w-auto md:translate-x-0 md:border-l md:p-5 ${isMobileOpen ? "translate-x-0" : "translate-x-full md:translate-x-0"}\` style={{ backgroundColor: 'color-mix(in srgb, var(--color-surface) 92%, transparent)', borderColor: 'var(--color-border)' }}>
+    <>
+      <div className={`fixed inset-0 z-40 bg-slate-950/50 transition-opacity duration-300 md:hidden ${isMobileOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`} onClick={() => setIsMobileOpen(false)} aria-hidden="true" />
+      <aside className={`fixed inset-y-0 right-0 z-50 flex h-dvh w-[min(86vw,300px)] min-w-0 flex-col overflow-hidden border-l p-4 backdrop-blur-xl transition-transform duration-300 ease-out md:sticky md:top-0 md:z-20 md:h-screen md:w-auto md:translate-x-0 md:border-l md:p-5 ${isMobileOpen ? "translate-x-0" : "translate-x-full md:translate-x-0"}` style={{ backgroundColor: 'color-mix(in srgb, var(--color-surface) 92%, transparent)', borderColor: 'var(--color-border)' }}>
       <div className="mb-4 flex items-center justify-between gap-2 md:mb-8">
       <Link className="flex min-w-0 items-center gap-3 px-1 pb-2 no-underline md:pb-0" to="/" aria-label="آسمان، داشبورد">
         <span className="relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-2xl border shadow-lg" style={{ background: 'linear-gradient(145deg, #102d50, #071525)', borderColor: '#d6a84f' }} aria-hidden="true">
