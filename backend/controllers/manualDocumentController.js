@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import mongoose from 'mongoose';
+import sharp from 'sharp';
 import { z } from 'zod';
 import ManualDocument from '../models/ManualDocument.js';
 import Branch from '../models/Branch.js';
@@ -34,6 +35,43 @@ const getBranchFilter = (req, next) => {
   }
 
   return { branch: branchId };
+};
+
+const convertUploadedFilesToWebp = async (files = []) => {
+  const cleanupPaths = files.map((file) => file.path);
+  const outputPaths = [];
+
+  try {
+    for (const file of files) {
+      const filename = `${path.parse(file.filename).name}.webp`;
+      const outputPath = path.join(uploadDirectory, filename);
+      outputPaths.push(outputPath);
+
+      const metadata = await sharp(file.path)
+        .rotate()
+        .resize({
+          width: 2000,
+          height: 2000,
+          fit: 'inside',
+          withoutEnlargement: true,
+        })
+        .webp({ quality: 82, effort: 4 })
+        .toFile(outputPath);
+
+      await fs.unlink(file.path);
+      file.path = outputPath;
+      file.filename = filename;
+      file.mimetype = 'image/webp';
+      file.size = metadata.size;
+    }
+  } catch (error) {
+    await Promise.all(
+      [...cleanupPaths, ...outputPaths].map((filePath) =>
+        fs.unlink(filePath).catch(() => {}),
+      ),
+    );
+    throw error;
+  }
 };
 
 const removeUploadedFiles = async (files = []) => {
@@ -73,6 +111,8 @@ const createManualDocument = async (req, res, next) => {
       await removeUploadedFiles(req.files);
       return next(new AppError('Branch not found or inactive', 404));
     }
+
+    await convertUploadedFilesToWebp(req.files);
 
     const document = await ManualDocument.create({
       ...validation.data,
