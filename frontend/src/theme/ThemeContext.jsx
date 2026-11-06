@@ -23,6 +23,7 @@ const legacyThemes = {
   'violet-dark': 'plum-dark',
   'graphite-dark': 'midnight-dark',
   'forest-dark': 'gold-dark',
+  'jade-dark': 'gold-dark',
 };
 
 function getInitialTheme() {
