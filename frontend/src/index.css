@@ -702,3 +702,190 @@ table tbody tr:hover {
 table tbody tr:hover > td {
   border-color: var(--table-row-hover-border);
 }
+
+
+:root {
+  --color-primary: #3157d5;
+  --color-primary-hover: #2446b8;
+  --color-primary-soft: #e3eaff;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f0f3fa;
+  --color-page: #f5f7fc;
+  --color-text: #18233d;
+  --color-muted: #66738d;
+  --color-border: #dfe5f0;
+  --color-ring: #9bb2ff;
+  --chart-sales: #3157d5;
+  --chart-profit: #159b78;
+  --chart-count: #6d8df0;
+  --chart-grid: #aab5c8;
+  --chart-muted: #66738d;
+  --dashboard-banner-from: #4268e5;
+  --dashboard-banner-via: #294bb8;
+  --dashboard-banner-to: #172f83;
+}
+
+:root[data-theme="sapphire-light"] {
+  --color-primary: #3157d5;
+  --color-primary-hover: #2446b8;
+  --color-primary-soft: #e3eaff;
+  --color-page: #f5f7fc;
+  --color-surface-muted: #edf1fa;
+  --color-ring: #9bb2ff;
+  --chart-sales: #3157d5;
+  --chart-profit: #159b78;
+  --chart-count: #6d8df0;
+  --dashboard-banner-from: #4268e5;
+  --dashboard-banner-via: #294bb8;
+  --dashboard-banner-to: #172f83;
+}
+
+:root[data-theme="lagoon-light"] {
+  --color-primary: #0f8587;
+  --color-primary-hover: #096c70;
+  --color-primary-soft: #d7f3f0;
+  --color-page: #f2faf9;
+  --color-surface-muted: #e8f5f3;
+  --color-text: #183638;
+  --color-muted: #5d7778;
+  --color-border: #d5e9e6;
+  --color-ring: #78c9c2;
+  --chart-sales: #0f8587;
+  --chart-profit: #478d55;
+  --chart-count: #3c9fb0;
+  --dashboard-banner-from: #1b9b9a;
+  --dashboard-banner-via: #0b7478;
+  --dashboard-banner-to: #064b55;
+}
+
+:root[data-theme="orchid-light"] {
+  --color-primary: #7656c9;
+  --color-primary-hover: #6041ad;
+  --color-primary-soft: #eee7ff;
+  --color-page: #f8f6fc;
+  --color-surface-muted: #f0ecf8;
+  --color-text: #29213c;
+  --color-muted: #766d88;
+  --color-border: #e5deef;
+  --color-ring: #bba5f2;
+  --chart-sales: #7656c9;
+  --chart-profit: #24977d;
+  --chart-count: #a17be0;
+  --dashboard-banner-from: #8b6bd9;
+  --dashboard-banner-via: #6847b5;
+  --dashboard-banner-to: #39245f;
+}
+
+:root[data-theme="sunset-light"] {
+  --color-primary: #ea580c;
+  --color-primary-hover: #c2410c;
+  --color-primary-soft: #ffedd5;
+  --color-page: #fffaf5;
+  --color-surface-muted: #fff4e8;
+  --color-text: #35231d;
+  --color-muted: #856b5d;
+  --color-border: #f0dfd2;
+  --color-ring: #fdba74;
+  --chart-sales: #ea580c;
+  --chart-profit: #b93832;
+  --chart-count: #e7a13d;
+  --dashboard-banner-from: #f97316;
+  --dashboard-banner-via: #ea580c;
+  --dashboard-banner-to: #991b1b;
+}
+
+:root[data-mode="dark"] {
+  --color-primary: #7aa2ff;
+  --color-primary-hover: #a3bdff;
+  --color-primary-soft: #20365f;
+  --color-surface: #151f32;
+  --color-surface-muted: #1d2a40;
+  --color-page: #0b1220;
+  --color-text: #edf2ff;
+  --color-muted: #a4b0c8;
+  --color-border: #2b3a54;
+  --color-ring: #7aa2ff;
+  --chart-grid: #43516a;
+  --chart-muted: #a4b0c8;
+  --dashboard-banner-from: #294b8e;
+  --dashboard-banner-via: #1c3263;
+  --dashboard-banner-to: #0b1220;
+  color-scheme: dark;
+  scrollbar-color: #405273 #0b1220;
+}
+
+:root[data-theme="midnight-dark"] {
+  --color-primary: #7aa2ff;
+  --color-primary-hover: #a3bdff;
+  --color-primary-soft: #20365f;
+  --color-surface: #151f32;
+  --color-surface-muted: #1d2a40;
+  --color-page: #0b1220;
+  --color-text: #edf2ff;
+  --color-muted: #a4b0c8;
+  --color-border: #2b3a54;
+  --color-ring: #7aa2ff;
+  --chart-sales: #7aa2ff;
+  --chart-profit: #55d6a8;
+  --chart-count: #65c8e8;
+  --dashboard-banner-from: #294b8e;
+  --dashboard-banner-via: #1c3263;
+  --dashboard-banner-to: #0b1220;
+}
+
+:root[data-theme="plum-dark"] {
+  --color-primary: #c4a1ff;
+  --color-primary-hover: #d8c1ff;
+  --color-primary-soft: #3b2b56;
+  --color-surface: #211a2e;
+  --color-surface-muted: #2c233b;
+  --color-page: #15101e;
+  --color-text: #f4edff;
+  --color-muted: #b9accb;
+  --color-border: #443653;
+  --color-ring: #c4a1ff;
+  --chart-sales: #c4a1ff;
+  --chart-profit: #64d6b2;
+  --chart-count: #e0a7d8;
+  --dashboard-banner-from: #7045a5;
+  --dashboard-banner-via: #492d73;
+  --dashboard-banner-to: #21142f;
+}
+
+:root[data-theme="jade-dark"] {
+  --color-primary: #55d6b0;
+  --color-primary-hover: #82e6c8;
+  --color-primary-soft: #19483f;
+  --color-surface: #142923;
+  --color-surface-muted: #1c3830;
+  --color-page: #0b1b17;
+  --color-text: #e9faf4;
+  --color-muted: #a3c7b9;
+  --color-border: #2b4d42;
+  --color-ring: #55d6b0;
+  --chart-sales: #55d6b0;
+  --chart-profit: #a5d66f;
+  --chart-count: #5fc4c7;
+  --dashboard-banner-from: #187b68;
+  --dashboard-banner-via: #105646;
+  --dashboard-banner-to: #092b25;
+}
+
+:root[data-theme="sunset-dark"] {
+  --color-primary: #ffad70;
+  --color-primary-hover: #ffc397;
+  --color-primary-soft: #583323;
+  --color-surface: #2a1c1b;
+  --color-surface-muted: #3a2521;
+  --color-page: #1c1112;
+  --color-text: #fff3e9;
+  --color-muted: #d6b6a7;
+  --color-border: #634037;
+  --color-ring: #ffad70;
+  --chart-sales: #ffad70;
+  --chart-profit: #f08078;
+  --chart-count: #f4c16e;
+  --dashboard-banner-from: #e66a35;
+  --dashboard-banner-via: #a83d32;
+  --dashboard-banner-to: #431b19;
+}
