@@ -1,9 +1,10 @@
+import { memo } from 'react';
 import { FiPlus, FiPackage } from 'react-icons/fi';
 
 const money = new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 0 });
 const quantity = new Intl.NumberFormat('fa-IR');
 
-export function ProductSearchResults({ products, isLoading, hasSearched, onAdd }) {
+export const ProductSearchResults = memo(function ProductSearchResults({ products, isLoading, hasSearched, onAdd }) {
   if (isLoading) return <div className="grid min-h-28 place-items-center rounded-xl border border-slate-200 bg-white text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-900">در حال جست‌وجوی محصولات...</div>;
   if (!hasSearched) return <div className="grid min-h-28 place-items-center rounded-xl border border-dashed border-slate-300 px-4 text-center text-xs text-slate-500 dark:border-slate-700">برای یافتن کالا، نام یا بارکد را جست‌وجو کنید.</div>;
   if (!products.length) return <div className="grid min-h-28 place-items-center rounded-xl border border-dashed border-slate-300 px-4 text-center text-xs text-slate-500 dark:border-slate-700">محصولی مطابق جست‌وجو پیدا نشد.</div>;
@@ -26,4 +27,4 @@ export function ProductSearchResults({ products, isLoading, hasSearched, onAdd }
       </div>
     </div>
   );
-}
+});
