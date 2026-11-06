@@ -43,7 +43,7 @@ const convertUploadedFilesToWebp = async (files = []) => {
 
   try {
     for (const file of files) {
-      const filename = `${path.parse(file.filename).name}.webp`;
+      const filename = `${path.parse(file.filename).name}-optimized.webp`;
       const outputPath = path.join(uploadDirectory, filename);
       outputPaths.push(outputPath);
 
