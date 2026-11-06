@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { FiCalendar, FiCheck, FiChevronLeft, FiChevronRight, FiClock } from 'react-icons/fi';
+import { FiCalendar, FiChevronLeft, FiChevronRight, FiClock } from 'react-icons/fi';
+import { getDateKeyInTimeZone } from '../../../shared/utils/date.js';
 import { formatJalaliDate, parseJalaliDate } from '../utils/jalaliDate.js';
 
 const monthNames = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
 const weekdays = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه'];
+const toPersianDigits = (value) => String(value).replace(/\\d/g, (digit) => '۰۱۲۳۴۵۶۷۸۹'[Number(digit)]);
 const persianNumber = new Intl.NumberFormat('fa-IR');
 
 function getMonthParts(value) {
@@ -44,13 +46,13 @@ function getCalendarDays(year, month) {
 
 export function JalaliDatePicker({ label, value, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [view, setView] = useState(() => getMonthParts(value) || getMonthParts(formatJalaliDate(new Date().toISOString().slice(0, 10))));
+  const [view, setView] = useState(() => getMonthParts(value) || getMonthParts(formatJalaliDate(getDateKeyInTimeZone(new Date()))));
   const [position, setPosition] = useState(null);
   const rootRef = useRef(null);
   const triggerRef = useRef(null);
   const popoverRef = useRef(null);
   const selectedDate = useMemo(() => parseJalaliDate(value), [value]);
-  const today = formatJalaliDate(new Date().toISOString().slice(0, 10));
+  const today = formatJalaliDate(getDateKeyInTimeZone(new Date()));
   const todayParts = getMonthParts(today);
   const days = useMemo(() => getCalendarDays(view.year, view.month), [view]);
   const selectedParts = getMonthParts(value);
@@ -116,7 +118,7 @@ export function JalaliDatePicker({ label, value, onChange }) {
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl" style={{ background: 'var(--color-primary-soft)', color: 'var(--color-primary)' }}><FiCalendar size={19} /></span>
         <span className="min-w-0 flex-1">
           <span className="block text-[10px] font-semibold" style={{ color: 'var(--color-muted)' }}>{label}</span>
-          <span className="mt-1 block text-sm font-extrabold tabular-nums" dir="ltr" style={{ textAlign: 'right' }}>{value || 'انتخاب تاریخ'}</span>
+          <span className="mt-1 block text-sm font-extrabold tabular-nums" dir="ltr" style={{ textAlign: 'right' }}>{value ? toPersianDigits(value) : 'انتخاب تاریخ'}</span>
         </span>
         <FiChevronLeft className={`shrink-0 transition-transform ${isOpen ? '-rotate-90' : ''}`} style={{ color: 'var(--color-muted)' }} size={17} />
       </button>
@@ -154,7 +156,7 @@ export function JalaliDatePicker({ label, value, onChange }) {
 
           <div className="mt-3 flex items-center justify-between border-t pt-3" style={{ borderColor: 'var(--color-border)' }}>
             <button type="button" onClick={goToToday} className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-bold transition hover:bg-slate-100 dark:hover:bg-slate-800" style={{ color: 'var(--color-primary)' }}><FiClock size={13} /> امروز</button>
-            <span className="text-[10px]" style={{ color: 'var(--color-muted)' }}>{selectedParts ? `انتخاب‌شده: ${value}` : 'یک روز را انتخاب کنید'}</span>
+            <span className="text-[10px]" style={{ color: 'var(--color-muted)' }}>{selectedParts ? `انتخاب‌شده: ${toPersianDigits(value)}` : 'یک روز را انتخاب کنید'}</span>
             <button type="button" onClick={() => setIsOpen(false)} className="rounded-lg px-2 py-1.5 text-[11px] font-semibold" style={{ color: 'var(--color-muted)' }}>بستن</button>
           </div>
         </div>,
