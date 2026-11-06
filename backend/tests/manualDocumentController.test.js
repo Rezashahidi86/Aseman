@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import fs from 'node:fs/promises';
+import sharp from 'sharp';
 import ManualDocument from '../models/ManualDocument.js';
 import Branch from '../models/Branch.js';
 import ROLES from '../constants/roles.js';
@@ -9,6 +10,15 @@ import {
   getManualDocumentImage,
   deleteManualDocument,
 } from '../controllers/manualDocumentController.js';
+
+vi.mock('sharp', () => ({
+  default: vi.fn(() => ({
+    rotate: vi.fn().mockReturnThis(),
+    resize: vi.fn().mockReturnThis(),
+    webp: vi.fn().mockReturnThis(),
+    toFile: vi.fn().mockResolvedValue({ size: 1200 }),
+  })),
+}));
 
 vi.mock('node:fs/promises', () => ({
   default: {
@@ -102,15 +112,15 @@ describe('Manual document controller', () => {
       _id: documentId,
       branch: ownBranchId,
       images: [
-        '/uploads/manual-documents/one.jpg',
-        '/uploads/manual-documents/two.png',
+        '/uploads/manual-documents/one.webp',
+        '/uploads/manual-documents/two.webp',
       ],
       toObject: () => ({
         _id: documentId,
         branch: ownBranchId,
         images: [
-          '/uploads/manual-documents/one.jpg',
-          '/uploads/manual-documents/two.png',
+          '/uploads/manual-documents/one.webp',
+          '/uploads/manual-documents/two.webp',
         ],
       }),
     };
@@ -118,7 +128,7 @@ describe('Manual document controller', () => {
 
     await createManualDocument(req, res, next);
 
-    expect(createAuditLog).toHaveBeenCalledWith(
+    expect(sharp).toHaveBeenCalledTimes(2);\n    expect(fs.unlink).toHaveBeenCalledWith('uploads/manual-documents/one.jpg');\n    expect(fs.unlink).toHaveBeenCalledWith('uploads/manual-documents/two.png');\n    expect(createAuditLog).toHaveBeenCalledWith(
       expect.objectContaining({
         action: 'CREATE',
         resource: 'MANUAL_DOCUMENT',
