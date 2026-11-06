@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { FiCheck, FiChevronDown } from 'react-icons/fi';
 
-export function ThemedSelect({ label, value, options, onChange, disabled = false, placeholder = 'Select' }) {
+export function ThemedSelect({ label, value, options, onChange, disabled = false, placeholder = 'انتخاب کنید' }) {
   const [isOpen, setIsOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState(null);
   const rootRef = useRef(null);
