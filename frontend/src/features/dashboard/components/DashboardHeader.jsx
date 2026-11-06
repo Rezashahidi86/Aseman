@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiLogOut, FiUser, FiCalendar } from 'react-icons/fi';
+import { FiLogOut, FiUser, FiCalendar, FiMenu } from 'react-icons/fi';
 import { formatPersianDate } from '../../../shared/utils/date.js';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../../auth/AuthContext.jsx';
