@@ -112,15 +112,15 @@ describe('Manual document controller', () => {
       _id: documentId,
       branch: ownBranchId,
       images: [
-        '/uploads/manual-documents/one.webp',
-        '/uploads/manual-documents/two.webp',
+        '/uploads/manual-documents/one-optimized.webp',
+        '/uploads/manual-documents/two-optimized.webp',
       ],
       toObject: () => ({
         _id: documentId,
         branch: ownBranchId,
         images: [
-          '/uploads/manual-documents/one.webp',
-          '/uploads/manual-documents/two.webp',
+          '/uploads/manual-documents/one-optimized.webp',
+          '/uploads/manual-documents/two-optimized.webp',
         ],
       }),
     };
@@ -141,8 +141,8 @@ describe('Manual document controller', () => {
     expect(ManualDocument.create).toHaveBeenCalledWith(
       expect.objectContaining({
         images: [
-          '/uploads/manual-documents/one.webp',
-          '/uploads/manual-documents/two.webp',
+          '/uploads/manual-documents/one-optimized.webp',
+          '/uploads/manual-documents/two-optimized.webp',
         ],
         branch: ownBranchId,
         createdBy: req.user._id,
