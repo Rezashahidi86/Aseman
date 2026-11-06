@@ -21,6 +21,7 @@ import { showError, showSuccess } from '../../../shared/utils/notifications.js';
 import { formatNumber } from '../../../shared/utils/format.js';
 import { formatPersianDate } from '../../../shared/utils/date.js';
 import { fetchAllPages, openPdfWindow, printPdfTable } from '../../../shared/utils/pdfExport.js';
+import { PageSizeSelect } from '../../../shared/components/PageSizeSelect.jsx';
 
 const statusLabels = {
   PENDING: 'در انتظار',
@@ -47,20 +48,11 @@ function Pagination({
         {label}
       </span>
       <div className="flex items-center gap-2">
-        <label className="flex items-center gap-2">
-          تعداد در صفحه
-          <select
-            value={limit}
-            onChange={(event) => onLimitChange(Number(event.target.value))}
-            className="min-h-9 rounded-lg border bg-white px-2 dark:border-slate-700 dark:bg-slate-950"
-          >
-            {pageSizes.map((size) => (
-              <option key={size} value={size}>
-                {formatNumber(size)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <PageSizeSelect
+          value={limit}
+          options={pageSizes.map((size) => ({ value: size, label: formatNumber(size) }))}
+          onChange={onLimitChange}
+        />
         <button
           type="button"
           onClick={() => onPageChange(page - 1)}
