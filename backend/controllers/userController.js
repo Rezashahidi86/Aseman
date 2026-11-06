@@ -10,12 +10,13 @@ import ROLES from '../constants/roles.js';
 import { createAuditLog } from '../services/auditLogService.js';
 import validateMongoId from '../utils/validateMongoId.js';
 
-export const createSeller = async (req, res, next) => {
+export const createUser = async (req, res, next) => {
   try {
     const data = createUserSchema.parse(req.body);
-    const branch = await Branch.findById(data.branch);
+    const role = data.role || ROLES.SELLER;
+    const branch = role === ROLES.SELLER ? await Branch.findById(data.branch) : null;
 
-    if (!branch || !branch.isActive) {
+    if (role === ROLES.SELLER && (!branch || !branch.isActive)) {
       throw new AppError('Branch not found or inactive', 400);
     }
 
@@ -31,8 +32,8 @@ export const createSeller = async (req, res, next) => {
       name: data.name,
       email: data.email,
       passwordHash,
-      role: ROLES.SELLER,
-      branch: branch._id,
+      role,
+      branch: branch?._id ?? null,
     });
 
     await createAuditLog({
