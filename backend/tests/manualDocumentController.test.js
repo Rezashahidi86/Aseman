@@ -130,7 +130,8 @@ describe('Manual document controller', () => {
 
     expect(sharp).toHaveBeenCalledTimes(2);
     expect(fs.unlink).toHaveBeenCalledWith('uploads/manual-documents/one.jpg');
-    expect(fs.unlink).toHaveBeenCalledWith('uploads/manual-documents/two.png');\n    expect(createAuditLog).toHaveBeenCalledWith(
+    expect(fs.unlink).toHaveBeenCalledWith('uploads/manual-documents/two.png');
+    expect(createAuditLog).toHaveBeenCalledWith(
       expect.objectContaining({
         action: 'CREATE',
         resource: 'MANUAL_DOCUMENT',
