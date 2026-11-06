@@ -5,7 +5,7 @@ export async function getUsers() {
   return response.data;
 }
 
-export async function createSeller(payload) {
+export async function createUser(payload) {
   const response = await apiClient.post('/users', payload);
   return response.data;
 }
