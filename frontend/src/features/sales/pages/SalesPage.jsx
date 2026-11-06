@@ -55,6 +55,39 @@ export function SalesPage() {
   const isAdmin = user?.role === 'ADMIN';
   const branchRequired = isAdmin && !activeBranchId;
 
+  const addProductToCart = useCallback((product) => {
+    setPageError('');
+    setNotice('');
+
+    if (Number(product.quantity) <= 0) {
+      setPageError('این محصول موجودی ندارد.');
+      return;
+    }
+
+    setCart((current) => {
+      const existing = current.find((item) => item._id === product._id);
+      if (existing) {
+        if (existing.quantity >= Number(product.quantity)) {
+          setPageError('تعداد درخواستی از موجودی بیشتر است.');
+          return current;
+        }
+
+        return current.map((item) => item._id === product._id ? { ...item, quantity: item.quantity + 1, stockAtAdd: Number(product.quantity) } : item);
+      }
+
+      return [...current, {
+        _id: product._id,
+        name: product.name,
+        barcode: product.barcode,
+        purchasePrice: Number(product.purchasePrice),
+        salePrice: Number(product.salePrice),
+        finalSalePrice: Number(product.salePrice),
+        quantity: 1,
+        stockAtAdd: Number(product.quantity),
+      }];
+    });
+  }, []);
+
   const searchProducts = useCallback(async ({ barcode, name, page: requestedPage = 1, limit: requestedLimit = limit }) => {
     if (branchRequired || isLoadingBranches) {
       setPageError('ابتدا منتظر بارگذاری یا انتخاب شعبه فعال بمانید.');
@@ -100,40 +133,9 @@ export function SalesPage() {
     } finally {
       setIsSearching(false);
     }
-  }, [activeBranchId, branchRequired, isAdmin, isLoadingBranches, limit]);
+  }, [activeBranchId, addProductToCart, branchRequired, isAdmin, isLoadingBranches, limit]);
 
-  const addProductToCart = (product) => {
-    setPageError('');
-    setNotice('');
 
-    if (Number(product.quantity) <= 0) {
-      setPageError('این محصول موجودی ندارد.');
-      return;
-    }
-
-    setCart((current) => {
-      const existing = current.find((item) => item._id === product._id);
-      if (existing) {
-        if (existing.quantity >= Number(product.quantity)) {
-          setPageError('تعداد درخواستی از موجودی بیشتر است.');
-          return current;
-        }
-
-        return current.map((item) => item._id === product._id ? { ...item, quantity: item.quantity + 1, stockAtAdd: Number(product.quantity) } : item);
-      }
-
-      return [...current, {
-        _id: product._id,
-        name: product.name,
-        barcode: product.barcode,
-        purchasePrice: Number(product.purchasePrice),
-        salePrice: Number(product.salePrice),
-        finalSalePrice: Number(product.salePrice),
-        quantity: 1,
-        stockAtAdd: Number(product.quantity),
-      }];
-    });
-  };
 
   const handleBarcodeScan = (barcode) => {
     if (!barcode) return;
