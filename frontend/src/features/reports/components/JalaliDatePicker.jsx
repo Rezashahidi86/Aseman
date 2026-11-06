@@ -15,18 +15,14 @@ function getMonthParts(value) {
 }
 
 function monthKey(year, month) {
-  const date = new Date(Date.UTC(year, month - 1, 15, 12));
-  const parts = new Intl.DateTimeFormat('en-US-u-ca-persian-nu-latn', {
-    timeZone: 'UTC',
-    year: 'numeric',
-    month: 'numeric',
-  }).formatToParts(date);
-  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
-  return { year: Number(values.year), month: Number(values.month) };
+  const totalMonths = year * 12 + month - 1;
+  const shifted = totalMonths;
+  return { year: Math.floor(shifted / 12), month: (shifted % 12) + 1 };
 }
 
 function shiftMonth(year, month, offset) {
-  return monthKey(year, month + offset);
+  const totalMonths = year * 12 + month - 1 + offset;
+  return { year: Math.floor(totalMonths / 12), month: ((totalMonths % 12) + 12) % 12 + 1 };
 }
 
 function getCalendarDays(year, month) {
