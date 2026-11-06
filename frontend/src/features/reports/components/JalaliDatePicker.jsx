@@ -14,12 +14,6 @@ function getMonthParts(value) {
   return match ? { year: Number(match[1]), month: Number(match[2]) } : null;
 }
 
-function monthKey(year, month) {
-  const totalMonths = year * 12 + month - 1;
-  const shifted = totalMonths;
-  return { year: Math.floor(shifted / 12), month: (shifted % 12) + 1 };
-}
-
 function shiftMonth(year, month, offset) {
   const totalMonths = year * 12 + month - 1 + offset;
   return { year: Math.floor(totalMonths / 12), month: ((totalMonths % 12) + 12) % 12 + 1 };
