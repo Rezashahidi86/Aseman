@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import {
-  createSeller,
+  createUser,
   getAllUsers,
   updateUser,
   deactivateUser,
@@ -12,7 +12,7 @@ const router = Router();
 
 router.use(authMiddleware, requireAdmin);
 
-router.route('/').get(getAllUsers).post(createSeller);
+router.route('/').get(getAllUsers).post(createUser);
 router.route('/:id').patch(updateUser);
 router.patch('/:id/deactivate', deactivateUser);
 
