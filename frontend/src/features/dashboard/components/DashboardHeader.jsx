@@ -25,7 +25,7 @@ export function DashboardHeader() {
     <header className="relative z-30 border-b px-4 py-3 sm:px-6 lg:px-8" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
       <div className="flex w-full flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex min-w-0 items-center justify-between gap-4">
-          <div className="min-w-0">
+          <div className="flex min-w-0 items-center gap-3"><button className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border md:hidden" style={{ borderColor: "var(--color-border)", backgroundColor: "var(--color-surface)", color: "var(--color-text)" }} type="button" onClick={() => window.dispatchEvent(new Event("ase-man-mobile-menu-open"))} aria-label="باز کردن منو"><FiMenu size={20} /></button><div className="min-w-0">
             <p className="mb-1 text-[11px] font-medium" style={{ color: 'var(--color-muted)' }}>
               سلام {user?.name || 'کاربر عزیز'}، خوش آمدی
             </p>
@@ -35,7 +35,7 @@ export function DashboardHeader() {
                 <FiCalendar size={12} />
                 {formatPersianDate(new Date())}
               </span>
-            </div>
+            </div></div>
           </div>
           <div className="shrink-0 xl:hidden">
             <ThemeToggle />
