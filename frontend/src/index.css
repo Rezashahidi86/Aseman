@@ -206,18 +206,15 @@ canvas {
 }
 
 *::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;\n  height: 7px;
 }
 
 *::-webkit-scrollbar-track {
-  border-radius: 999px;
-  background: var(--color-page);
+  border-radius: 0;\n  background: var(--color-page);
 }
 
 *::-webkit-scrollbar-thumb {
-  border: 2px solid var(--color-page);
-  border-radius: 999px;
+  border: 1px solid var(--color-page);\n  border-radius: 0;
   background: var(--color-primary-soft);
 }
 
