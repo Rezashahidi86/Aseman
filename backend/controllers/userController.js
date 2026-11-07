@@ -14,7 +14,8 @@ export const createUser = async (req, res, next) => {
   try {
     const data = createUserSchema.parse(req.body);
     const role = data.role || ROLES.SELLER;
-    const branch = role === ROLES.SELLER ? await Branch.findById(data.branch) : null;
+    const branch =
+      role === ROLES.SELLER ? await Branch.findById(data.branch) : null;
 
     if (role === ROLES.SELLER && (!branch || !branch.isActive)) {
       throw new AppError('Branch not found or inactive', 400);
