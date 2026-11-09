@@ -16,7 +16,10 @@ export function ThemedSelect({ label, value, options, onChange, disabled = false
       if (!rootRef.current?.contains(event.target) && !menuRef.current?.contains(event.target)) setIsOpen(false);
     };
     const closeOnEscape = (event) => { if (event.key === 'Escape') setIsOpen(false); };
-    const closeOnViewportChange = () => setIsOpen(false);
+    const closeOnViewportChange = (event) => {
+      if (event.type === 'scroll' && menuRef.current?.contains(event.target)) return;
+      setIsOpen(false);
+    };
     document.addEventListener('pointerdown', closeOnOutside);
     document.addEventListener('keydown', closeOnEscape);
     window.addEventListener('resize', closeOnViewportChange);
@@ -64,7 +67,15 @@ export function ThemedSelect({ label, value, options, onChange, disabled = false
             <span className="text-[11px] font-bold" style={{ color: 'var(--color-text)' }}>{label}</span>
             <span className="text-[10px]" style={{ color: 'var(--color-muted)' }}>{options.length}</span>
           </div>
-          <div className="space-y-1 overflow-y-auto" style={{ maxHeight: Math.max(90, menuPosition.maxHeight - 48) }}>
+          <div
+            className="space-y-1 overflow-y-auto"
+            style={{
+              maxHeight: Math.max(90, menuPosition.maxHeight - 48),
+              overscrollBehavior: 'contain',
+              scrollbarWidth: 'thin',
+              touchAction: 'pan-y',
+            }}
+          >
             {options.map((option) => {
               const isSelected = String(option.value) === String(value);
               return <button key={String(option.value)} type="button" role="option" aria-selected={isSelected} onClick={() => { onChange(option.value); setIsOpen(false); }}
