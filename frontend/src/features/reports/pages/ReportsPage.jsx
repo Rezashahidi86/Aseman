@@ -10,10 +10,19 @@ import { showError } from '../../../shared/utils/notifications.js';
 import { getDateKeyInTimeZone, formatJalaliMonth } from '../../../shared/utils/date.js';
 import { formatJalaliDate, parseJalaliDate } from '../utils/jalaliDate.js';
 
-const jalaliMonthOptions = [
+const jalaliMonthNames = [
   'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
   'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند',
-].map((label, index) => ({ value: String(index + 1), label }));
+];
+
+function getJalaliMonthOptions(currentYear) {
+  return [currentYear, currentYear - 1].flatMap((year) =>
+    jalaliMonthNames.map((monthName, index) => ({
+      value: `${year}-${String(index + 1).padStart(2, '0')}`,
+      label: `${monthName} ${new Intl.NumberFormat('fa-IR').format(year)}`,
+    })).reverse(),
+  );
+}
 
 function getJalaliMonthRange(year, month) {
   const startDate = parseJalaliDate(`${year}/${String(month).padStart(2, '0')}/01`);
@@ -55,8 +64,10 @@ export function ReportsPage() {
   const [endDateText, setEndDateText] = useState(() => formatJalaliDate(today));
   const currentJalaliParts = formatJalaliDate(today).split('/').map(Number);
   const currentJalaliYear = currentJalaliParts[0];
-  const [selectedMonth, setSelectedMonth] = useState(String(currentJalaliParts[1]));
-  const [selectedYear, setSelectedYear] = useState(String(currentJalaliYear));
+  const [selectedMonth, setSelectedMonth] = useState(
+    `${currentJalaliYear}-${String(currentJalaliParts[1]).padStart(2, '0')}`,
+  );
+  const jalaliMonthOptions = getJalaliMonthOptions(currentJalaliYear);
   const [groupBy, setGroupBy] = useState('day');
   const [report, setReport] = useState(null);
   const [allBranches, setAllBranches] = useState(null);
@@ -70,7 +81,8 @@ export function ReportsPage() {
       return;
     }
     const isMonthly = groupBy === 'month';
-    const monthlyRange = isMonthly ? getJalaliMonthRange(Number(selectedYear), Number(selectedMonth)) : null;
+    const [selectedYear, selectedMonthNumber] = selectedMonth.split('-').map(Number);
+    const monthlyRange = isMonthly ? getJalaliMonthRange(selectedYear, selectedMonthNumber) : null;
     const parsedStartDate = isMonthly ? monthlyRange?.startDate : parseJalaliDate(startDateText);
     const parsedEndDate = isMonthly ? monthlyRange?.endDate : parseJalaliDate(endDateText);
     if ((isMonthly && !monthlyRange) || (!isMonthly && (!parsedStartDate || !parsedEndDate))) {
@@ -107,7 +119,7 @@ export function ReportsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [activeBranchId, endDateText, groupBy, isAdmin, selectedMonth, selectedYear, startDateText]);
+  }, [activeBranchId, endDateText, groupBy, isAdmin, selectedMonth, startDateText]);
 
   useEffect(() => {
     if (!isLoadingBranches) loadReport();
@@ -120,10 +132,9 @@ export function ReportsPage() {
   return <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100" dir="rtl"><div className="grid min-h-screen grid-cols-1 md:grid-cols-[230px_minmax(0,1fr)]"><DashboardSidebar /><div className="min-w-0"><DashboardHeader /><main className="mx-auto w-full max-w-screen-2xl px-4 py-6 sm:px-8 sm:py-8">
     <div className="mb-6"><p className="mb-2 text-xs text-slate-500 dark:text-slate-400">تحلیل عملکرد</p><h1 className="text-2xl font-extrabold">گزارش‌ها</h1><p className="mt-2 text-xs text-slate-500 dark:text-slate-400">آمار فروش و سود در بازه زمانی انتخاب‌شده{activeBranch?.name ? ` · ${activeBranch.name}` : ''}</p></div>
     <>
-      <form className="mb-5 grid grid-cols-1 gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_180px_auto] dark:border-slate-800 dark:bg-slate-900" onSubmit={(event) => { event.preventDefault(); loadReport(); }}>
+      <form className={`mb-5 grid grid-cols-1 gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:grid-cols-2 dark:border-slate-800 dark:bg-slate-900 ${groupBy === 'month' ? 'xl:grid-cols-[minmax(0,1fr)_180px_auto]' : 'xl:grid-cols-[1fr_1fr_180px_auto]'}`} onSubmit={(event) => { event.preventDefault(); loadReport(); }}>
         {groupBy === 'month' ? <>
-          <div className="min-w-0 text-xs font-bold text-slate-600 dark:text-slate-300">ماه گزارش<ThemedSelect label="ماه گزارش" value={selectedMonth} options={jalaliMonthOptions} onChange={setSelectedMonth} /></div>
-          <div className="min-w-0 text-xs font-bold text-slate-600 dark:text-slate-300">سال گزارش<ThemedSelect label="سال گزارش" value={selectedYear} options={Array.from({ length: 11 }, (_, index) => ({ value: String(currentJalaliYear - index), label: new Intl.NumberFormat('fa-IR').format(currentJalaliYear - index) }))} onChange={setSelectedYear} /></div>
+          <div className="min-w-0 text-xs font-bold text-slate-600 dark:text-slate-300">ماه گزارش<ThemedSelect label="انتخاب ماه گزارش" value={selectedMonth} options={jalaliMonthOptions} onChange={setSelectedMonth} /></div>
         </> : <>
           <div className="min-w-0 text-xs font-bold text-slate-600 dark:text-slate-300"><JalaliDatePicker label="از تاریخ" value={startDateText} onChange={setStartDateText} /></div>
           <div className="min-w-0 text-xs font-bold text-slate-600 dark:text-slate-300"><JalaliDatePicker label="تا تاریخ" value={endDateText} onChange={setEndDateText} /></div>
